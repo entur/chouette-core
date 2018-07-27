@@ -10,6 +10,8 @@ gem 'bundler', '~> 1.17'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 4.2.11'
 gem 'rack-protection', '~> 1.5.5'
+gem 'faye-rails'
+gem 'thin'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.3'
@@ -150,6 +152,7 @@ gem 'whenever', github: 'af83/whenever', require: false # '~> 0.9'
 gem 'rake'
 gem 'apartment', '~> 2.2.0'
 gem 'aasm'
+gem 'activerecord-nulldb-adapter' if ENV['RAILS_DB_ADAPTER'] == 'nulldb'
 gem 'puma', '~> 3.10.0'
 
 # Cache
