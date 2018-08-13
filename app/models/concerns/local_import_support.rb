@@ -147,6 +147,8 @@ module LocalImportSupport
   def import_resources(*resources)
     resources.each do |resource|
       profile_operation resource do
+        @progress += 0.2
+        notify_progress @progress
         send "import_#{resource}"
       end
     end
