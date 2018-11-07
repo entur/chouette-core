@@ -148,7 +148,6 @@ gem 'delayed_job_heartbeat_plugin'
 
 gem 'whenever', github: 'af83/whenever', require: false # '~> 0.9'
 gem 'rake'
-gem 'devise-async'
 gem 'apartment', '~> 1.0.0'
 gem 'aasm'
 gem 'puma', '~> 3.10.0'
