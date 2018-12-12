@@ -10,8 +10,6 @@ gem 'bundler', '~> 1.17'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 4.2.11'
 gem 'rack-protection', '~> 1.5.5'
-gem 'faye-rails'
-gem 'thin'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.3'
