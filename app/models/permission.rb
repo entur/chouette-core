@@ -36,6 +36,10 @@ class Permission
         time_tables
         vehicle_journeys
         workbenches
+        publication_setups
+        publication_apis
+        publication_api_keys
+        notification_rules
       ]
     end
 
