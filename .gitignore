@@ -44,13 +44,6 @@ coverage
 /public/packs
 /public/packs-test
 
-/bin
-
-# Every machine shall create its binstubs
-/bin/rake
-/bin/rails
-/bin/rspec
-/bin/spring
 
 spec/fixtures/target_*
 config/development_toolbar.rb
