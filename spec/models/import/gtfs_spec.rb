@@ -169,6 +169,44 @@ RSpec.describe Import::Gtfs do
       end
     end
 
+    context 'with parent defined after child' do
+      let(:child_gtfs_stop) do
+        GTFS::Stop.new(
+          id: 'child_id',
+          name: 'child',
+          parent_station: 'parent_id',
+          location_type: '2'
+        )
+      end
+
+      let(:parent_gtfs_stop) do
+        GTFS::Stop.new(
+          id: 'parent_id',
+          name: 'Parent',
+          parent_station: '',
+          location_type: '1'
+        )
+      end
+
+      before(:each) do
+        allow(import.source).to receive(:stops) { [child_gtfs_stop, parent_gtfs_stop] }
+      end
+
+      let(:child_stop_area) do
+        Chouette::StopArea.find_by!(registration_number: child_gtfs_stop.id)
+      end
+
+      let(:parent_stop_area) do
+        Chouette::StopArea.find_by!(registration_number: parent_gtfs_stop.id)
+      end
+
+      it 'should create an error message if the parent is inexistant' do
+        expect { import.import_stops }.to change { Import::Message.count }.by(0)
+                                            .and(change { Chouette::StopArea.count }.by(2))
+        expect(child_stop_area.parent).to eq(parent_stop_area)
+      end
+    end
+
     context 'with a parent stop' do
       let(:parent) do
         GTFS::Stop.new(
@@ -395,8 +433,8 @@ RSpec.describe Import::Gtfs do
         ['AMV', 1, t('2000-01-01 17:00:00 UTC'), t('2000-01-01 17:00:00 UTC'), 0, 0],
         ['BEATTY_AIRPORT', 0, t('2000-01-01 21:00:00 UTC'), t('2000-01-01 21:00:00 UTC'), 0, 0],
         ['AMV', 1, t('2000-01-01 22:00:00 UTC'), t('2000-01-01 22:00:00 UTC'), 1, 1],
-        ['AMV', 0, t('2000-01-01 23:00:00 UTC'), t('2000-01-01 23:00:00 UTC'), 0, 0],
-        ['BEATTY_AIRPORT', 1, t('2000-01-01 00:00:00 UTC'), t('2000-01-01 00:00:00 UTC'), 1, 1]
+        ['AMV', 0, t('2000-01-01 07:30:00 UTC'), t('2000-01-01 07:30:00 UTC'), 0, 0],
+        ['BEATTY_AIRPORT', 1, t('2000-01-01 09:00:00 UTC'), t('2000-01-01 09:00:00 UTC'), 1, 1]
       ]
 
       expect(referential.vehicle_journey_at_stops.includes(stop_point: :stop_area).pluck(*defined_attributes)).to match_array(expected_attributes)
