@@ -8,24 +8,24 @@ describe Chouette::TimeTable, :type => :model do
   it { is_expected.to validate_presence_of :comment }
   it { is_expected.to validate_uniqueness_of :objectid }
 
-
-    def create_time_table_periode time_table, start_date, end_date
-      create(:time_table_period, time_table: time_table, :period_start => start_date, :period_end => end_date)
-    end
+  def create_time_table_periode time_table, start_date, end_date
+    create(:time_table_period, time_table: time_table, :period_start => start_date, :period_end => end_date)
+  end
 
   describe "#merge! with time_table" do
-    let(:another_tt) { create(:time_table) }
+    let(:another_tt) { create(:time_table, dates_count: 0, periods_count: 0) }
     let(:another_tt_periods_to_range) { another_tt.periods.map{|p| p.period_start..p.period_end } }
     let(:dates) { another_tt.dates.map(&:date) }
     let(:continuous_dates) { another_tt.continuous_dates.flatten.map(&:date) }
 
     # Make sur we don't have overlapping periods or dates
     before do
-      another_tt.periods.each do |p|
-        p.period_start = p.period_start + 1.year
-        p.period_end   = p.period_end + 1.year
+      another_tt.periods.create period_start: 1.year.from_now, period_end: 1.year.from_now + 1.month
+
+      5.times do |i|
+        another_tt.dates.create date: 1.year.from_now + i.days, in_out: true
       end
-      another_tt.dates.each{| d| d.date = d.date + 1.year }
+
       another_tt.save
     end
 
