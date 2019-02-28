@@ -50,7 +50,7 @@ module IevInterfaces::Resource
         memory_block.call slice
       end
     else
-      collection.each do |item|
+      collection.find_each do |item|
         memory_block.call [item]
       end
     end
