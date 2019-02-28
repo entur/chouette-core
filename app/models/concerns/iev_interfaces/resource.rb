@@ -50,7 +50,9 @@ module IevInterfaces::Resource
         memory_block.call slice
       end
     else
-      collection.find_each do |item|
+      method = :each
+      method = :find_each if collection.respond_to? :find_each
+      collection.send(method) do |item|
         memory_block.call [item]
       end
     end
