@@ -110,7 +110,7 @@ class Workgroup < ApplicationModel
       return
     end
 
-    aggregates.create!(referentials: target_referentials, creator: 'CRON', notification_target: nightly_aggregate_notification_target, type: 'NightlyAggregate')
+    nightly_aggregates.create!(referentials: target_referentials, creator: 'CRON', notification_target: nightly_aggregate_notification_target)
     update(nightly_aggregated_at: Time.current)
   end
 
