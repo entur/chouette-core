@@ -54,7 +54,7 @@ module ChouetteIhm
     SmartEnv.add_boolean :SUBSCRIPTION_NOTIFIER_ENABLED
     SmartEnv.add_boolean :CHOUETTE_SIDEKIQ_CANCEL_SYNCS_ON_BOOT
     SmartEnv.add_boolean :CHOUETTE_EMAIL_USER
-    SmartEnv.add_boolean :CHOUETTE_TRANSACTIONAL_CHECKSUMS
+    SmartEnv.add_boolean :CHOUETTE_TRANSACTIONAL_CHECKSUMS, default: true
 
     config.i18n.default_locale = SmartEnv[:RAILS_LOCALE].to_sym
 

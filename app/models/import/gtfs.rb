@@ -148,7 +148,6 @@ class Import::Gtfs < Import::Base
     to_be_saved = []
     create_resource(:stop_times).each(
       source.stop_times.group_by(&:trip_id),
-      slice: 10,
       transaction: true,
       memory_profile: -> { "Import stop times from #{rows_count}" }
     ) do |row, resource|
