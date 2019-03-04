@@ -640,7 +640,12 @@ class Merge < ApplicationModel
   def after_save_current
     referentials.each(&:merged!)
     Stat::JourneyPatternCoursesByDate.compute_for_referential(new)
+    aggregate_if_urgent_offer
     HoleSentinel.new(workbench).watch!
+  end
+
+  def aggregate_if_urgent_offer
+    workbench.workgroup.aggregate_urgent_data! if new&.contains_urgent_offer?
   end
 
   def save_model!(model)

@@ -173,20 +173,22 @@ RSpec.describe Merge do
           merge.merge_referential_metadata(referential)
         end
 
+        new_referential = workbench.output.new
         expect(new_referential.contains_urgent_offer?).to be_falsy
+
+        workbench.output.update current: new_referential
+        expect{ merge.aggregate_if_urgent_offer }.to_not change{ workbench.workgroup.aggregates.count }
       end
     end
 
     context 'with urgent data' do
-      let(:referential){ create :workbench_referential }
-      let(:referential_urgent){ create :workbench_referential }
+      let(:referential){ create :workbench_referential, workbench: workbench }
+      let(:referential_urgent){ create :workbench_referential, workbench: workbench }
 
       before(:each){
         create :referential_metadata, referential: referential
-
-        referential.reload.metadatas.each do |m|
-          referential_urgent.metadatas.build line_ids: m.line_ids, periodes: m.periodes
-        end
+        create :referential_metadata, referential: referential_urgent
+        referential_urgent.reload
         referential_urgent.urgent = true
         referential_urgent.save!
       }
@@ -202,6 +204,9 @@ RSpec.describe Merge do
 
         new_referential = workbench.output.new
         expect(new_referential.contains_urgent_offer?).to be_truthy
+
+        workbench.output.update current: new_referential
+        expect{ merge.aggregate_if_urgent_offer }.to change{ workbench.workgroup.aggregates.count }.by 1
       end
     end
   end

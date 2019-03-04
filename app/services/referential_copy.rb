@@ -59,6 +59,7 @@ class ReferentialCopy
       source.metadatas.find_each do |metadata|
         candidate = target.metadatas.with_lines(metadata.line_ids).find { |m| m.periodes == metadata.periodes }
         candidate ||= target.metadatas.build(line_ids: metadata.line_ids, periodes: metadata.periodes)
+        candidate.flagged_urgent_at = metadata.flagged_urgent_at if metadata.urgent?
         controlled_save! candidate, worker
       end
     end

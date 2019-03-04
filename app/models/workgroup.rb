@@ -98,6 +98,14 @@ class Workgroup < ApplicationModel
     update aggregated_at: Time.now
   end
 
+  def aggregate_urgent_data!
+    target_referentials = aggregatable_referentials.select do |r|
+      aggregated_at.blank? || (r.flagged_urgent_at > aggregated_at)
+    end
+
+    aggregates.create!(referentials: target_referentials, creator: 'webservice', notification_target: nil)
+  end
+
   def nightly_aggregate!
     return unless nightly_aggregate_timeframe?
 

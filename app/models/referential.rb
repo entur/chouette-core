@@ -162,6 +162,10 @@ class Referential < ApplicationModel
     metadatas.any?{|m| m.urgent? }
   end
 
+  def flagged_urgent_at
+    metadatas.pluck(:flagged_urgent_at).compact.max
+  end
+
   def lines
     if metadatas.blank?
       workbench ? workbench.lines : associated_lines
