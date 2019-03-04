@@ -26,7 +26,7 @@
               wrapper_html: { class: 'checkbox-wrapper'},
               checked_value: true,
               unchecked_value: false,
-              input_html: { checked: @transport_modes.include?(mode), data: { transport_mode: mode } }
+              input_html: { checked: @transport_modes&.include?(mode), data: { transport_mode: mode } }
     .form-group.togglable class=filter_item_class(params[:q], :transport_submode)
       = f.label Chouette::Line.tmf(:transport_submode), required: false, class: 'control-label'
       .form-group.checkbox_list.js-transport-submode-checkboxes data-transport_submodes=Chouette::Line.formatted_submodes_for_transports.to_json
@@ -38,7 +38,7 @@
               wrapper_html: { class: 'checkbox-wrapper' },
               checked_value: true,
               unchecked_value: false,
-              input_html: { checked: @transport_submodes.include?(submode), data: { transport_submode: submode } }
+              input_html: { checked: @transport_submodes&.include?(submode), data: { transport_submode: submode } }
 
     .form-group.togglable class=filter_item_class(params[:q], :status)
       = f.label Chouette::Line.tmf(:status), required: false, class: 'control-label'
