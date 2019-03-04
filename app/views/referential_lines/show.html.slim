@@ -34,7 +34,7 @@
               = table_builder_2 @routes,
                 [ \
                   TableBuilderHelper::Column.new( \
-                    name: 'Oid', \
+                    name: 'ID', \
                     attribute: Proc.new { |n| n.get_objectid.short_id }, \
                     sortable: false \
                   ), \
