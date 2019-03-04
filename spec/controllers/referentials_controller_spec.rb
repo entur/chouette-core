@@ -124,9 +124,20 @@ describe ReferentialsController, :type => :controller do
       context "urgent" do
         let(:urgent) { '1' }
 
-        it "marks the referential as urgent" do
+        it "does not mark the referential as urgent" do
           request
-          expect(Referential.last.contains_urgent_offer?).to be_truthy
+          expect(Referential.last.contains_urgent_offer?).to be_falsy
+        end
+      end
+
+      with_permission 'referentials.flag_urgent' do
+        context "urgent" do
+          let(:urgent) { '1' }
+
+          it "marks the referential as urgent" do
+            request
+            expect(Referential.last.contains_urgent_offer?).to be_truthy
+          end
         end
       end
     end
@@ -181,9 +192,20 @@ describe ReferentialsController, :type => :controller do
       context "urgent" do
         let(:urgent) { '1' }
 
-        it "marks the referential as urgent" do
+        it "does not mark the referential as urgent" do
           request
-          expect(Referential.last.contains_urgent_offer?).to be_truthy
+          expect(Referential.last.contains_urgent_offer?).to be_falsy
+        end
+      end
+
+      with_permission 'referentials.flag_urgent' do
+        context "urgent" do
+          let(:urgent) { '1' }
+
+          it "marks the referential as urgent" do
+            request
+            expect(Referential.last.contains_urgent_offer?).to be_truthy
+          end
         end
       end
     end
