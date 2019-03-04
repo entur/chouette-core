@@ -169,6 +169,39 @@ RSpec.describe Merge do
         merge.update created_at: Time.now
         merge.prepare_new
         expect(workbench.output.new.ready).to be false
+        merge.referentials.each do |referential|
+          merge.merge_referential_metadata(referential)
+        end
+
+        expect(new_referential.contains_urgent_offer?).to be_falsy
+      end
+    end
+
+    context 'with urgent data' do
+      let(:referential){ create :workbench_referential }
+      let(:referential_urgent){ create :workbench_referential }
+
+      before(:each){
+        create :referential_metadata, referential: referential
+
+        referential.reload.metadatas.each do |m|
+          referential_urgent.metadatas.build line_ids: m.line_ids, periodes: m.periodes
+        end
+        referential_urgent.urgent = true
+        referential_urgent.save!
+      }
+
+      it 'should keep the information' do
+        expect(referential_urgent.contains_urgent_offer?).to be_truthy
+
+        merge = Merge.create(workbench: workbench, referentials: [referential, referential_urgent])
+        expect{ merge.prepare_new }.to_not raise_error
+        merge.referentials.each do |referential|
+          merge.merge_referential_metadata(referential)
+        end
+
+        new_referential = workbench.output.new
+        expect(new_referential.contains_urgent_offer?).to be_truthy
       end
     end
   end
