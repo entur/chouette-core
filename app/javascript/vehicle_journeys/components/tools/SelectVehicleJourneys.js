@@ -10,6 +10,7 @@ export default function SelectVehicleJourneys({onToggleTimesSelection, disabled,
         type='button'
         disabled={ disabled }
         className={ selectionMode ? 'active' : '' }
+        title={ I18n.t('actions.copy_paste_mode') }
         onClick={e => {
           e.preventDefault()
           onToggleTimesSelection()

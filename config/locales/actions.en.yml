@@ -9,6 +9,8 @@ en:
     clean_up: 'Purge'
     clone: 'Clone'
     combine: 'Combine'
+    copy: 'Copy (ctrl-c)'
+    copy_paste_mode: 'Copy.Paste mode'
     create_api_key: "Create an API key"
     deactivate: 'Deactivate'
     delete: "Delete"
@@ -21,6 +23,7 @@ en:
     import: 'Import'
     invite_user: 'Invite a new user'
     new: "Add new"
+    paste: 'Paste (ctrl-v)'
     processing: "Processing…"
     remove: Remove
     restore: Cancel deletion

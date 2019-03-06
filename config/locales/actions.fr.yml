@@ -9,6 +9,8 @@ fr:
     clean_up: 'Purger'
     clone: 'Dupliquer'
     combine: 'Combiner'
+    copy: 'Copier (ctrl-c)'
+    copy_paste_mode: 'Mode copier/coller'
     create_api_key: "Créer une clé d'API"
     deactivate: 'Désactiver'
     delete: 'Supprimer'
@@ -21,6 +23,7 @@ fr:
     import: 'Importer'
     invite_user: 'Inviter un nouvel utilisateur'
     new: 'Créer'
+    paste: 'Coller (ctrl-v)'
     processing: "En cours…"
     remove: Retirer
     restore: Annuler la suppression
