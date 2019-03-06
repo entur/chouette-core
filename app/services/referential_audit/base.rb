@@ -41,4 +41,5 @@ end
 
 require_dependency 'referential_audit/vehicle_journey_initial_offset'
 require_dependency 'referential_audit/journey_pattern_distances'
+require_dependency 'referential_audit/journey_pattern_stop_points'
 require_dependency 'referential_audit/checksums'
