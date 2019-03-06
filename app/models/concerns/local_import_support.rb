@@ -58,7 +58,9 @@ module LocalImportSupport
 
     profile_tag 'import' do
       ActiveRecord::Base.cache do
+        @progress = 0
         import_without_status
+        @progress = nil
       end
     end
     @status ||= 'successful'
@@ -148,11 +150,9 @@ module LocalImportSupport
   def import_resources(*resources)
     resources.each do |resource|
       profile_operation resource do
-        if @progress
-          @progress += 1.0/7
-          notify_progress @progress
-        end
         send "import_#{resource}"
+
+        notify_operation_progress(resource)
       end
     end
   end
