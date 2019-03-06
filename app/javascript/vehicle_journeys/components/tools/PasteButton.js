@@ -9,6 +9,7 @@ export default function PasteButton({onClick, disabled, selectionMode}) {
       <button
         type='button'
         disabled={ disabled }
+        title={ I18n.t('actions.paste') }
         onClick={e => {
           e.preventDefault()
           onClick()

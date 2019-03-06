@@ -47,7 +47,7 @@ export default class Tools extends Component {
           { !selectionMode && <ShiftVehicleJourney disabled={!hasPolicy("update") || !editMode || hasDeletedVJ()}/> }
           { !selectionMode && <EditVehicleJourney disabled={hasDeletedVJ()}/> }
 
-          <TimetablesEditVehicleJourney disabled={hasDeletedVJ()}/>
+          { !selectionMode && <TimetablesEditVehicleJourney disabled={hasDeletedVJ()}/> }
           { !selectionMode && hasFeature('purchase_windows') &&
             <PurchaseWindowsEditVehicleJourney disabled={hasDeletedVJ()}/>
           }
