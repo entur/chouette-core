@@ -12,6 +12,7 @@ fr:
       show: Consulter
       create: Agréger des Jeux de Données
       rollback: 'Revenir à cette offre agrégée'
+      rollback_confirm: Etes vous sûr de vouloir revenir à cette offre aggrégée ?
     statuses:
       new: Nouveau
       pending: En attente

@@ -19,6 +19,7 @@ class AggregateDecorator < AF83::Decorator
       l.href do
         h.rollback_workgroup_aggregate_path(object.workgroup, object)
       end
+      l.data {{ confirm: h.t('aggregates.actions.rollback_confirm') }}
     end
   end
 end
