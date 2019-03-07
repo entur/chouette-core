@@ -3,8 +3,9 @@ RSpec.describe NotificationRulePolicy, type: :policy do
   let( :record ){ build_stubbed :notification_rule }
 
   context "when notification rule belongs to user's workbench" do
-    before do 
-      stub_policy_scope(record)
+    before do
+      allow(NotificationRule).to receive(:where).with(workbench_id: [record.workbench_id]).and_return double("instance of #{NotificationRule}").as_null_object
+
       %w(create update destroy).each do |action|
         add_permissions("notification_rules.#{action}", to_user: user)
       end
