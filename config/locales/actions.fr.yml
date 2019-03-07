@@ -9,6 +9,8 @@ fr:
     clean_up: 'Purger'
     clone: 'Dupliquer'
     combine: 'Combiner'
+    copy: 'Copier (ctrl-c)'
+    copy_paste_mode: 'Mode copier/coller'
     create_api_key: "Créer une clé d'API"
     deactivate: 'Désactiver'
     delete: 'Supprimer'
@@ -21,6 +23,7 @@ fr:
     import: 'Importer'
     invite_user: 'Inviter un nouvel utilisateur'
     new: 'Créer'
+    paste: 'Coller (ctrl-v)'
     processing: "En cours…"
     remove: Retirer
     restore: Annuler la suppression
@@ -32,9 +35,9 @@ fr:
     unarchive: 'Désarchiver'
     validate: 'Contrôler'
     wait_for_submission: "Validation..."
-  are_you_sure: Etes vous sûr ?
+  are_you_sure: Êtes vous sûr ?
   back: "Retour"
-  cancel_confirm: Etes vous sûr de vouloir annuler l'action en cours ?
+  cancel_confirm: Êtes vous sûr de vouloir annuler l'action en cours ?
   cancel: "Annuler"
   discard: Abandonner
   no_result_text: "Aucun résultat"

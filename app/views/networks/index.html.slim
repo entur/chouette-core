@@ -19,7 +19,7 @@
           = table_builder_2 @networks,
             [ \
               TableBuilderHelper::Column.new( \
-                name: 'Oid', \
+                name: 'ID', \
                 attribute: Proc.new { |n| n.try(:get_objectid).try(:short_id) }, \
                 sortable: false \
               ),

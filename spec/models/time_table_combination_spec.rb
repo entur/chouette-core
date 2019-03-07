@@ -11,12 +11,12 @@ describe TimeTableCombination, :type => :model do
       expect(source.continuous_dates.flatten.count).to eq(dates.count)
 
       # 6 more continuous dates, 2 isolated dates
-      (10..15).each do |n|
+      (100..105).each do |n|
         source.dates.create(date: Date.today + n.day, in_out: true)
       end
 
       (1..2).each do |n|
-         source.dates.create(date: Date.today + n.day + 1.year, in_out: true)
+         source.dates.create(date: Date.today + 1.year + n.day , in_out: true)
       end
 
       expect(source.reload.continuous_dates[1].count).to eq(6)
@@ -26,6 +26,7 @@ describe TimeTableCombination, :type => :model do
 
   describe '#convert_continuous_dates_to_periods' do
     it 'should convert continuous dates to periods' do
+      source.periods.clear
       source.dates.clear
 
       (10..12).each do |n|
@@ -33,7 +34,7 @@ describe TimeTableCombination, :type => :model do
       end
 
       (1..3).each do |n|
-         source.dates.create(date: Date.today + n.day + 1.year, in_out: true)
+         source.dates.create(date: Date.today + 1.year + n.day, in_out: true)
       end
 
       expect {

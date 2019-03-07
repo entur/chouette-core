@@ -4,6 +4,10 @@ class Permission
       (extended + referentials + user_permissions).uniq
     end
 
+    def workgroup_permissions
+      destructive_permissions_for %w[workgroups]
+    end
+
     private
 
     def all_resources
@@ -28,7 +32,6 @@ class Permission
         compliance_control_blocks
         compliance_check_sets
         workbenches
-        workgroups
         publication_setups
         publication_apis
         publication_api_keys
@@ -69,6 +72,7 @@ class Permission
       permissions << "merges.rollback"
       permissions << "aggregates.rollback"
       permissions << "api_keys.index"
+      permissions << "workgroups.update"
     end
 
     def referentials
