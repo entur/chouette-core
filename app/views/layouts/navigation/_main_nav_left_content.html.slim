@@ -47,6 +47,8 @@
       - if policy(StopAreaProvider).create?
         = link_to [workbench.stop_area_referential, :stop_area_providers], class: 'list-group-item' do
           span = StopAreaProvider.t.capitalize
+      = link_to [workbench.stop_area_referential, :stop_area_routing_constraints], class: 'list-group-item' do
+        span = StopAreaRoutingConstraint.t.capitalize
 
     = main_nav_menu_item 'layouts.navbar.configuration'.t do
       - if policy(workbench).edit?

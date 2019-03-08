@@ -2,4 +2,19 @@ class ApplicationModel < ::ActiveRecord::Base
   include MetadataSupport
 
   self.abstract_class = true
+
+  class << self
+    def add_light_belongs_to(rel_name)
+      rel = reflections[rel_name.to_s]
+      raise "missing relation #{rel_name} on #{self.name}" unless rel
+
+      belongs_to "#{rel_name}_light".to_sym, ->{ light }, class_name: rel.klass, foreign_key: rel.foreign_key
+
+      define_method "#{rel_name}_light_with_cache" do
+        association(rel_name).loaded? ? send(rel_name) : send("#{rel_name}_light_without_cache")
+      end
+
+      alias_method_chain "#{rel_name}_light", :cache
+    end
+  end
 end

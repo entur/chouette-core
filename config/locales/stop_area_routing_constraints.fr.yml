@@ -1,0 +1,55 @@
+fr:
+  stop_area_routing_constraints:
+    search_no_results: "Aucune ITA"
+    direction:
+      both_way: Aller/Retour
+      one_way: Sens unique
+    actions:
+      new: "Ajouter une ITA"
+      create: "Ajouter une ITA"
+      edit: "Editer cette ITA"
+      update: "Editer cette ITA"
+      destroy: "Supprimer"
+      destroy_confirm: "Etes vous sûr de supprimer cette ITA?"
+    filters:
+      stop: Indiquez un arrêt...
+      direction: Indiquez une direction...
+    new:
+      title: "Ajouter une ITA"
+    create:
+      title: "Ajouter une ITA"
+    edit:
+      title: "Editer l'ITA %{name}"
+    update:
+      title: "Editer l'ITA %{name}"
+    show:
+      title: "ITA %{name}"
+    index:
+      title: "Interdictions de Traffic entre Arrêts "
+      
+  activerecord:
+    models:
+      stop_area_routing_constraint:
+        zero:  "ITA"
+        one:   "ITA"
+        other: "ITAs"
+    attributes:
+      stop_area_routing_constraint:
+        name: "Nom"
+        both_way: Aller/Retour
+        direction: Direction
+        from: Arrêt de départ
+        to: Arrêt de destination
+        from_id: Arrêt de départ
+        to_id: Arrêt de destination
+        from_name: Arrêt de départ
+        to_name: Arrêt de destination
+    errors:
+      models:
+        stop_area_routing_constraint:
+          attributes:
+            to:
+              must_be_in_same_referential: Les 2 arrêts doivent appartenir au même référentiel
+              must_be_a_different_stop: Les 2 arrêts doivent être distincts
+            from:
+              must_be_in_same_referential: Les 2 arrêts doivent appartenir au même référentiel

@@ -18,6 +18,10 @@ class StopAreaRoutingConstraintPolicy < ApplicationPolicy
   end
 
   def stop_area_referential_match?
-    user.workbenches.pluck(:stop_area_referential_id).includes?(record.stop_area_referential_id)
+    user.workbenches.pluck(:stop_area_referential_id).include?(record.stop_area_referential.id)
+  end
+
+  def instance_permission permission
+    user.has_permission?("stop_area_routing_constraints.#{permission}")
   end
 end

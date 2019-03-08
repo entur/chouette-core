@@ -283,6 +283,16 @@ crumb :stop_area_provider do |stop_area_referential, stop_area_provider|
   parent :stop_area_providers, stop_area_referential
 end
 
+crumb :stop_area_routing_constraints do |stop_area_referential|
+  link StopAreaRoutingConstraint.t, [stop_area_referential, :stop_area_routing_constraints]
+  parent stop_area_referential
+end
+
+crumb :stop_area_routing_constraint do |stop_area_routing_constraint|
+  link stop_area_routing_constraint.name, [stop_area_routing_constraint.stop_area_referential, stop_area_routing_constraint]
+  parent :stop_area_routing_constraints, stop_area_routing_constraint.stop_area_referential
+end
+
 crumb :stop_area do |stop_area_referential, stop_area|
   link breadcrumb_name(stop_area), stop_area_referential_stop_area_path(stop_area_referential, stop_area)
   parent :stop_areas, stop_area_referential

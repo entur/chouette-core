@@ -379,7 +379,7 @@ module TableBuilderHelper
     end
 
     direction =
-      if column.key.to_s == sort_on && sort_direction == 'desc'
+      column.key.to_s == sort_on && if sort_direction == 'desc'
         'asc'
       else
         'desc'

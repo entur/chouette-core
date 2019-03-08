@@ -247,6 +247,7 @@ ChouetteIhm::Application.routes.draw do
     resources :stop_area_providers do
       get :autocomplete, on: :collection
     end
+    resources :stop_area_routing_constraints
     resources :stop_areas do
       put :deactivate, on: :member
       put :activate, on: :member

@@ -1,0 +1,55 @@
+en:
+  stop_area_routing_constraints:
+    search_no_results: "No Constraint Zone"
+    direction:
+      both_way: Two ways
+      one_way: One way
+    actions:
+      new: "Add a Constraint Zone"
+      create: "Add a Constraint Zone"
+      edit: "Editer cette Constraint Zone"
+      update: "Editer cette Constraint Zone"
+      destroy: "Supprimer"
+      destroy_confirm: "Etes vous sûr de supprimer cette Constraint Zone?"
+    filters:
+      stop: Indiquez un arrêt...
+      direction: Indiquez une direction...
+    new:
+      title: "Add a Constraint Zone"
+    create:
+      title: "Add a Constraint Zone"
+    edit:
+      title: "Edit Constraint Zone %{name}"
+    update:
+      title: "Edit Constraint Zone %{name}"
+    show:
+      title: "Constraint Zone %{name}"
+    index:
+      title: "Between Stops Constraint Zones"
+
+  activerecord:
+    models:
+      stop_area_routing_constraint:
+        zero:  "Constraint Zone"
+        one:   "Constraint Zone"
+        other: "Constraint Zones"
+    attributes:
+      stop_area_routing_constraint:
+        name: "Nom"
+        both_way: Two ways
+        direction: Direction
+        from: Start stop
+        to: Destination stop
+        from_id: Start stop
+        to_id: Destination stop
+        from_name: Start stop
+        to_name: Destination stop
+    errors:
+      models:
+        stop_area_routing_constraint:
+          attributes:
+            to:
+              must_be_in_same_referential: Both stops miust belong to the same referential
+              must_be_a_different_stop: The 2 stops must be distinct
+            from:
+              must_be_in_same_referential: Both stops miust belong to the same referential
