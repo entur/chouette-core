@@ -4,7 +4,6 @@ class WorkbenchImportWorker
   extend Concerns::FailingSupport
 
   include Rails.application.routes.url_helpers
-  include Configurable
 
   include ObjectStateUpdater
 
