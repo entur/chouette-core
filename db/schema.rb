@@ -997,6 +997,17 @@ ActiveRecord::Schema.define(version: 20190304112108) do
     t.string   "registration_number_format"
   end
 
+  create_table "stop_area_routing_constraints", id: :bigserial, force: :cascade do |t|
+    t.integer  "from_id",    limit: 8
+    t.integer  "to_id",      limit: 8
+    t.boolean  "both_way"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  add_index "stop_area_routing_constraints", ["from_id"], name: "index_stop_area_routing_constraints_on_from_id", using: :btree
+  add_index "stop_area_routing_constraints", ["to_id"], name: "index_stop_area_routing_constraints_on_to_id", using: :btree
+
   create_table "stop_areas", id: :bigserial, force: :cascade do |t|
     t.integer  "parent_id",                       limit: 8
     t.string   "objectid",                                                                         null: false
