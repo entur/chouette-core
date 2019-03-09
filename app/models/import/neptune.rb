@@ -12,10 +12,6 @@ class Import::Neptune < Import::Base
     return false
   end
 
-  def launch_worker
-    NeptuneImportWorker.perform_async_or_fail(self)
-  end
-
   def import_without_status
     prepare_referential
     referential.pending!

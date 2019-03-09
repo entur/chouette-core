@@ -140,6 +140,10 @@ gem 'rmagick'
 
 gem 'sidekiq', require: ['sidekiq', 'sidekiq/web']
 gem 'sidekiq-limit_fetch'
+gem 'delayed_job_active_record'
+gem 'delayed_job_web'
+gem 'delayed_job_heartbeat_plugin'
+
 gem 'whenever', github: 'af83/whenever', require: false # '~> 0.9'
 gem 'rake'
 gem 'devise-async'

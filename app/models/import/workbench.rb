@@ -15,7 +15,7 @@ class Import::Workbench < Import::Base
     when :gtfs
       import_gtfs
     when :netex
-      WorkbenchImportWorker.perform_async_or_fail(self)
+      delay(queue: :imports).netex_import
     when :neptune
       import_neptune
     else
@@ -28,6 +28,10 @@ class Import::Workbench < Import::Base
       message.save
       failed!
     end
+  end
+
+  def netex_import
+    WorkbenchImportService.new.perform(self)
   end
 
   def import_gtfs
