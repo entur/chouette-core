@@ -41,9 +41,7 @@ module LocalImportSupport
   end
 
   def worker_died
-    update status: 'failed', ended_at: Time.now
-    referential&.failed!
-    notify_parent
+    force_failure!
 
     Rails.logger.error "Import #{self.inspect} failed due to worker being dead"
   end
