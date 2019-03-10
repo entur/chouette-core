@@ -1,65 +1,51 @@
-#devise
-  background-color: $gray-light
+.devise
+  .page-icon
+    display: none
 
-  .passwords.new
-    input
-      width: initial !important
+  .login, .signup
+    .checkbox
+      width: 100%
+    .panel-body
+      padding-left: 35px !important
+      padding-right: 35px !important
 
-  .front_bg
-    background: url(image-path('welcome.jpg')) no-repeat center center
-    background-size: cover
+    .en-route
+      position: fixed
+      bottom: 10px
+      right: 10px
+      img
+        height: 30px
 
-    #devise_middle
-      min-height: 620px
-      padding: 30px 20px 0px 20px
+    .panel
+      .checkbox
+        padding: 0
 
-      #registrations_new
-        .error
-          input
-            border: 1px solid #d43f3a
+    .top
+      position: fixed
+      top: 90px
+      right: 40px
+      color: white
+      a
+        border: 1px solid white
+        border-radius: 5px
+        padding: 10px 15px
+        color: white
+        text-decoration: none
+        margin-left: 2em
+        transition: all 0.3s
+        &:hover
+          color: $brand-color-primary
+          border-color: $brand-color-primary
+          background: white
 
-        span.help-block
-          margin-left: 5px
-          color: #d43f3a
-          font-size: 15px
 
-      #sessions_new
-        .btn
-          font-weight: bold
+@media (max-width: 640px)
+  .devise
+    #main_nav #menu_top
+      padding-left: 10px
+      font-size: 0.8em
 
-        .product_summary
-          padding: 30px 60px 0 60px
-          color: white
-          text-shadow: 0 0 1px rgba(0,0,0,0.6)
-
-          p
-            font-size: 21px
-
-          ul > li
-            font-size: 21px
-
-        .login
-          padding-top: 30px
-
-          .form-group
-            margin-bottom: 5px
-
-          .options
-            font-size: 12px
-            
-            .new_password
-              padding-top: 7px
-
-            .checkbox
-              font-weight: normal
-
-              input[type='checkbox']
-                margin-left: 0px !important
-                position: relative
-                margin: 0px 4px 0px 0px
-
-            .form-group
-              margin-bottom: 0px
-
-    #footer
-      background-color: rgba(0, 0, 0, 0.8)
+    .page_header
+      text-align: center
+      font-size: 2em
+      padding-top: 10px

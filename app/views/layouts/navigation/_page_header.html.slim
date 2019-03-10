@@ -4,7 +4,7 @@
 .page_header
   .container-fluid
     .row
-      .col-lg-8.col-md-8.col-sm-7.col-xs-7
+      .col-lg-8.col-md-8.col-sm-12.col-xs-12
         - if defined?(resource_class)
           .page-icon
             span.sb class="sb-#{resource_class.model_name.name.underscore}"
@@ -15,16 +15,17 @@
             - if defined?(resource_class)
               h1 = resource_class.t_action(params[:action])
 
-      .col-lg-4.col-md-4.col-sm-5.col-xs-5.text-right
-        .page-action
-          - if content_for? :page_header_meta
-            = yield :page_header_meta
-          - if content_for? :page_header_actions
-            = yield :page_header_actions
-          - if action_links&.primary&.any?
-            - action_links.primary.each do |link|
-              = link.to_html do |l|
-                - l.class "btn btn-default #{l.disabled ? "disabled" : ""}"
+      - if user_signed_in?
+        .col-lg-4.col-md-4.col-sm-12.col-xs-12.text-right
+          .page-action
+            - if content_for? :page_header_meta
+              = yield :page_header_meta
+            - if content_for? :page_header_actions
+              = yield :page_header_actions
+            - if action_links&.primary&.any?
+              - action_links.primary.each do |link|
+                = link.to_html do |l|
+                  - l.class "btn btn-default #{l.disabled ? "disabled" : ""}"
 
     - if action_links&.secondary&.any?
       .row.mb-sm

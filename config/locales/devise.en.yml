@@ -14,6 +14,8 @@ validating conformance of data wrt Neptune (French standard NFP 99 506)."
         introduction_item1: "several data exchange formats (Neptune, GTFS, CSV ... Netex coming soon)"
         introduction_item2: "and also several base map backgrounds (Google, OSM, IGN)."
         unauthorized: "Failed to connect due to missing Chouette connection rights"
+        no_account: "You don't have an account yet ?"
+        sign_up: "Sign up"
     confirmations:
       new:
         title: Resend confirmation instructions
@@ -21,6 +23,8 @@ validating conformance of data wrt Neptune (French standard NFP 99 506)."
       new:
         title: "Sign up"
         commit: Sign up
+        already_an_account: "Already have an account ?"
+        sign_in: "Sign in"
       edit:
         title: "Your profile"
         commit: Update

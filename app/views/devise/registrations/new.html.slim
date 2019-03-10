@@ -1,4 +1,16 @@
-#registrations_new.col-lg-offset-4.col-lg-4
-  = render partial: 'devise/shared/form_registration', locals: {
-    organisation: (resource.organisation || Organisation.new)
-  }
+- content_for :page_header_title, t('.title')
+
+.page_content#devise
+  .container-fluid
+    #sessions_new.row
+      = render 'devise/shared/intro'
+
+      .col-md-4.signup
+        .top
+          = 'devise.registrations.new.already_an_account'.t
+          = link_to 'devise.registrations.new.sign_in'.t, new_user_session_path
+        .panel.panel-default
+          .panel-heading
+            .panel-title= t('.sign_up')
+          .panel-body
+            = render partial: 'devise/shared/form_registration', locals: { organisation: (resource.organisation || Organisation.new) }
