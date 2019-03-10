@@ -55,13 +55,14 @@ en:
         download: Download
     models:
       compliance_check_set:
-        zero:  "Compliance check set"
+        zero:  "Compliance check sets"
         one:   "Compliance check set"
         other: "Compliance check sets"
       compliance_check:
-        zero:  "Compliance check"
+        zero:  "Compliance checks"
         one:   "Compliance check"
         other: "Compliance checks"
       compliance_check_block:
-        one: compliance_control_set
-        other: compliance_control_sets
+        zero: compliance check blocks
+        one: compliance check block
+        other: compliance check blocks
