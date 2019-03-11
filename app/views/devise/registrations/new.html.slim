@@ -1,4 +1,25 @@
-#registrations_new.col-lg-offset-4.col-lg-4
-  = render partial: 'devise/shared/form_registration', locals: {
-    organisation: (resource.organisation || Organisation.new)
-  }
+- content_for :page_header_title, t('.title')
+
+- content_for :page_header_actions do
+  = link_to 'devise.registrations.new.sign_in'.t, new_user_session_path, class: 'btn btn-default'
+
+.page_content#devise
+  .container-fluid
+    #sessions_new.row
+      = render 'devise/shared/intro'
+
+      - @subscription ||= Subscription.new
+
+      .col-md-4.signup
+        .panel.panel-default
+          .panel-heading
+            .panel-title= t('.sign_up')
+          .panel-body
+            = simple_form_for(@subscription, url: [@subscription], html: { class: "form-horizontal registration_new" } ) do |form|
+              = form.input :organisation_name, required: true
+              = form.input :user_name, required: true
+              = form.input :email, input_html: { :class => "form-control" }, required: true
+              = form.input :password, :as => :password, input_html: { :class => "form-control" }, required: true
+              = form.input :password_confirmation, :as => :password, input_html: { :class => "form-control" }, required: true
+              = form.button :submit, t("devise.registrations.new.commit"), class: "btn-primary pull-right"
+              = link_to 'devise.registrations.new.already_an_account'.t, new_user_session_path
