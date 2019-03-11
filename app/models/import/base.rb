@@ -53,8 +53,6 @@ class Import::Base < ApplicationModel
     update status: 'failed', ended_at: Time.now
     referential&.failed!
     notify_parent
-
-    referential&.failed!
   end
 
   def child_change
