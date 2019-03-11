@@ -347,7 +347,8 @@ module Chouette
         'published_journey_name',
         'journey_pattern_id',
         'company_id',
-        'ignored_routing_contraint_zone_ids'
+        'ignored_routing_contraint_zone_ids',
+        'ignored_stop_area_routing_constraint_ids'
       ).to_hash
 
       if item['journey_pattern']

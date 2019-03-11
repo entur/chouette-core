@@ -3,6 +3,7 @@ class StopAreaRoutingConstraintsController < ChouetteController
   include PolicyChecker
 
   defaults :resource_class => StopAreaRoutingConstraint
+  respond_to :html, :json
 
   belongs_to :stop_area_referential
 
@@ -16,6 +17,7 @@ class StopAreaRoutingConstraintsController < ChouetteController
         @stop_area_routing_constraints = StopAreaRoutingConstraintDecorator.decorate(@stop_area_routing_constraints,
         context: { referential: parent })
       }
+      format.json
     end
   end
 
