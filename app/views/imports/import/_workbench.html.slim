@@ -22,11 +22,11 @@
         ), \
         TableBuilderHelper::Column.new( \
           key: :status, \
-          attribute: Proc.new { |n| operation_status(n.child_import&.status || n.status, verbose: true, default_status: :pending) }, \
+          attribute: lambda do |n| \
+            url = n.child_import.present? ? [parent, n.child_import] : [parent, @import, n]; \
+            link_to_if_i_can(operation_status(n.child_import&.status || n.status, verbose: true, default_status: :pending), url) \
+          end, \
           sortable: false, \
-          link_to: lambda do |item| \
-            item.child_import.present? ? [@import.workbench, item.child_import] : [@import.workbench, @import, item] \
-          end \
         ), *controls \
       ],
       cls: 'table',

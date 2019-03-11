@@ -278,7 +278,7 @@ module TableBuilderHelper
             i = columns.index(column)
 
             if overhead[i].blank?
-              if (i > 0) && (overhead[i - 1][:width] > 1)
+              if (i > 0) && (overhead[i - 1][:width].to_i > 1)
                 clsArrayAlt = overhead[i - 1][:cls].split
 
                 bcont << content_tag(:td, value, class: td_cls(clsArrayAlt, extra_class))

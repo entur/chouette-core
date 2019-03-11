@@ -52,9 +52,7 @@ module ImportsHelper
     metadata = {}
     metadata.update({ t('imports.show.filename') => @import.try(:file_identifier) }) if @import.is_a?(Import::Workbench)
     metadata.update({ t('.status') => operation_status(@import.status, verbose: true) })
-    if @import.referential.nil?
-      metadata = metadata.update({ t('.referential') => '' })
-    else
+    if @import.referential.present?
       metadata = metadata.update({ t('.referential') => link_to_if_i_can(@import.referential.name, @import.referential) })
     end
     metadata = metadata.update({ Workbench.ts.capitalize => link_to_if_i_can(@import.workbench.organisation.name, @import.workbench) }) unless @workbench
