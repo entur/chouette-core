@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe StopAreaRoutingConstraint, type: :model do
+  subject { create(:stop_area_routing_constraint) }
+
   it 'should validate that both stops are in the same referential and different' do
     stop_1 = build :stop_area
     stop_2 = build :stop_area
@@ -12,6 +14,9 @@ RSpec.describe StopAreaRoutingConstraint, type: :model do
     expect(sarc).to_not be_valid
   end
 
+  describe 'checksum' do
+    it_behaves_like 'checksum support'
+  end
 
   describe '#with_stop' do
     let!(:constraint){ create :stop_area_routing_constraint }

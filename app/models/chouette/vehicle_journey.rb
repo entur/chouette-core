@@ -30,6 +30,7 @@ module Chouette
     has_and_belongs_to_many :footnotes, :class_name => 'Chouette::Footnote'
     has_and_belongs_to_many :purchase_windows, :class_name => 'Chouette::PurchaseWindow'
     has_array_of :ignored_routing_contraint_zones, class_name: 'Chouette::RoutingConstraintZone'
+    has_array_of :ignored_stop_area_routing_constraints, class_name: 'StopAreaRoutingConstraint'
 
     validates_presence_of :route
     validates_presence_of :journey_pattern
@@ -184,6 +185,9 @@ module Chouette
         # The double condition prevents a SQL query "WHERE 1=0"
         if ignored_routing_contraint_zone_ids.present? && ignored_routing_contraint_zones.present?
           attrs << ignored_routing_contraint_zones.map(&:checksum).sort
+        end
+        if ignored_stop_area_routing_constraint_ids.present? && ignored_stop_area_routing_constraints.present?
+          attrs << ignored_stop_area_routing_constraints.map(&:checksum).sort
         end
       end
     end

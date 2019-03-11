@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190304112108) do
+ActiveRecord::Schema.define(version: 20190311095017) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "postgis"
   enable_extension "hstore"
   enable_extension "unaccent"
-  enable_extension "postgis"
 
   create_table "access_links", id: :bigserial, force: :cascade do |t|
     t.integer  "access_point_id",                        limit: 8
@@ -89,6 +89,7 @@ ActiveRecord::Schema.define(version: 20190304112108) do
     t.string   "type"
   end
 
+  add_index "aggregates", ["type"], name: "index_aggregates_on_type", using: :btree
   add_index "aggregates", ["workgroup_id"], name: "index_aggregates_on_workgroup_id", using: :btree
 
   create_table "api_keys", id: :bigserial, force: :cascade do |t|
@@ -108,9 +109,9 @@ ActiveRecord::Schema.define(version: 20190304112108) do
     t.integer   "organisation_id", limit: 8
     t.datetime  "created_at"
     t.datetime  "updated_at"
+    t.integer   "workgroup_id",    limit: 8
     t.integer   "int_day_types"
     t.date      "excluded_dates",                            array: true
-    t.integer   "workgroup_id",    limit: 8
     t.jsonb     "metadata",                  default: {}
   end
 
@@ -838,7 +839,6 @@ ActiveRecord::Schema.define(version: 20190304112108) do
     t.datetime  "created_at"
     t.datetime  "updated_at"
     t.daterange "periodes",                        array: true
-    t.datetime  "flagged_urgent_at"
   end
 
   add_index "referential_metadata", ["line_ids"], name: "index_referential_metadata_on_line_ids", using: :gin
@@ -998,11 +998,13 @@ ActiveRecord::Schema.define(version: 20190304112108) do
   end
 
   create_table "stop_area_routing_constraints", id: :bigserial, force: :cascade do |t|
-    t.integer  "from_id",    limit: 8
-    t.integer  "to_id",      limit: 8
+    t.integer  "from_id",         limit: 8
+    t.integer  "to_id",           limit: 8
     t.boolean  "both_way"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.string   "checksum"
+    t.text     "checksum_source"
   end
 
   add_index "stop_area_routing_constraints", ["from_id"], name: "index_stop_area_routing_constraints_on_from_id", using: :btree
@@ -1208,29 +1210,30 @@ ActiveRecord::Schema.define(version: 20190304112108) do
   add_index "vehicle_journey_at_stops", ["vehicle_journey_id"], name: "index_vehicle_journey_at_stops_on_vehicle_journey_id", using: :btree
 
   create_table "vehicle_journeys", id: :bigserial, force: :cascade do |t|
-    t.integer  "route_id",                           limit: 8
-    t.integer  "journey_pattern_id",                 limit: 8
-    t.integer  "company_id",                         limit: 8
-    t.string   "objectid",                                                  null: false
-    t.integer  "object_version",                     limit: 8
+    t.integer  "route_id",                                 limit: 8
+    t.integer  "journey_pattern_id",                       limit: 8
+    t.integer  "company_id",                               limit: 8
+    t.string   "objectid",                                                        null: false
+    t.integer  "object_version",                           limit: 8
     t.string   "comment"
     t.string   "transport_mode"
     t.string   "published_journey_name"
     t.string   "published_journey_identifier"
     t.string   "facility"
     t.string   "vehicle_type_identifier"
-    t.integer  "number",                             limit: 8
+    t.integer  "number",                                   limit: 8
     t.boolean  "mobility_restricted_suitability"
     t.boolean  "flexible_service"
-    t.integer  "journey_category",                             default: 0,  null: false
+    t.integer  "journey_category",                                   default: 0,  null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "checksum"
     t.text     "checksum_source"
     t.string   "data_source_ref"
-    t.jsonb    "custom_field_values",                          default: {}
-    t.jsonb    "metadata",                                     default: {}
-    t.integer  "ignored_routing_contraint_zone_ids",           default: [],              array: true
+    t.jsonb    "custom_field_values",                                default: {}
+    t.jsonb    "metadata",                                           default: {}
+    t.integer  "ignored_routing_contraint_zone_ids",                 default: [],              array: true
+    t.integer  "ignored_stop_area_routing_constraint_ids",           default: [],              array: true
   end
 
   add_index "vehicle_journeys", ["journey_pattern_id"], name: "index_vehicle_journeys_on_journey_pattern_id", using: :btree

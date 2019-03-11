@@ -1,6 +1,10 @@
 class StopAreaRoutingConstraint < ApplicationModel
+  include ChecksumSupport
+
   belongs_to :from, class_name: 'Chouette::StopArea'
   belongs_to :to, class_name: 'Chouette::StopArea'
+
+  belongs_to_array_in_many :vehicle_journeys, class_name: 'Chouette::VehicleJourney', array_name: :ignored_stop_area_routing_constraints
 
   add_light_belongs_to :from
   add_light_belongs_to :to
@@ -10,6 +14,8 @@ class StopAreaRoutingConstraint < ApplicationModel
 
   validate :both_stops_in_the_same_referential
   validate :different_stops
+
+  after_commit :clean_ignored_stop_area_routing_constraint_ids, on: :destroy
 
   scope :with_stop, ->(stop_id){
     stop_id = stop_id.id if stop_id.respond_to?(:id)
@@ -42,5 +48,17 @@ class StopAreaRoutingConstraint < ApplicationModel
   def name
     separator = both_way? ? '<>' : '>'
     "#{from_light.name} #{separator} #{to_light.name}"
+  end
+
+  def checksum_attributes(db_lookup = true)
+    [
+      [from_id, to_id, both_way]
+    ]
+  end
+
+  def clean_ignored_stop_area_routing_constraint_ids
+    vehicle_journeys.find_each do |vj|
+      vj.update ignored_stop_area_routing_constraint_ids: vj.ignored_stop_area_routing_constraint_ids - [self.id]
+    end
   end
 end
