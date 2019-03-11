@@ -157,7 +157,6 @@ class ReferentialsController < ChouetteController
 
     @referential.data_format = current_organisation.data_format
     @referential.workbench_id ||= params[:workbench_id]
-
     if @referential.in_workbench?
       @referential.init_metadatas default_date_range: Range.new(Date.today, Date.today.advance(months: 1))
     end
@@ -183,9 +182,11 @@ class ReferentialsController < ChouetteController
       :created_from_id,
       :workbench_id,
       :from_current_offer,
+      :urgent,
       metadatas_attributes: [:id, :first_period_begin, :first_period_end, periods_attributes: [:begin, :end, :id, :_destroy], :lines => []]
     )
     referential_params[:from_current_offer] = referential_params[:from_current_offer] == '1'
+    referential_params[:urgent] = policy(Referential.new(organisation: current_organisation)).flag_urgent? && referential_params[:urgent] == '1'
     referential_params
   end
 

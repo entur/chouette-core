@@ -73,6 +73,7 @@ class Permission
       permissions << "aggregates.rollback"
       permissions << "api_keys.index"
       permissions << "workgroups.update"
+      permissions << "referentials.flag_urgent"
     end
 
     def referentials

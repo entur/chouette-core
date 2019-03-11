@@ -150,15 +150,19 @@ class Merge < ApplicationModel
     CleanUp.new(referential: new, methods: [:destroy_empty, :destroy_unassociated_calendars]).clean
   end
 
-  def merge_referential(referential)
-    Rails.logger.debug "Merge ##{id}: Merge #{referential.slug}"
-
+  def merge_referential_metadata(referential)
     metadata_merger = MetadatasMerger.new new, referential
     metadata_merger.merge
 
     new.metadatas.delete metadata_merger.empty_metadatas
 
     new.save!
+  end
+
+  def merge_referential(referential)
+    Rails.logger.debug "Merge ##{id}: Merge #{referential.slug}"
+
+    merge_referential_metadata(referential)
 
     line_periods = LinePeriods.from_metadatas(referential.metadatas)
 
@@ -636,7 +640,12 @@ class Merge < ApplicationModel
   def after_save_current
     referentials.each(&:merged!)
     Stat::JourneyPatternCoursesByDate.compute_for_referential(new)
+    aggregate_if_urgent_offer
     HoleSentinel.new(workbench).watch!
+  end
+
+  def aggregate_if_urgent_offer
+    workbench.workgroup.aggregate_urgent_data! if new&.contains_urgent_offer?
   end
 
   def save_model!(model)
@@ -697,7 +706,8 @@ class Merge < ApplicationModel
             line_ids: [line_id],
             periodes: [period],
             referential_source_id: referential.id,
-            created_at: metadata.created_at # TODO check required dates
+            created_at: metadata.created_at, # TODO check required dates
+            flagged_urgent_at: metadata.urgent? ? Time.now : nil
           }
 
           # line_metadatas should not contain conflicted metadatas
