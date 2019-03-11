@@ -55,7 +55,7 @@ module OptionsSupport
   end
 
   def visible_options
-    (options || {}).select{|k, v| ! k.match  /^_/}
+    (options || {}).select{|k, v| ! k.match(/^_/) && !self.class.options[k.to_sym][:hidden]}
   end
 
   def display_option_value option_name, context
