@@ -378,23 +378,24 @@ module TableBuilderHelper
       return column.header_label(model)
     end
 
-    direction =
-      column.key.to_s == sort_on && if sort_direction == 'desc'
+    direction =  if sort_direction == 'desc'
         'asc'
       else
         'desc'
       end
 
+    active = column.key.to_s == sort_on
+
     link_to(params.merge({direction: direction, sort: column.key})) do
       arrow_up = content_tag(
         :span,
         '',
-        class: "fa fa-sort-asc #{direction == 'desc' ? 'active' : ''}"
+        class: "fa fa-sort-asc #{active && direction == 'desc' ? 'active' : ''}"
       )
       arrow_down = content_tag(
         :span,
         '',
-        class: "fa fa-sort-desc #{direction == 'asc' ? 'active' : ''}"
+        class: "fa fa-sort-desc #{active && direction == 'asc' ? 'active' : ''}"
       )
 
       arrow_icons = content_tag :span, arrow_up + arrow_down, class: 'orderers'
