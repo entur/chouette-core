@@ -15,7 +15,7 @@
             - if defined?(resource_class)
               h1 = resource_class.t_action(params[:action])
 
-      - if user_signed_in?
+      - if action_links&.primary&.any? || content_for?(:page_header_meta)  || content_for?(:page_header_actions)
         .col-lg-4.col-md-4.col-sm-12.col-xs-12.text-right
           .page-action
             - if content_for? :page_header_meta

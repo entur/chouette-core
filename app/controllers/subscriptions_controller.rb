@@ -23,7 +23,7 @@ class SubscriptionsController < ChouetteController
       sign_in resource.user
       redirect_to "/"
     else
-      render "devise/sessions/new"
+      render "devise/registrations/new"
     end
   end
 
