@@ -1,5 +1,10 @@
 - content_for :page_header_title, t('.title')
 
+- if Subscription.enabled?
+  - content_for :page_header_actions do
+    = 'devise.sessions.new.no_account'.t
+    = link_to 'devise.sessions.new.sign_up'.t, new_user_registration_path, class: 'btn btn-default'
+
 .page_content#devise
   .container-fluid
     #sessions_new.row
@@ -35,9 +40,3 @@
                     - if devise_mapping.confirmable? && controller_name != 'confirmations'
                       br
                       = mailer_link_to t("devise.links.new_confirmation"), new_confirmation_path(:user)
-
-        - if Subscription.enabled?
-          .panel.panel-default
-            .panel-heading
-              .panel-title= t('.sign_up')
-            .panel-body= render partial: 'devise/shared/form_registration', locals: { hide_link_to_signin: true }
