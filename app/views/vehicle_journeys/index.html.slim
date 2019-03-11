@@ -10,13 +10,11 @@
         - enable = @route.opposite_route.vehicle_journeys.exists?
         = link_to(t('routes.actions.reversed_vehicle_journey'), [@referential, @route.line, @route.opposite_route, :vehicle_journeys], class: "btn btn-primary sticky-action #{enable ? '' : 'disabled'}")
 
-
 .page_content
   .container-fluid
     .row
       .col-lg-12
         #vehicle_journeys_wip
-
 
 = javascript_tag do
   | window.route_id = #{params[:route_id]};
