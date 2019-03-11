@@ -46,6 +46,15 @@ class Import::Base < ApplicationModel
     :import
   end
 
+  # call this method to mark an import as failed, as weel as the resulting referential
+  def force_failure!
+    children.each &:force_failure!
+
+    update status: 'failed', ended_at: Time.now
+    referential&.failed!
+    notify_parent
+  end
+
   def child_change
     Rails.logger.info "child_change for #{inspect}"
     if self.class.finished_statuses.include?(status)
