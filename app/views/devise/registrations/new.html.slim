@@ -1,8 +1,7 @@
 - content_for :page_header_title, t('.title')
 
 - content_for :page_header_actions do
-  = 'devise.registrations.new.already_an_account'.t
-  = link_to 'devise.registrations.new.sign_in'.t, new_user_session_path
+  = link_to 'devise.registrations.new.sign_in'.t, new_user_session_path, class: 'btn btn-default'
 
 .page_content#devise
   .container-fluid

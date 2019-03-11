@@ -40,4 +40,4 @@
           .panel.panel-default
             .panel-heading
               .panel-title= t('.sign_up')
-            .panel-body= render partial: 'devise/shared/form_registration'
+            .panel-body= render partial: 'devise/shared/form_registration', locals: { hide_link_to_signin: true }
