@@ -1,6 +1,6 @@
 fr:
   stop_area_routing_constraints:
-    search_no_results: "Aucune ITA"
+    search_no_results: "Aucune Interdiction de Trafic entre Arrêts"
     direction:
       both_way: Aller/Retour
       one_way: Sens unique
@@ -15,17 +15,17 @@ fr:
       stop: Indiquez un arrêt...
       direction: Indiquez une direction...
     new:
-      title: "Ajouter une ITA"
+      title: "Ajouter une Interdiction de Trafic entre Arrêts"
     create:
-      title: "Ajouter une ITA"
+      title: "Ajouter une Interdiction de Trafic entre Arrêts"
     edit:
-      title: "Editer l'ITA %{name}"
+      title: "Editer l'Interdiction de Trafic entre Arrêts %{name}"
     update:
-      title: "Editer l'ITA %{name}"
+      title: "Editer l'Interdiction de Trafic entre Arrêts %{name}"
     show:
-      title: "ITA %{name}"
+      title: "Interdiction de Trafic entre Arrêts %{name}"
     index:
-      title: "Interdictions de Traffic entre Arrêts "
+      title: "Interdictions de Traffic entre Arrêts"
 
   activerecord:
     models:

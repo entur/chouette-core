@@ -1,31 +1,31 @@
 en:
   stop_area_routing_constraints:
-    search_no_results: "No Constraint Zone"
+    search_no_results: "No Stop Area Routing Constraint"
     direction:
-      both_way: Two ways
+      both_way: Both ways
       one_way: One way
     actions:
-      new: "Add a Constraint Zone"
-      create: "Add a Constraint Zone"
-      edit: "Editer cette Constraint Zone"
-      update: "Editer cette Constraint Zone"
+      new: "Add a Stop Area Routing Constraint"
+      create: "Add a Stop Area Routing Constraint"
+      edit: "Edit Stop Area Routing Constraint"
+      update: "Edit Stop Area Routing Constraint"
       destroy: "Supprimer"
-      destroy_confirm: "Etes vous sûr de supprimer cette Constraint Zone?"
+      destroy_confirm: "Are you sure to destroy Stop Area Routing Constraint?"
     filters:
-      stop: Indiquez un arrêt...
-      direction: Indiquez une direction...
+      stop: Fill Stop Area...
+      direction: Fill a direction...
     new:
-      title: "Add a Constraint Zone"
+      title: "Add a Stop Area Routing Constraint"
     create:
-      title: "Add a Constraint Zone"
+      title: "Add a Stop Area Routing Constraint"
     edit:
-      title: "Edit Constraint Zone %{name}"
+      title: "Edit Stop Area Routing Constraint %{name}"
     update:
-      title: "Edit Constraint Zone %{name}"
+      title: "Edit Stop Area Routing Constraint %{name}"
     show:
-      title: "Constraint Zone %{name}"
+      title: "Stop Area Routing Constraint %{name}"
     index:
-      title: "Between Stops Constraint Zones"
+      title: "Stop Area Routing Constraints"
 
   activerecord:
     models:
@@ -36,7 +36,7 @@ en:
     attributes:
       stop_area_routing_constraint:
         name: "Nom"
-        both_way: Two ways
+        both_way: Both ways
         direction: Direction
         from: Start stop
         to: Destination stop
@@ -52,4 +52,4 @@ en:
               must_be_in_same_referential: Both stops miust belong to the same referential
               must_be_a_different_stop: The 2 stops must be distinct
             from:
-              must_be_in_same_referential: Both stops miust belong to the same referential
+              must_be_in_same_referential: Both stops must belong to the same referential
