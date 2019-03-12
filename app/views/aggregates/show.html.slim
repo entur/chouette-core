@@ -29,11 +29,12 @@ ruby:
         [ \
           TableBuilderHelper::Column.new( \
             name: I18n.t('aggregates.show.finalized_offer'), \
-            attribute: 'name', \
+            attribute: lambda do |item| \
+              label = item.contains_urgent_offer? ? render_urgent_icon : ''; \
+              label << item.name; \
+              link_to(label, referential_path(item)) \
+            end, \
             sortable: false, \
-            link_to: lambda do |item| \
-              referential_path(item) \
-            end \
           ) \
         ], cls: 'table'
 
