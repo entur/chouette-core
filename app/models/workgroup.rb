@@ -100,10 +100,10 @@ class Workgroup < ApplicationModel
 
   def aggregate_urgent_data!
     target_referentials = aggregatable_referentials.select do |r|
-      aggregated_at.blank? || (r.flagged_urgent_at > aggregated_at)
+      aggregated_at.blank? || (r.flagged_urgent_at.present? && r.flagged_urgent_at > aggregated_at)
     end
 
-    aggregates.create!(referentials: target_referentials, creator: 'webservice', notification_target: nil)
+    aggregates.create!(referentials: target_referentials, creator: 'webservice', notification_target: nil) if target_referentials.present?
   end
 
   def nightly_aggregate!
