@@ -103,7 +103,7 @@ export default class ConstraintExclusionEditVehicleJourney extends Component {
       this.fetch_constraint_zones()
       fetched = false
     }
-    if(this.stop_area_constraints === null) {
+    if(this.props.stopAreasConstraints && this.stop_area_constraints === null) {
       this.fetch_stop_area_constraints()
       fetched = false
     }
@@ -192,7 +192,8 @@ export default class ConstraintExclusionEditVehicleJourney extends Component {
                             </div>
                           </div>
                         </div>
-                        <div className='row'>
+
+                        { this.props.stopAreasConstraints && <div className='row'>
                           <div className='col-lg-12'>
                             <div className='subform'>
                               <div className='nested-head'>
@@ -246,7 +247,7 @@ export default class ConstraintExclusionEditVehicleJourney extends Component {
                               }
                             </div>
                           </div>
-                        </div>
+                        </div> }
                       </div>
                       {
                         this.props.editMode &&

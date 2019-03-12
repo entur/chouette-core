@@ -2,6 +2,8 @@ class StopAreaRoutingConstraintsController < ChouetteController
   include ApplicationHelper
   include PolicyChecker
 
+  requires_feature :stop_area_routing_constraints
+
   defaults :resource_class => StopAreaRoutingConstraint
   respond_to :html, :json
 
