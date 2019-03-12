@@ -854,6 +854,7 @@ ActiveRecord::Schema.define(version: 2019_04_16_143445) do
     t.datetime "failed_at"
     t.index ["created_from_id"], name: "index_referentials_on_created_from_id"
     t.index ["referential_suite_id"], name: "index_referentials_on_referential_suite_id"
+    t.index ["slug"], name: "index_referentials_on_slug", unique: true
   end
 
   create_table "routes", id: :serial, force: :cascade do |t|
