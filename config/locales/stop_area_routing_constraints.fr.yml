@@ -25,7 +25,7 @@ fr:
     show:
       title: "Interdiction de Trafic entre Arrêts %{name}"
     index:
-      title: "Interdictions de Traffic entre Arrêts"
+      title: "Interdictions de Trafic entre Arrêts"
 
   activerecord:
     models:
