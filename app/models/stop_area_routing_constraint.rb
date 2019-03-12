@@ -15,6 +15,10 @@ class StopAreaRoutingConstraint < ApplicationModel
   validate :both_stops_in_the_same_referential
   validate :different_stops
 
+  def update_vehicle_journey_checksums
+    vehicle_journeys.each(&:update_checksum!)
+  end
+  after_save :update_vehicle_journey_checksums
   after_commit :clean_ignored_stop_area_routing_constraint_ids, on: :destroy
 
   scope :with_stop, ->(stop_id){
