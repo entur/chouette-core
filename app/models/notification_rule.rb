@@ -15,4 +15,8 @@ class NotificationRule < ApplicationModel
   validates_presence_of :line
   validates_presence_of :notification_type
   validates_presence_of :period
+
+  def name
+    NotificationRule.tmf('name', notification_type: "notification_rules.notification_types.#{notification_type}".t, from: I18n.l(period.begin), to: I18n.l(period.end))
+  end
 end

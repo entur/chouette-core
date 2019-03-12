@@ -19,7 +19,8 @@
               ),
               TableBuilderHelper::Column.new( \
                 key: :period, \
-                attribute: Proc.new {|o| t('bounding_dates', debut: o.period.begin, end: o.period.end)}, \
+                attribute: Proc.new {|o| t('bounding_dates', debut: l(o.period.begin), end: l(o.period.end))}, \
+                link_to: Proc.new {|o| [o.workbench, o]}, \
               ), \
               TableBuilderHelper::Column.new( \
                 key: :line_id, \

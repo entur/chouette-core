@@ -29,3 +29,4 @@ en:
         period: Period
         notification_type: Notification types
         line_id: Line
+        name: "%{notification_type} from %{from} to %{to}"

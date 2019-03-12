@@ -7,7 +7,7 @@ class NotificationRulesController < ChouetteController
   belongs_to :workbench
   before_action :update_period_params, only: [:create, :update]
 
-  def index 
+  def index
     index! do |format|
       scope = ransack_period_range(scope: @notification_rules, error_message:  t('referentials.errors.validity_period'), query: :in_periode, prefix: :notification_rule)
       @q = scope.ransack(params[:q])
@@ -51,15 +51,15 @@ class NotificationRulesController < ChouetteController
 
   def update_period_params
     start_date = Date.new(
-      params['period']['begin(1i)'].to_i,
-      params['period']['begin(2i)'].to_i,
-      params['period']['begin(3i)'].to_i,
+      params['period']['min(1i)'].to_i,
+      params['period']['min(2i)'].to_i,
+      params['period']['min(3i)'].to_i,
     )
 
     end_date = Date.new(
-      params['period']['end(1i)'].to_i,
-      params['period']['end(2i)'].to_i,
-      params['period']['end(3i)'].to_i,
+      params['period']['max(1i)'].to_i,
+      params['period']['max(2i)'].to_i,
+      params['period']['max(3i)'].to_i,
     )
     params['period'] = Range.new(start_date, end_date)
   end
