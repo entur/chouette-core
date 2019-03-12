@@ -19,7 +19,19 @@ class ImportMessagesController < ChouetteController
   end
 
   def parent
-    scope = current_organisation.imports
+    scope = begin
+      if params[:workgroup_id]
+        Workgroup.find(params[:workgroup_id]).imports
+      else
+        current_organisation.imports
+      end
+    end
     @import_resource ||= Import::Resource.joins(:import).merge(scope).find(params[:import_resource_id])
+  end
+
+  def begin_of_association_chain
+    return Workgroup.find(params[:workgroup_id]) if params[:workgroup_id]
+
+    super
   end
 end
