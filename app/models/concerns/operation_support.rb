@@ -41,6 +41,10 @@ module OperationSupport
     referentials.map(&:name).to_sentence
   end
 
+  def contains_urgent_offer?
+    referentials.any?(&:contains_urgent_offer?)
+  end
+
   def publish
     workgroup.publication_setups.enabled.each do |publication_setup|
       publication_setup.publish self

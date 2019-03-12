@@ -1,16 +1,18 @@
 module MergesHelper
-  def merge_status(status, current_icon=false)
+  def merge_status(merge)
     content_tag :span, '' do
-      concat operation_status(status)
-      concat render_current_icon if current_icon
+      concat operation_status(merge.status)
+      concat render_current_icon if merge.is_current?
+      concat render_urgent_icon if merge.contains_urgent_offer?
     end
   end
 
   def render_current_icon
-    content_tag :span, '',
-      class: 'sb sb-compliance_control_set',
-      style: 'margin-left:5px; font-weight: 600',
-      title: I18n.t('merges.show.table.state.title')
+    render_icon 'sb sb-compliance_control_set', I18n.t('merges.show.table.state.title')
+  end
+
+  def render_urgent_icon
+    render_icon 'fa fa-flag', I18n.t('merges.show.table.state.urgent'), 'color: #da2f36'
   end
 
   def merge_metadatas(merge)
@@ -21,7 +23,8 @@ module MergesHelper
       Merge.tmf(:operator) => merge.creator,
       Merge.tmf(:created_at) => merge.created_at ? l(merge.created_at) : '-',
       Merge.tmf(:ended_at) => merge.ended_at ? l(merge.ended_at) : '-',
-      Merge.tmf(:notification_target) => I18n.t("operation_support.notification_targets.#{merge.notification_target || 'none'}")
+      Merge.tmf(:notification_target) => I18n.t("operation_support.notification_targets.#{merge.notification_target || 'none'}"),
+      Merge.tmf(:contains_urgent_offer) => boolean_icon(merge.contains_urgent_offer?)
     }
   end
 end

@@ -39,6 +39,7 @@ en:
         available_referentials: "Avalaible data spaces"
         selected_referentials: "Selected data spaces"
         notification_target: Notifications recipients
+        contains_urgent_offer: Handles urgent offer
     errors:
       models:
         aggregate:
