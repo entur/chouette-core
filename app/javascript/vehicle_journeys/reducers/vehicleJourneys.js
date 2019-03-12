@@ -259,12 +259,14 @@ export default function vehicleJourneys(state = [], action) {
       })
     case 'EDIT_VEHICLEJOURNEYS_CONSTRAINT_ZONES':
       let newExclusions = JSON.parse(JSON.stringify(action.zones))
+      let newStopAreasExclusions = JSON.parse(JSON.stringify(action.stop_area_constraints))
       return state.map((vj,i) =>{
         if(vj.selected){
           let updatedVJ = _.assign({}, vj)
           action.vehicleJourneys.map((vjm, j) =>{
             if(vj.objectid == vjm.objectid){
               updatedVJ.ignored_routing_contraint_zone_ids =  newExclusions
+              updatedVJ.ignored_stop_area_routing_constraint_ids =  newStopAreasExclusions
             }
           })
           return updatedVJ

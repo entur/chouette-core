@@ -23,11 +23,17 @@ const mapDispatchToProps = (dispatch) => {
     onDeleteConstraintZone: (constraint_zone) => {
       dispatch(actions.deleteConstraintZone(constraint_zone))
     },
-    onConstraintZonesEditVehicleJourney: (vehicleJourneys, constraint_zones) => {
-      dispatch(actions.editVehicleJourneyConstraintZones(vehicleJourneys, constraint_zones))
+    onDeleteStopAreasConstraint: (constraint_zone) => {
+      dispatch(actions.deleteStopAreasConstraint(constraint_zone))
+    },
+    onConstraintZonesEditVehicleJourney: (vehicleJourneys, constraint_zones, stop_areas_constraints) => {
+      dispatch(actions.editVehicleJourneyConstraintZones(vehicleJourneys, constraint_zones, stop_areas_constraints))
     },
     onSelectConstraintZone: (e) => {
       dispatch(actions.selectConstraintZone(e.params.data))
+    },
+    onSelectStopAreasConstraint: (e) => {
+      dispatch(actions.selectStopAreasConstraint(e.params.data))
     },
   }
 }

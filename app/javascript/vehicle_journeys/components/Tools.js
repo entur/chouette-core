@@ -52,7 +52,7 @@ export default class Tools extends Component {
             <PurchaseWindowsEditVehicleJourney disabled={hasDeletedVJ()}/>
           }
           { !selectionMode && hasFeature('routing_constraint_zone_exclusion_in_vehicle_journey') &&
-            <ConstraintExclusionEditVehicleJourney disabled={hasDeletedVJ()} />
+            <ConstraintExclusionEditVehicleJourney disabled={hasDeletedVJ()} stopAreasConstraints={hasFeature('stop_area_routing_constraints')} />
           }
           { !selectionMode && <NotesEditVehicleJourney disabled={hasDeletedVJ()}/> }
           { !selectionMode && <DeleteVehicleJourneys disabled={!hasPolicy("destroy") || !editMode || hasDeletedVJ()}/> }

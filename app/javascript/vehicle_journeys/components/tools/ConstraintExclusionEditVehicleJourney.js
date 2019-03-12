@@ -10,18 +10,25 @@ export default class ConstraintExclusionEditVehicleJourney extends Component {
     super(props)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.constraintZoneUrl = this.constraintZoneUrl.bind(this)
+    this.stopAreasConstraintUrl = this.stopAreasConstraintUrl.bind(this)
     this.excluded_constraint_zones = this.excluded_constraint_zones.bind(this)
+    this.excluded_stop_area_constraints = this.excluded_stop_area_constraints.bind(this)
     this.constraint_zones = null
+    this.stop_area_constraints = null
   }
 
   handleSubmit() {
-    this.props.onConstraintZonesEditVehicleJourney(this.props.modal.modalProps.vehicleJourneys, this.props.modal.modalProps.selectedConstraintZones)
+    this.props.onConstraintZonesEditVehicleJourney(this.props.modal.modalProps.vehicleJourneys, this.props.modal.modalProps.selectedConstraintZones, this.props.modal.modalProps.selectedStopAreasConstraints)
     this.props.onModalClose()
     $('#ConstraintExclusionEditVehicleJourney').modal('hide')
   }
 
   constraintZoneUrl(contraint_zone) {
     return window.constraint_zones_routes + "/" + contraint_zone.id
+  }
+
+  stopAreasConstraintUrl(contraint) {
+    return window.stop_area_constraints_routes + "/" + contraint.id
   }
 
   excluded_constraint_zones() {
@@ -36,7 +43,22 @@ export default class ConstraintExclusionEditVehicleJourney extends Component {
     return out
   }
 
+  excluded_stop_area_constraints() {
+    let out = []
+    this.props.modal.modalProps.selectedStopAreasConstraints.map((id, _)=>{
+      this.stop_area_constraints.map((zone, _)=>{
+        if(zone.id == id){
+          out.push(zone)
+        }
+      })
+    })
+    return out
+  }
+
   fetch_constraint_zones() {
+    if(this.fetching_constraint_zones){ return }
+    this.fetching_constraint_zones = true
+
     let url = window.constraint_zones_routes + ".json"
     fetch(url, {
       credentials: 'same-origin',
@@ -49,15 +71,46 @@ export default class ConstraintExclusionEditVehicleJourney extends Component {
           _.assign({}, item, {text: item.name})
         )
       })
+      this.fetching_constraint_zones = false
+      this.forceUpdate()
+    })
+  }
+
+  fetch_stop_area_constraints() {
+    if(this.fetching_stop_area_constraints){ return }
+    this.fetching_stop_area_constraints = true
+
+    let url = window.stop_area_constraints_routes + ".json"
+    fetch(url, {
+      credentials: 'same-origin',
+    }).then(response => {
+      return response.json()
+    }).then((json) => {
+      this.stop_area_constraints = []
+      json.map((item, i)=>{
+        this.stop_area_constraints.push(
+          _.assign({}, item, {text: item.name})
+        )
+      })
+      this.fetching_stop_area_constraints = false
       this.forceUpdate()
     })
   }
 
   render() {
+    let fetched = true
     if(this.constraint_zones === null) {
       this.fetch_constraint_zones()
+      fetched = false
+    }
+    if(this.props.stopAreasConstraints && this.stop_area_constraints === null) {
+      this.fetch_stop_area_constraints()
+      fetched = false
+    }
+    if(!fetched){
       return false
     }
+
     if(this.props.status.fetchSuccess == true) {
       return (
         <li className='st_action'>
@@ -139,6 +192,62 @@ export default class ConstraintExclusionEditVehicleJourney extends Component {
                             </div>
                           </div>
                         </div>
+
+                        { this.props.stopAreasConstraints && <div className='row'>
+                          <div className='col-lg-12'>
+                            <div className='subform'>
+                              <div className='nested-head'>
+                                <div className='wrapper'>
+                                  <div>
+                                    <div className='form-group'>
+                                      <label className='control-label'>{this.excluded_stop_area_constraints().length == 0 ? I18n.t('vehicle_journeys.vehicle_journeys_matrix.no_excluded_stop_area_constraint') : I18n.t('vehicle_journeys.form.excluded_stop_area_constraints')}</label>
+                                    </div>
+                                  </div>
+                                  <div></div>
+                                </div>
+                              </div>
+                              {this.excluded_stop_area_constraints().map((contraint_zone, i) =>
+                                <div className='nested-fields' key={i}>
+                                  <div className='wrapper'>
+                                    <div> <a href={this.stopAreasConstraintUrl(contraint_zone)} target="_blank">
+                                      {contraint_zone.name}
+                                    </a> </div>
+                                    {
+                                      this.props.editMode &&
+                                      <div>
+                                        <a
+                                          href='#'
+                                          title='Supprimer'
+                                          className='fa fa-trash remove_fields'
+                                          style={{ height: 'auto', lineHeight: 'normal' }}
+                                          onClick={(e) => {
+                                            e.preventDefault()
+                                            this.props.onDeleteStopAreasConstraint(contraint_zone)
+                                          }}
+                                        ></a>
+                                      </div>
+                                    }
+                                  </div>
+                                </div>
+                              )}
+                              {
+                                this.props.editMode &&
+                                <div className='nested-fields'>
+                                  <div className='wrapper'>
+                                    <div>
+                                      <ConstraintZoneSelect2
+                                        data={this.stop_area_constraints}
+                                        values={this.props.modal.modalProps.stop_area_constraints}
+                                        placeholder={I18n.t('vehicle_journeys.vehicle_journeys_matrix.filters.stop_area_constraint')}
+                                        onSelectConstraintZone={this.props.onSelectStopAreasConstraint}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        </div> }
                       </div>
                       {
                         this.props.editMode &&
