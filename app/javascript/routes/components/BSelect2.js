@@ -50,27 +50,30 @@ export default class BSelect3 extends Component {
   }
 
   render() {
-    if(this.props.value.edit)
+    const { hasError, value } = this.props
+    if(value.edit)
       return (
-        <div className='select2-bootstrap-append'>
+        <div className={`select2-bootstrap-append ${hasError && 'has-error'}`}>
           <BSelect2 {...this.props} onSelect={ this.onChange.bind(this) }/>
+          { hasError && <span className='help-block small'>Aucun arrêt défini</span> }
         </div>
       )
     else
-      if(!this.props.value.stoparea_id)
+      if(!value.stoparea_id)
         return (
           <div>
             <BSelect2 {...this.props} onSelect={ this.onChange.bind(this) }/>
+            { hasError && <span className='help-block small'>Aucun arrêt défini</span> }
           </div>
         )
       else
         return (
           <a
             className='navlink'
-            href={origin + '/stop_areas_referentials/' + this.props.value.stop_area_referential_id + '/stop_areas/' + this.props.value.stoparea_id}
+            href={origin + '/stop_areas_referentials/' + value.stop_area_referential_id + '/stop_areas/' + value.stoparea_id}
             title="Voir l'arrêt"
           >
-            {this.parsedText(this.props.value.text)}
+            {this.parsedText(value.text)}
           </a>
         )
   }

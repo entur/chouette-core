@@ -114,10 +114,15 @@ ChouetteIhm::Application.routes.draw do
       end
       resources :routes do
         member do
+          get 'fetch_route'
           get 'edit_boarding_alighting'
           put 'save_boarding_alighting'
           get 'costs'
           post 'duplicate', to: 'routes#duplicate'
+        end
+        collection do
+          get 'fetch_user_permissions'
+          get 'fetch_opposite_routes'
         end
         resource :journey_patterns_collection, :only => [:show, :update]
         resources :journey_patterns do

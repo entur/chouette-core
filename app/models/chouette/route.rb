@@ -66,6 +66,7 @@ module Chouette
         where(" position between ? and ? ", between_positions.first, between_positions.last)
       end
     end
+    accepts_nested_attributes_for :stop_points, allow_destroy: true
 
     has_many :vehicle_journey_at_stops, through: :vehicle_journeys
 

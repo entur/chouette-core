@@ -15,7 +15,7 @@ export default function StopPoint(props) {
         </div>
 
         <div>
-          <BSelect2 id={props.id} value={props.value} onChange={props.onChange} index={props.index} />
+          <BSelect2 id={props.id} value={props.value} onChange={props.onChange} index={props.index} hasError={props.hasError}/>
         </div>
 
         <div>

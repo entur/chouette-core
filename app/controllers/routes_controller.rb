@@ -10,7 +10,7 @@ class RoutesController < ChouetteController
   belongs_to :referential do
     belongs_to :line, :parent_class => Chouette::Line, :optional => true, :polymorphic => true
   end
-  before_action :define_candidate_opposite_routes, only: [:new, :edit]
+  before_action :define_candidate_opposite_routes, only: [:new, :edit, :fetch_opposite_routes]
 
   def index
     index! do |format|
@@ -57,6 +57,17 @@ class RoutesController < ChouetteController
 
   def create
     create! do |success, failure|
+      success.json { redirect_to referential_line_path(@referential,@line) }
+      failure.json  { render json: route.errors, status: 422 }
+      success.html { redirect_to referential_line_path(@referential,@line) }
+      failure.html { flash[:alert] = route.errors[:flash]; render :action => :new }
+    end
+  end
+
+  def update
+    update! do |success, failure|
+      success.json { redirect_to referential_line_path(@referential,@line) }
+      failure.json  { render json: route.errors, status: 422 }
       success.html { redirect_to referential_line_path(@referential,@line) }
       failure.html { flash[:alert] = route.errors[:flash]; render :action => :new }
     end
@@ -72,6 +83,25 @@ class RoutesController < ChouetteController
   def costs
     @route = resource
   end
+
+  # React endpoints
+
+  def fetch_route
+  end
+
+  def fetch_user_permissions
+    perms =
+    %w{create destroy update}.inject({}) do | permissions, action |
+        permissions.merge({"routes.#{action}": policy(Chouette::Route).authorizes_action?(action)})
+      end.to_json
+
+      render json: perms
+  end
+
+  def fetch_opposite_routes
+    render json: { straight_forward: @forward, backward: @backward }
+  end
+
 
   protected
 

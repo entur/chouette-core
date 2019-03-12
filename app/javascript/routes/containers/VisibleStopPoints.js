@@ -1,10 +1,12 @@
 import actions from '../actions'
 import  { connect } from 'react-redux'
 import StopPointList from '../components/StopPointList'
+import { getVisibleStopPoints } from '../reducers/stopPoints'
 
 const mapStateToProps = (state) => {
   return {
-    stopPoints: state.stopPoints
+    stopPoints: getVisibleStopPoints(state.stopPoints),
+    errors: state.formErrors.stopPoints
   }
 }
 
