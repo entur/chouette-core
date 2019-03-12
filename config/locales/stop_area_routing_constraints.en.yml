@@ -30,9 +30,9 @@ en:
   activerecord:
     models:
       stop_area_routing_constraint:
-        zero:  "Constraint Zone"
-        one:   "Constraint Zone"
-        other: "Constraint Zones"
+        zero:  "StopAreas Routing Constraint"
+        one:   "StopAreas Routing Constraint"
+        other: "StopAreas Routing Constraints"
     attributes:
       stop_area_routing_constraint:
         name: "Nom"

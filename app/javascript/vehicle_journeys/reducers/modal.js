@@ -87,28 +87,32 @@ export default function modal(state = {}, action) {
       let uniqExclusions = []
       let uniqStopAreasExclusions = []
       vehicleJourneys.map((vj, i) => {
-        vj.ignored_routing_contraint_zone_ids.map((exclusion, j) =>{
-          let found = false
-          uniqExclusions.map((id, i)=>{
-            if(id == parseInt(exclusion)){
-              found = true
+        if(vj.ignored_routing_contraint_zone_ids){
+          vj.ignored_routing_contraint_zone_ids.map((exclusion, j) =>{
+            let found = false
+            uniqExclusions.map((id, i)=>{
+              if(id == parseInt(exclusion)){
+                found = true
+              }
+            })
+            if(!found){
+              uniqExclusions.push(parseInt(exclusion))
             }
           })
-          if(!found){
-            uniqExclusions.push(parseInt(exclusion))
-          }
-        })
-        vj.ignored_stop_area_routing_constraint_ids.map((exclusion, j) =>{
-          let found = false
-          uniqStopAreasExclusions.map((id, i)=>{
-            if(id == parseInt(exclusion)){
-              found = true
+        }
+        if(vj.ignored_stop_area_routing_constraint_ids){
+          vj.ignored_stop_area_routing_constraint_ids.map((exclusion, j) =>{
+            let found = false
+            uniqStopAreasExclusions.map((id, i)=>{
+              if(id == parseInt(exclusion)){
+                found = true
+              }
+            })
+            if(!found){
+              uniqStopAreasExclusions.push(parseInt(exclusion))
             }
           })
-          if(!found){
-            uniqStopAreasExclusions.push(parseInt(exclusion))
-          }
-        })
+        }
       })
       return {
         type: 'constraint_exclusions_edit',

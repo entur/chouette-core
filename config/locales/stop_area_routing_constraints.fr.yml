@@ -26,13 +26,13 @@ fr:
       title: "ITA %{name}"
     index:
       title: "Interdictions de Traffic entre Arrêts "
-      
+
   activerecord:
     models:
       stop_area_routing_constraint:
-        zero:  "ITA"
-        one:   "ITA"
-        other: "ITAs"
+        zero:  "Interdiction de Trafic entre Arrêts"
+        one:   "Interdiction de Trafic entre Arrêts"
+        other: "Interdictions de Trafic entre Arrêts"
     attributes:
       stop_area_routing_constraint:
         name: "Nom"
