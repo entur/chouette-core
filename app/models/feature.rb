@@ -20,6 +20,7 @@ class Feature
       stop_area_localized_names
       stop_area_waiting_time
       vehicle_journeys_return_route
+      stop_area_routing_constraints
     }
  end
 end
