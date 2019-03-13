@@ -28,7 +28,7 @@
             ), \
             TableBuilderHelper::Column.new( \
               name: Referential.tmf(:name), \
-              attribute: Proc.new {|w| w.referential_to_aggregate.try(:name) || '-' }, \
+              attribute: Proc.new {|w| w.referential_to_aggregate && decorate_referential_name(w.referential_to_aggregate) || '-' }, \
               sortable: false\
             ), \
             TableBuilderHelper::Column.new( \

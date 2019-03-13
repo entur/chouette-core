@@ -25,10 +25,17 @@
             = table_builder_2 @wbench_refs,
               [ \
                 TableBuilderHelper::Column.new( \
+                  key: :urgent, \
+                  name: false, \
+                  attribute: lambda do |referential| \
+                    referential.contains_urgent_offer? ? render_urgent_referential_icon : nil \
+                  end, \
+                  sortable: false\
+                ), \
+                TableBuilderHelper::Column.new( \
                   key: :name, \
-                  attribute: 'name', \
-                  link_to: lambda do |referential| \
-                    referential_path(referential) \
+                  attribute: lambda do |referential| \
+                    link_to(referential.name, referential_path(referential)) \
                   end \
                 ), \
                 TableBuilderHelper::Column.new( \

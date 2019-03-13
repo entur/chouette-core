@@ -31,6 +31,13 @@ module ReferentialsHelper
     "<div class='td-block'>#{state_icon}<span>#{"referentials.states.#{referential.state}".t}</span></div>".html_safe
   end
 
+  def decorate_referential_name(referential)
+    out = ""
+    out += render_urgent_referential_icon if referential.contains_urgent_offer?
+    out += referential.name
+    out.html_safe
+  end
+
   def render_urgent_referential_icon
     render_icon 'fa fa-flag', Referential.tmf(:urgent), 'color: #da2f36'
   end
@@ -40,7 +47,6 @@ module ReferentialsHelper
       out = content_tag(:span, title: "referentials.states.#{referential.state}".t) do
         icon_for_referential_state(referential.state)
       end
-      out += render_urgent_referential_icon if referential.contains_urgent_offer?
       out
     end
   end
