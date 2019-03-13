@@ -28,4 +28,14 @@ RSpec.describe StopAreaRoutingConstraint, type: :model do
       expect(StopAreaRoutingConstraint.with_stop(constraint.to)).to match_array [constraint, common_constraint]
     end
   end
+
+  describe '#vehicle_journeys' do
+    let(:ignoring){ create :vehicle_journey }
+    let(:not_ignoring){ create :vehicle_journey }
+    it 'should fetch the vehicle_journeys ignoring the subject' do
+      not_ignoring
+      ignoring.update ignored_stop_area_routing_constraint_ids: [subject.id]
+      expect(subject.vehicle_journeys).to match_array [ignoring]
+    end
+  end
 end
