@@ -56,11 +56,17 @@ class RoutesController < ChouetteController
   end
 
   def create
-    create!
+    create! do |success, failure|
+      failure.json { render json: { message: t('flash.actions.create.error', resource_name: t('activerecord.models.route.one')), status: 422 } }
+      success.json { render json: { message: t('flash.actions.create.notice', resource_name: t('activerecord.models.route.one')), status: 200 } }
+    end
   end
 
   def update
-    update!
+    update! do |success, failure|
+      failure.json { render json: { message: t('flash.actions.update.error', resource_name: t('activerecord.models.route.one')), status: 422 } }
+      success.json { render json: { message: t('flash.actions.update.notice', resource_name: t('activerecord.models.route.one')) }, status: 200 }
+    end
   end
 
   def duplicate

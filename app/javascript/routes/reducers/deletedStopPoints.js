@@ -1,4 +1,4 @@
-const deletedStopPoints = (state = {}, action, length) => {
+const deletedStopPoints = (state = [], action, length) => {
   switch (action.type) {
     case 'DELETE_STOP':
       const deletedStopPoint = { id: action.stopPointId, _destroy: true }
