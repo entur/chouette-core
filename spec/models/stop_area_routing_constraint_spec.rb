@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe StopAreaRoutingConstraint, type: :model do
-  subject { create(:stop_area_routing_constraint) }
+  subject { create(:stop_area_routing_constraint, stop_area_referential: referential.stop_area_referential) }
 
   it 'should validate that both stops are in the same referential and different' do
     stop_1 = build :stop_area
@@ -29,13 +29,21 @@ RSpec.describe StopAreaRoutingConstraint, type: :model do
     end
   end
 
-  describe '#vehicle_journeys' do
+  describe '#each_vehicle_journey' do
     let(:ignoring){ create :vehicle_journey }
     let(:not_ignoring){ create :vehicle_journey }
-    it 'should fetch the vehicle_journeys ignoring the subject' do
+    let(:other_refential){ create :referential }
+    it 'should find the vehicle_journeys ignoring the subject' do
+      @found = []
       not_ignoring
       ignoring.update ignored_stop_area_routing_constraint_ids: [subject.id]
-      expect(subject.vehicle_journeys).to match_array [ignoring]
+
+      # we must look for vehicle_journeys in all referentials
+      other_refential.switch
+      subject.each_vehicle_journey do |found|
+        @found << found
+      end
+      expect(@found).to match_array [ignoring]
     end
   end
 end

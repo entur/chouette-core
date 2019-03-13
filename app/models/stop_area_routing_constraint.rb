@@ -16,9 +16,17 @@ class StopAreaRoutingConstraint < ApplicationModel
   validate :different_stops
 
   def update_vehicle_journey_checksums
-    vehicle_journeys.each(&:update_checksum!)
+    each_vehicle_journey &:update_checksum!
   end
+
   after_save :update_vehicle_journey_checksums
+
+  def clean_ignored_stop_area_routing_constraint_ids
+    each_vehicle_journey do |vj|
+      vj.update ignored_stop_area_routing_constraint_ids: vj.ignored_stop_area_routing_constraint_ids - [self.id]
+    end
+  end
+  
   after_commit :clean_ignored_stop_area_routing_constraint_ids, on: :destroy
 
   scope :with_stop, ->(stop_id){
@@ -60,9 +68,17 @@ class StopAreaRoutingConstraint < ApplicationModel
     ]
   end
 
-  def clean_ignored_stop_area_routing_constraint_ids
-    vehicle_journeys.find_each do |vj|
-      vj.update ignored_stop_area_routing_constraint_ids: vj.ignored_stop_area_routing_constraint_ids - [self.id]
+  def referentials
+    Referential.where(stop_area_referential_id: stop_area_referential.id)
+  end
+
+  def each_vehicle_journey
+    referentials.each do |r|
+      r.switch do
+        vehicle_journeys.each do |vj|
+          yield vj
+        end
+      end
     end
   end
 end
