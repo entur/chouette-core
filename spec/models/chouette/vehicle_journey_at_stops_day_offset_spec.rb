@@ -119,6 +119,78 @@ describe Chouette::VehicleJourneyAtStop do
       expect(at_stops[3].departure_day_offset).to eq(2)
     end
 
+    context 'with offsets already set' do
+      it "keeps the offsets" do
+        at_stops = []
+        [
+          ['22:30', '22:35', 0],
+          ['01:02', '01:14', 1],
+          ['04:30', '04:35', 2],
+          ['00:00', '00:04', 3],
+        ].each do |arrival_time, departure_time, offset|
+          at_stops << build_stubbed(
+            :vehicle_journey_at_stop,
+            arrival_time: arrival_time,
+            departure_time: departure_time,
+            arrival_day_offset: offset,
+            departure_day_offset: offset
+          )
+        end
+
+        offsetter = Chouette::VehicleJourneyAtStopsDayOffset.new(at_stops)
+
+        offsetter.calculate!
+
+        expect(at_stops[0].arrival_day_offset).to eq(0)
+        expect(at_stops[0].departure_day_offset).to eq(0)
+
+        expect(at_stops[1].arrival_day_offset).to eq(1)
+        expect(at_stops[1].departure_day_offset).to eq(1)
+
+        expect(at_stops[2].arrival_day_offset).to eq(2)
+        expect(at_stops[2].departure_day_offset).to eq(2)
+
+        expect(at_stops[3].arrival_day_offset).to eq(3)
+        expect(at_stops[3].departure_day_offset).to eq(3)
+      end
+
+      context 'with force_reset true' do
+        it "resets the offsets" do
+          at_stops = []
+          [
+            ['22:30', '22:35', 0],
+            ['01:02', '01:14', 1],
+            ['04:30', '04:35', 2],
+            ['00:00', '00:04', 3],
+          ].each do |arrival_time, departure_time, offset|
+            at_stops << build_stubbed(
+              :vehicle_journey_at_stop,
+              arrival_time: arrival_time,
+              departure_time: departure_time,
+              arrival_day_offset: offset,
+              departure_day_offset: offset
+            )
+          end
+
+          offsetter = Chouette::VehicleJourneyAtStopsDayOffset.new(at_stops)
+
+          offsetter.calculate!(true)
+
+          expect(at_stops[0].arrival_day_offset).to eq(0)
+          expect(at_stops[0].departure_day_offset).to eq(0)
+
+          expect(at_stops[1].arrival_day_offset).to eq(1)
+          expect(at_stops[1].departure_day_offset).to eq(1)
+
+          expect(at_stops[2].arrival_day_offset).to eq(1)
+          expect(at_stops[2].departure_day_offset).to eq(1)
+
+          expect(at_stops[3].arrival_day_offset).to eq(2)
+          expect(at_stops[3].departure_day_offset).to eq(2)
+        end
+      end
+    end
+
     context "with stops in a different timezone" do
       before do
         allow_any_instance_of(Chouette::VehicleJourneyAtStop).to receive(:time_zone) {

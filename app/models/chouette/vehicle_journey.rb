@@ -211,10 +211,10 @@ module Chouette
       purchase_windows.map{|p| p.date_ranges.map &:max}.flatten.max
     end
 
-    def calculate_vehicle_journey_at_stop_day_offset
+    def calculate_vehicle_journey_at_stop_day_offset(force_reset=false)
       Chouette::VehicleJourneyAtStopsDayOffset.new(
         vehicle_journey_at_stops.sort_by{ |vjas| vjas.stop_point.position }
-      ).update
+      ).update(force_reset)
     end
 
     scope :without_any_time_table, -> { joins('LEFT JOIN "time_tables_vehicle_journeys" ON "time_tables_vehicle_journeys"."vehicle_journey_id" = "vehicle_journeys"."id" LEFT JOIN "time_tables" ON "time_tables"."id" = "time_tables_vehicle_journeys"."time_table_id"').where(:time_tables => { :id => nil}) }
@@ -260,6 +260,8 @@ module Chouette
             el[field.to_sym] = Time.parse("2000-01-01 #{time}:00 #{tz&.formatted_offset || "UTC"}")
           end
         end
+        params[:arrival_day_offset] = 0
+        params[:departure_day_offset] = 0
         stop = create_or_find_vjas_from_state(vjas)
         stop.update_attributes(params)
         vjas.delete('errors')
