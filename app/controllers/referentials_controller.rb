@@ -10,6 +10,10 @@ class ReferentialsController < ChouetteController
   before_action :check_cloning_source_is_accessible, only: %i(new create)
   before_action :check_lines_outside_of_functional_scope, only: :show
 
+  def index
+    redirect_to @workbench
+  end
+
   def new
     new! do
       build_referential
