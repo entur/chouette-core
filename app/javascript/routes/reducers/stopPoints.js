@@ -21,31 +21,36 @@ const stopPoint = (state = {}, action, length) => {
 }
 
 const stopPoints = (state = [], action) => {
-  const stopPoints = getVisibleStopPoints(state)
   switch (action.type) {
     case 'ADD_STOP':
       return [
-        ...stopPoints,
-        stopPoint(undefined, action, stopPoints.length)
+        ...state,
+        stopPoint(undefined, action, state.length)
       ]
     case 'MOVE_STOP_UP':
       return [
-        ...stopPoints.slice(0, action.index - 1),
-        _.assign({}, stopPoints[action.index], { index: action.index - 1 }),
-        _.assign({}, stopPoints[action.index - 1], { index: action.index }),
-        ...stopPoints.slice(action.index + 1)
+        ...state.slice(0, action.index - 1),
+        _.assign({}, state[action.index], { index: action.index - 1 }),
+        _.assign({}, state[action.index - 1], { index: action.index }),
+        ...state.slice(action.index + 1)
       ]
     case 'MOVE_STOP_DOWN':
       return [
-        ...stopPoints.slice(0, action.index),
-        _.assign({}, stopPoints[action.index + 1], { index: action.index }),
-        _.assign({}, stopPoints[action.index], { index: action.index + 1 }),
-        ...stopPoints.slice(action.index + 2)
+        ...state.slice(0, action.index),
+        _.assign({}, state[action.index + 1], { index: action.index }),
+        _.assign({}, state[action.index], { index: action.index + 1 }),
+        ...state.slice(action.index + 2)
       ]
     case 'DELETE_STOP':
-      return stopPoints.map((sp, i) => i === action.index ? Object.assign({}, sp, {_destroy: true}) : sp)
+      return [
+        ...state.slice(0, action.index),
+        ...state.slice(action.index + 1).map((stopPoint)=>{
+          stopPoint.index--
+          return stopPoint
+        })
+      ]
     case 'UPDATE_INPUT_VALUE':
-      return stopPoints.map( (t, i) => {
+      return state.map( (t, i) => {
         if (i === action.index) {
           let forAlightingAndBoarding = action.text.stoparea_kind === 'commercial' ? 'normal' : 'forbidden'
           return _.assign(
@@ -75,7 +80,7 @@ const stopPoints = (state = [], action) => {
         }
       })
     case 'UPDATE_SELECT_VALUE':
-      return stopPoints.map( (t, i) => {
+      return state.map( (t, i) => {
         if (i === action.index) {
           let stopState = _.assign({}, t)
           stopState[action.select_id] = action.select_value
@@ -85,7 +90,7 @@ const stopPoints = (state = [], action) => {
         }
       })
     case 'TOGGLE_EDIT':
-      return stopPoints.map((t, i) => {
+      return state.map((t, i) => {
         if (i === action.index){
           return _.assign({}, t, {edit: !t.edit})
         } else {
@@ -93,7 +98,7 @@ const stopPoints = (state = [], action) => {
         }
       })
     case 'TOGGLE_MAP':
-      return stopPoints.map( (t, i) => {
+      return state.map( (t, i) => {
         if (i === action.index){
           let val = !t.olMap.isOpened
           let jsonData = val ? _.assign({}, t, {olMap: undefined}) : {}
@@ -105,7 +110,7 @@ const stopPoints = (state = [], action) => {
         }
       })
     case 'SELECT_MARKER':
-      return stopPoints.map((t, i) => {
+      return state.map((t, i) => {
         if (i === action.index){
           let stateMap = _.assign({}, t.olMap, {json: action.data})
           return _.assign({}, t, {olMap: stateMap})
@@ -114,7 +119,7 @@ const stopPoints = (state = [], action) => {
         }
       })
     case 'UNSELECT_MARKER':
-      return stopPoints.map((t, i) => {
+      return state.map((t, i) => {
         if (i === action.index){
           let stateMap = _.assign({}, t.olMap, {json: {}})
           return _.assign({}, t, {olMap: stateMap})
@@ -130,10 +135,8 @@ const stopPoints = (state = [], action) => {
     case FETCH_ROUTE_SUCCESS:
       return action.json['stop_points']
     default:
-      return stopPoints
+      return state
   }
 }
 
 export default stopPoints
-
-export const getVisibleStopPoints = stopPointsState => stopPointsState.filter(sp => !sp._destroy)

@@ -41,7 +41,7 @@ export default function StopPointList({ stopPoints, onDeleteClick, onMoveUpClick
         <StopPoint
           id={`route_stop_point_${index + 1}`}
           key={'item-' + index}
-          onDeleteClick={() => onDeleteClick(index)}
+          onDeleteClick={() => onDeleteClick(index, stopPoint.stoppoint_id)}
           onMoveUpClick={() => {
             onMoveUpClick(index)
           }}

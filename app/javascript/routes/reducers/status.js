@@ -12,24 +12,20 @@ const status = (state = {}, action) => {
     case FETCH_USER_PERMISSIONS_START:
     case FETCH_OPPOSITE_ROUTES_START:
     case FETCH_ROUTE_START:
-      return Object.assign({}, state, fetchStart)
+      return Object.assign({}, state, { isFetching: true, fetchSuccess: false, fetchError: false })
     case FETCH_USER_PERMISSIONS_SUCCESS:
-      return Object.assign({}, state, {policy: action.json}, fetchSuccess)
+      return Object.assign({}, state, {policy: action.json}, { isFetching: false, fetchSuccess: true, fetchError: false })
     case FETCH_OPPOSITE_ROUTES_SUCCESS:
     case FETCH_ROUTE_SUCCESS:
-      return Object.assign({}, state, fetchSuccess)
+      return Object.assign({}, state, { isFetching: false, fetchSuccess: true, fetchError: false })
     case FETCH_USER_PERMISSIONS_ERROR:
     case FETCH_OPPOSITE_ROUTES_ERROR:
     case FETCH_ROUTE_ERROR:
-      return Object.assign({}, state, fetchError)
+      return Object.assign({}, state, { isFetching: false, fetchSuccess: false, fetchError: true })
     default:
       return state
   }
 }
-
-const fetchStart = { isFetching: true, fetchSuccess: false, fetchError: false }
-const fetchSuccess = { isFetching: false, fetchSuccess: true, fetchError: false }
-const fetchError = { isFetching: false, fetchSuccess: false, fetchError: true }
 
 export const isActionCreate = statusState => statusState.action === 'create'
 export const getRequestMethod = statusState => isActionCreate(statusState) ? 'POST' : 'PATCH'

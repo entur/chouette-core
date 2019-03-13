@@ -31,6 +31,7 @@
 
 = javascript_tag do
   | window.routeFormAction = "#{form_action}";
+  | window.redirectUrl = "#{redirect_url}";
   | window.routeSubmitUrl = "#{route_submit_url}";
   | window.fetchRouteUrl = "#{route_fetch_url}.json";
   | window.fetchUserPermissionsUrl = "#{url_for(action: 'fetch_user_permissions', controller: 'routes', only_path: false)}";

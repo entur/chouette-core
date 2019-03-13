@@ -5,7 +5,7 @@ const SelectInput = ({inputId, inputName, value, labelText, onChange, options}) 
 
   const renderOptions = () => {
     return options.reduce((array, route) => {
-      return array.concat (<option key={route.id} value={route.id} value={route.id === value}>{route.name}</option>)
+      return array.concat (<option key={route.id} value={route.id}>{route.name}</option>)
     }, [<option key='blank' value=''></option>])
   }
   return (
@@ -14,7 +14,7 @@ const SelectInput = ({inputId, inputName, value, labelText, onChange, options}) 
         {labelText}
       </label>
       <div className="col-sm-8 col-xs-7">
-        <select className="form-control select optional" name={inputName} id={inputId} onChange={onChange}>
+        <select className="form-control select optional" name={inputName} id={inputId} onChange={onChange} defaultValue={value || ''}>
           { renderOptions() }
         </select>
       </div>

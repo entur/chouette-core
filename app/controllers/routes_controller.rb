@@ -56,21 +56,11 @@ class RoutesController < ChouetteController
   end
 
   def create
-    create! do |success, failure|
-      success.json { redirect_to referential_line_path(@referential,@line) }
-      failure.json  { render json: route.errors, status: 422 }
-      success.html { redirect_to referential_line_path(@referential,@line) }
-      failure.html { flash[:alert] = route.errors[:flash]; render :action => :new }
-    end
+    create!
   end
 
   def update
-    update! do |success, failure|
-      success.json { redirect_to referential_line_path(@referential,@line) }
-      failure.json  { render json: route.errors, status: 422 }
-      success.html { redirect_to referential_line_path(@referential,@line) }
-      failure.html { flash[:alert] = route.errors[:flash]; render :action => :new }
-    end
+    update!
   end
 
   def duplicate
@@ -99,7 +89,7 @@ class RoutesController < ChouetteController
   end
 
   def fetch_opposite_routes
-    render json: { straight_forward: @forward, backward: @backward }
+    render json: { straight_forward: @backward, backward: @forward }
   end
 
 

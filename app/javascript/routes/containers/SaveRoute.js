@@ -1,6 +1,5 @@
 import  { connect } from 'react-redux'
 import SaveRouteComponent from '../components/SaveRoute'
-import { getVisibleStopPoints } from '../reducers/stopPoints'
 import { isActionCreate, getRequestMethod } from '../reducers/status'
 import { getStopPointsAttributes } from '../reducers/route'
 
@@ -22,7 +21,7 @@ const mapStateToProps = (state) => {
 
   return {
     route: state.route,
-    stopPoints: getVisibleStopPoints(state.stopPoints),
+    stopPoints: state.stopPoints,
     status: state.status,
     editMode: state.status.editMode,
     requestMethod: getRequestMethod(state.status),

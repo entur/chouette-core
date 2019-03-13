@@ -1,6 +1,5 @@
 import omit from 'lodash/omit'
 import { isActionCreate } from './status'
-import { getVisibleStopPoints } from './stopPoints'
 
 // Constants
 const UPDATE_ROUTE_FORM_INPUT = 'UPDATE_ROUTE_FORM_INPUT'
@@ -37,11 +36,8 @@ export const getDirection = (e) => {
   return el.textContent === el.dataset.checkedvalue ? 'straight_forward' : 'backward'
 }
 
-export default route
-
 export const getStopPointsAttributes = state => {
-  const collection = isActionCreate(state.status) ? getVisibleStopPoints(state.stopPoints) : state.stopPoints
-  return collection.map((sp, index) => {
+  const stopPoints = state.stopPoints.map((sp, index) => {
     return {
       id: sp.stoppoint_id || '',
       stop_area_id: sp.stoparea_id,
@@ -51,4 +47,8 @@ export const getStopPointsAttributes = state => {
       _destroy: sp._destroy
     }
   })
+
+  return stopPoints.concat(state.deletedStopPoints)
 }
+
+export default route

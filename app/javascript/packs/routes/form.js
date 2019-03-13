@@ -23,6 +23,7 @@ const initialState = {
     direction: 'straight_forward',
     wayback: 'outbound',
     opposite_route_id: null,
+    line_id: parseInt(window.location.pathname.split('/')[4])
   },
   stopPoints: [],
   status: {

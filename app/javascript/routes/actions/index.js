@@ -1,3 +1,5 @@
+import { getRedirectUrl } from '../reducers/status'
+
 const actions = {
   addStop : () => {
     return {
@@ -16,10 +18,11 @@ const actions = {
       index
     }
   },
-  deleteStop : (index) => {
+  deleteStop : (index, stopPointId) => {
     return {
       type: 'DELETE_STOP',
-      index
+      index,
+      stopPointId
     }
   },
   updateInputValue : (index, text) => {
@@ -108,7 +111,7 @@ const actions = {
       )
       const json = await response.json()
       dispatch(actions.fetchSuccess('SUBMIT_ROUTE_SUCCESS', json))
-      window.history.back()
+      window.location.assign(window.redirectUrl)
     } catch(e) {
       dispatch(actions.fetchError('SUBMIT_ROUTE_ERROR', e))
     }

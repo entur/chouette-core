@@ -17,7 +17,7 @@ export default class BSelect3 extends Component {
   onChange(e) {
     this.props.onChange(this.props.index, {
       text: e.currentTarget.textContent,
-      stoparea_id: e.currentTarget.value,
+      stoparea_id: parseInt(e.currentTarget.value),
       stoparea_kind: e.params.data.kind,
       stop_area_referential_id: e.params.data.stop_area_referential_id,
       user_objectid: e.params.data.user_objectid,
