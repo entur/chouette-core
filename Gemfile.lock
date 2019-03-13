@@ -733,7 +733,7 @@ DEPENDENCIES
   delayed_job_heartbeat_plugin
   delayed_job_web
   derailed_benchmarks
-  devise (~> 3.5.4)
+  devise
   devise-encryptable
   devise-i18n
   devise_cas_authenticatable
@@ -817,7 +817,7 @@ DEPENDENCIES
   seedbank
   select2-rails (~> 4.0, >= 4.0.3)
   sequel
-  shoulda-matchers (~> 3.1)
+  shoulda-matchers
   sidekiq
   sidekiq-limit_fetch
   simple_form (~> 3.5.1)

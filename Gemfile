@@ -75,7 +75,7 @@ gem 'codifligne', af83: 'stif-codifline-api'
 gem 'reflex', af83: 'stif-reflex-api'
 
 # Authentication
-gem 'devise', '~> 3.5.4'
+gem 'devise'
 gem 'devise_cas_authenticatable'
 gem 'devise-encryptable'
 gem 'devise_invitable'
@@ -215,7 +215,7 @@ group :test, :development do
   gem 'rb-inotify', require: RUBY_PLATFORM.include?('linux') && 'rb-inotify'
   gem 'rb-fsevent', require: RUBY_PLATFORM.include?('darwin') && 'rb-fsevent'
   gem 'transpec'
-  gem 'shoulda-matchers', '~> 3.1'
+  gem 'shoulda-matchers'
   gem "teaspoon-jasmine"
   gem "phantomjs"
   gem 'parallel_tests'
