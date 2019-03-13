@@ -39,7 +39,7 @@ ChouetteIhm::Application.routes.draw do
       end
     end
 
-    resources :referentials, only: %w(new create)
+    resources :referentials, only: %w(new create index)
   end
 
   resources :workgroups, concerns: :iev_interfaces do
@@ -49,6 +49,7 @@ ChouetteIhm::Application.routes.draw do
       put :update_controls
       get :edit_hole_sentinel
     end
+
     resources :compliance_check_sets, only: [:index, :show] do
       get :executed, on: :member
       resources :compliance_checks, only: [:show]
