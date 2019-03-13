@@ -45,10 +45,9 @@ ruby:
           [ \
             TableBuilderHelper::Column.new( \
               name: Referential.ts.capitalize, \
-              attribute: 'name', \
               sortable: false, \
-              link_to: lambda do |item| \
-                referential_path(item) \
+              attribute: lambda do |item| \
+                link_to(decorate_referential_name(item), referential_path(item)) \
               end \
             ), *controls \
           ], cls: 'table'
