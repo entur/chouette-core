@@ -114,7 +114,6 @@ ChouetteIhm::Application.routes.draw do
       end
       resources :routes do
         member do
-          get 'fetch_route'
           get 'edit_boarding_alighting'
           put 'save_boarding_alighting'
           get 'costs'
