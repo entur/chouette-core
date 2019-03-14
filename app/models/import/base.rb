@@ -48,10 +48,20 @@ class Import::Base < ApplicationModel
 
   # call this method to mark an import as failed, as weel as the resulting referential
   def force_failure!
-    children.each &:force_failure!
+    if parent
+      parent.force_failure!
+      return
+    end
+
+    do_force_failure!
+  end
+
+  def do_force_failure!
+    children.each &:do_force_failure!
 
     update status: 'failed', ended_at: Time.now
     referential&.failed!
+    resources.map(&:referential).compact.each &:failed!
     notify_parent
   end
 
