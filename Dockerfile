@@ -19,10 +19,11 @@ ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
 ARG WEEK
 
 # Install ruby and bundler
+ENV BUNDLE_VERSION=1.17.1
 RUN apt-get update && mkdir -p /usr/share/man/man1 /usr/share/man/man7 && \
     apt-get install -y --no-install-recommends ruby2.3 locales && \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen && \
-    gem2.3 install --no-ri --no-rdoc bundler
+    gem2.3 install --no-ri --no-rdoc bundler -v $BUNDLE_VERSION
 
 ENV DEV_PACKAGES="build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core"
 ENV RUN_PACKAGES="libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron"

@@ -5,6 +5,8 @@ source 'https://rubygems.org'
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 git_source(:af83) { |name| "https://github.com/af83/#{name}.git" }
 
+gem 'bundler', '~> 1.17'
+
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 4.2.11'
 gem 'rack-protection', '~> 1.5.5'
