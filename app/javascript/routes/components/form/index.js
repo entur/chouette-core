@@ -12,12 +12,13 @@ export default class RouteForm extends Component {
   render() {
     const {
       route,
+      isOutbound,
       errors,
       onUpdateName,
       onUpdatePublishedName,
       onUpdateDirection,
       onUpdateOppositeRoute,
-      oppositeRoutesForDirection
+      oppositeRoutesOptions
     } = this.props
     return (
       <div>
@@ -27,7 +28,7 @@ export default class RouteForm extends Component {
               <TextInput
                 inputId='route_name'
                 inputName='route[name]'
-                labelText='Nom'
+                labelText={I18n.t('activerecord.attributes.route.name')}
                 required
                 value={route.name}
                 onChange={onUpdateName}
@@ -36,7 +37,7 @@ export default class RouteForm extends Component {
               <TextInput
                 inputId='route_published_name'
                 inputName='route[published_name]'
-                labelText='Nom public'
+                labelText={I18n.t('activerecord.attributes.route.published_name')}
                 required
                 value={route.published_name}
                 onChange={onUpdatePublishedName}
@@ -45,18 +46,20 @@ export default class RouteForm extends Component {
               <SwitchInput
                 inputId='route_wayback'
                 name='route[wayback]'
-                labelText='Sens'
-                value={route.direction}
+                labelText={I18n.t('activerecord.attributes.route.direction')}
                 onChange={onUpdateDirection}
+                isChecked={route.wayback === 'outbound'}
               />
-              <SelectInput
-                inputId='route_opposite_route_id'
-                inputName='route[opposite_route_id]'
-                labelText='Itinéraire associcé'
-                value={route.opposite_route_id}
-                onChange={onUpdateOppositeRoute}
-                options={oppositeRoutesForDirection}
-              />
+              { isOutbound && (
+                <SelectInput
+                  inputId='route_opposite_route_id'
+                  inputName='route[opposite_route_id]'
+                  labelText={I18n.t('activerecord.attributes.route.opposite_route')}
+                  value={route.opposite_route_id}
+                  onChange={onUpdateOppositeRoute}
+                  options={oppositeRoutesOptions}
+                />
+              ) }
             </div>
           </div>
         </form>

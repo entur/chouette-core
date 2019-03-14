@@ -21,20 +21,12 @@ const route = (state = {}, action) => {
   }
 }
 
-export const handleInputChange = attribute => value => (handler = defaultHandler) =>
-  handler({ [attribute]: value })
+export const handleInputChange = attribute => value => () => ({
+  [attribute]: value
+})
+  
 
-const defaultHandler = attributes => attributes
-
-export const directionHandler = attributes => {
-  const wayback = { wayback: attributes.direction === 'straight_forward' ? 'outbound' : 'inbound' }
-  return Object.assign(attributes, wayback)
-}
-
-export const getDirection = (e) => {
-  const el = e.target.nextSibling
-  return el.textContent === el.dataset.checkedvalue ? 'straight_forward' : 'backward'
-}
+export const getDirection = e => e.target.checked ? 'outbound' : 'inbound'
 
 export const getStopPointsAttributes = state => {
   const stopPoints = state.stopPoints.map((sp, index) => {

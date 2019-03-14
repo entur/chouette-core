@@ -82,9 +82,6 @@ class RoutesController < ChouetteController
 
   # React endpoints
 
-  def fetch_route
-  end
-
   def fetch_user_permissions
     perms =
     %w{create destroy update}.inject({}) do | permissions, action |
@@ -95,7 +92,7 @@ class RoutesController < ChouetteController
   end
 
   def fetch_opposite_routes
-    render json: { straight_forward: @backward, backward: @forward }
+    render json: { outbound: @backward, inbound: @forward }
   end
 
 

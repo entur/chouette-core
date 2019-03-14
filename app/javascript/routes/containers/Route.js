@@ -15,8 +15,9 @@ import {
 
 const mapStateToProps = ({route, oppositeRoutes, formErrors}) => ({
   route,
+  isOutbound: route.wayback === 'outbound',
   errors: formErrors.route,
-  oppositeRoutesForDirection: oppositeRoutes[route.direction] || [],
+  oppositeRoutesOptions: oppositeRoutes[route.wayback] || [],
 })
 
 const mapDispatchToProps = (dispatch) => ({
@@ -29,7 +30,7 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(updateRouteFormInput(newPublishedName))
   },
   onUpdateDirection(e) {
-    const newAtributes  = handleInputChange('direction')(getDirection(e))(directionHandler)
+    const newAtributes  = handleInputChange('wayback')(getDirection(e))()
     dispatch(updateRouteFormInput(newAtributes))
   },
   onUpdateOppositeRoute(e) {

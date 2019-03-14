@@ -103,7 +103,7 @@ en:
           attributes:
             stop_points:
               not_enough_stop_points: "A route must have at least two stop points"
-              empty_stop_point: A route cannot have empty stop points
+              empty_stop_point: No stop point defined
   formtastic:
     titles:
       route:

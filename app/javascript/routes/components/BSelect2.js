@@ -55,7 +55,7 @@ export default class BSelect3 extends Component {
       return (
         <div className={`select2-bootstrap-append ${hasError && 'has-error'}`}>
           <BSelect2 {...this.props} onSelect={ this.onChange.bind(this) }/>
-          { hasError && <span className='help-block small'>Aucun arrêt défini</span> }
+          { hasError && <span className='help-block small'>{I18n.t('activerecord.errors.models.route.attributes.stop_points.empty_stop_point')}</span> }
         </div>
       )
     else
@@ -63,7 +63,7 @@ export default class BSelect3 extends Component {
         return (
           <div>
             <BSelect2 {...this.props} onSelect={ this.onChange.bind(this) }/>
-            { hasError && <span className='help-block small'>Aucun arrêt défini</span> }
+            { hasError && <span className='help-block small'>{I18n.t('activerecord.errors.models.route.attributes.stop_points.empty_stop_point')}</span> }
           </div>
         )
       else

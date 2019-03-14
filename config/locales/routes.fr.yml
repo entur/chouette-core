@@ -109,7 +109,7 @@ fr:
           attributes:
             stop_points:
               not_enough_stop_points: "Un itinéraire doit comporter au moins deux arrêts"
-              empty_stop_point: Tous les arrêts doivent être définis
+              empty_stop_point: Aucun arrêt défini
   formtastic:
     titles:
       route:

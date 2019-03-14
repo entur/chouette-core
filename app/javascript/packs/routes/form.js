@@ -20,7 +20,6 @@ const initialState = {
   route: {
     name: '',
     published_name: '',
-    direction: 'straight_forward',
     wayback: 'outbound',
     opposite_route_id: null,
     line_id: parseInt(window.location.pathname.split('/')[4])

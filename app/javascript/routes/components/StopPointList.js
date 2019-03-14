@@ -9,7 +9,7 @@ export default function StopPointList({ stopPoints, onDeleteClick, onMoveUpClick
       { errors.invalidLength && (
         <div className="alert alert-danger">
           <span className="fa fa-lg fa-exclamation-circle"></span>
-          <span>L'itinéraire doit comporter au moins deux arrêts</span>
+          <span>{I18n.t('activerecord.errors.models.route.attributes.stop_points.not_enough_stop_points')}</span>
         </div>
       ) }
       <div className='nested-head'>

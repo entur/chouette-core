@@ -9,11 +9,11 @@ import {
 } from '../actions'
 
 const mapStateToProps = (state) => {
-  const { name, published_name, direction, opposite_route_id, line_id } = state.route
+  const { name, published_name, wayback, opposite_route_id, line_id } = state.route
   const routeToSubmit = {
     name,
     published_name,
-    direction,
+    wayback,
     opposite_route_id,
     line_id,
     stop_points_attributes: getStopPointsAttributes(state)
