@@ -42,12 +42,21 @@ RSpec.describe Import::Gtfs do
     let(:import) { create_import 'google-sample-feed.zip' }
 
      it 'should fail the parent import and the referential' do
-        import.parent = create :workbench_import
+        parent = create(:workbench_import)
+        resoure = create(:import_resource, import: parent, referential: create(:referential))
+        import.update parent: parent
+        parent.reload
+
         import.prepare_referential
+
+        expect(parent).to receive(:force_failure!).and_call_original
+        expect(parent).to receive(:do_force_failure!).and_call_original
+
         import.force_failure!
-        expect(import.status).to eq 'failed'
-        expect(import.parent.status).to eq 'failed'
         expect(import.referential.state).to eq :failed
+        expect(import.reload.status).to eq 'failed'
+        expect(parent.reload.status).to eq 'failed'
+        expect(resoure.reload.referential.state).to eq :failed
      end
   end
 
