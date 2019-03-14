@@ -132,8 +132,8 @@ class Permission
       end
 
       def update_users_permissions
-        User.where.not(profile: DEFAULT_PROFILE).find_each do |user|
-          user.update profile: user.profile
+        Profile.each do |profile|
+          User.where(profile: profile).update_all permissions: Permission::Profile.permissions_for(profile)
         end
       end
 
