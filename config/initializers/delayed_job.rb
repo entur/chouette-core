@@ -14,6 +14,7 @@ end
 
 class Delayed::Heartbeat::Worker
   def fail_jobs
+    Rails.logger.info "#{inspect}: dealing with failed jobs"
     jobs.each do |job|
       obj = job.payload_object.object
       obj.try(:worker_died)
