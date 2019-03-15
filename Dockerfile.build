@@ -3,7 +3,7 @@
 # docker build --build-arg WEEK=`date +%Y%U` -t chouette-core-build -f Dockerfile.build .
 # docker run --add-host "db:172.17.0.1" -e RAILS_DB_PASSWORD=chouette -e RAILS_DB_NAME=chouette_core_build_`date +%s` -e RAILS_DB_PORT=5433 -it --rm chouette-core-build
 
-FROM debian:stable-slim
+FROM ruby:2.6-slim
 
 ENV RAILS_ENV test
 ENV KEEP_DATABASE_CONFIG true
@@ -13,23 +13,23 @@ ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
 
 ARG WEEK
 
-# Prepare nodejs 6.x and yarn package installation
+# Install nodejs 6.x and yarn package installation
+# Install locales
 RUN apt-get update && apt-get install -y --no-install-recommends curl gnupg ca-certificates apt-transport-https && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
     curl -sS https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
-    echo "deb https://deb.nodesource.com/node_6.x stretch main" > /etc/apt/sources.list.d/nodesource.list
+    echo "deb https://deb.nodesource.com/node_6.x stretch main" > /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && apt-get install -y --no-install-recommends locales yarn nodejs && \
+    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 
-ENV BUNDLE_VERSION=1.17.1
-# Install ruby, bundler and yarn
-RUN apt-get update && mkdir -p /usr/share/man/man1 /usr/share/man/man7 && \
-    apt-get install -y --no-install-recommends ruby2.3 locales yarn nodejs && \
-    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen && \
-    gem2.3 install --no-ri --no-rdoc bundler -v $BUNDLE_VERSION
+ENV DEV_PACKAGES="build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core"
+ENV RUN_PACKAGES="libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6"
 
 # Install bundler packages
 COPY Gemfile Gemfile.lock /app/
-RUN apt-get update && apt-get -y install --no-install-recommends build-essential ruby2.3-dev libpq5 libxml2 zlib1g imagemagick libproj12 postgresql-client-common postgresql-client-9.6 libpq-dev libxml2-dev zlib1g-dev libproj-dev libmagic1 libmagic-dev libmagickwand-dev git-core && \
+RUN apt-get update && mkdir -p /usr/share/man/man1 /usr/share/man/man7 && \
+    apt-get -y install --no-install-recommends $DEV_PACKAGES $RUN_PACKAGES && \
     cd /app && bundle install --jobs 4 --deployment
 
 # Install yarn packages
