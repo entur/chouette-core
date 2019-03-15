@@ -7,41 +7,41 @@
       .col-lg-12
         = render partial: 'filters'
 
-    - if @stop_area_routing_constraints.any?
-      .row
-        .col-lg-12
-          = table_builder_2 @stop_area_routing_constraints,
-            [ \
-              TableBuilderHelper::Column.new( \
-                key: :from_name, \
-                attribute: lambda do |stop_area_routing_constraint| \
-                  link_to stop_area_routing_constraint.from.name, [\
-                    @stop_area_referential, \
-                    stop_area_routing_constraint.from \
-                  ] \
-                end \
-              ), \
-              TableBuilderHelper::Column.new( \
-                key: :to_name, \
-                attribute: lambda do |stop_area_routing_constraint| \
-                  link_to stop_area_routing_constraint.to.name, [ \
-                    @stop_area_referential, \
-                    stop_area_routing_constraint.to \
-                  ] \
-                end \
-              ), \
-              TableBuilderHelper::Column.new( \
-                key: :direction, \
-                attribute: lambda do |stop_area_routing_constraint| \
-                  stop_area_routing_constraint.both_way ? 'stop_area_routing_constraints.direction.both_way'.t : 'stop_area_routing_constraints.direction.one_way'.t \
-                end \
-              ), \
-            ],\
-            cls: 'table has-filter has-search'
+  - if @stop_area_routing_constraints.any?
+    .row
+      .col-lg-12
+        = table_builder_2 @stop_area_routing_constraints,
+          [ \
+            TableBuilderHelper::Column.new( \
+              key: :from_name, \
+              attribute: lambda do |stop_area_routing_constraint| \
+                link_to stop_area_routing_constraint.from.name, [\
+                  @stop_area_referential, \
+                  stop_area_routing_constraint.from \
+                ] \
+              end \
+            ), \
+            TableBuilderHelper::Column.new( \
+              key: :to_name, \
+              attribute: lambda do |stop_area_routing_constraint| \
+                link_to stop_area_routing_constraint.to.name, [ \
+                  @stop_area_referential, \
+                  stop_area_routing_constraint.to \
+                ] \
+              end \
+            ), \
+            TableBuilderHelper::Column.new( \
+              key: :direction, \
+              attribute: lambda do |stop_area_routing_constraint| \
+                stop_area_routing_constraint.both_way ? 'stop_area_routing_constraints.direction.both_way'.t : 'stop_area_routing_constraints.direction.one_way'.t \
+              end \
+            ), \
+          ],\
+          cls: 'table has-filter has-search'
 
-          = new_pagination @stop_area_routing_constraints, 'pull-right'
+        = new_pagination @stop_area_routing_constraints, 'pull-right'
 
-    - unless @stop_area_routing_constraints.any?
-      .row.mt-xs
-        .col-lg-12
-          = replacement_msg t('stop_area_routing_constraints.search_no_results')
+  - else
+    .row.mt-xs
+      .col-lg-12
+        = replacement_msg t('stop_area_routing_constraints.search_no_results')
