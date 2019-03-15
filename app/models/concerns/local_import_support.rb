@@ -3,10 +3,13 @@ module LocalImportSupport
 
   included do |into|
     include ImportResourcesSupport
-    after_commit :import, on: :create
+    after_commit :import_async, on: :create
 
     delegate :line_referential, :stop_area_referential, to: :workbench
-    handle_asynchronously :import, queue: :imports
+  end
+
+  def import_async
+    Delayed::Job.enqueue LongRunningJob.new(self, :import), queue: :imports
   end
 
   def import

@@ -20,6 +20,7 @@ module ChouetteIhm
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
     config.autoload_paths << config.root.join('lib')
+    config.autoload_paths << config.root.join('app', 'jobs')
 
     # custom exception pages
     config.exceptions_app = self.routes
