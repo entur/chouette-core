@@ -11,9 +11,17 @@ RSpec.describe Delayed::Job do
     end
   end
 
+  describe '#max_run_time' do
+    let(:job){ create(:gtfs_import, workbench: workbench).import_async }
+
+    it 'should be 10.hours for imports' do
+      expect(job.max_run_time).to eq 10.hours
+    end
+  end
+
   describe '#for_organisation' do
-    let!(:job){ create(:gtfs_import, workbench: workbench).delay.import }
-    let!(:other_job){ create(:gtfs_import).delay.import }
+    let!(:job){ create(:gtfs_import, workbench: workbench).import_async }
+    let!(:other_job){ create(:gtfs_import).import_async }
 
     it 'should return then relevant jobs' do
       expect(job.organisation_id).to eq organisation.id
@@ -32,7 +40,7 @@ RSpec.describe Delayed::Job do
 
     context 'with jobs' do
       let!(:running_job) do
-        job = create(:gtfs_import, workbench: workbench).delay.import
+        job = create(:gtfs_import, workbench: workbench).import_async
         job.update locked_at: Time.now, locked_by: 'Foo'
         job
       end
