@@ -245,7 +245,7 @@ class Merge < ApplicationModel
               )
               new_route = new.routes.build attributes
 
-              route_stop_points = referential_stop_points_by_route[route.id]
+              route_stop_points = referential_stop_points_by_route[route.id] || []
 
               # Stop Points
               route_stop_points.sort_by(&:position).each do |stop_point|
