@@ -13,18 +13,5 @@ class WorkgroupDecorator < AF83::Decorator
 
     instance_decorator.show_action_link
     instance_decorator.edit_action_link
-
-    instance_decorator.action_link secondary: true, policy: :edit do |l|
-      l.content  t('workgroups.actions.edit_control_sets')
-      l.href     {  [:edit_controls, object] }
-    end
-    instance_decorator.action_link secondary: true, policy: :edit do |l|
-      l.content  t('workgroups.actions.edit_aggregate')
-      l.href     {  [:edit_aggregate, object] }
-    end
-    instance_decorator.action_link secondary: true, policy: :edit do |l|
-      l.content  t('workgroups.actions.edit_hole_sentinel')
-      l.href     {  [:edit_hole_sentinel, object] }
-    end
   end
 end
