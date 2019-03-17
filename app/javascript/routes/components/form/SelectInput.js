@@ -23,3 +23,12 @@ const SelectInput = ({inputId, inputName, value, labelText, onChange, options}) 
 }
 
 export default SelectInput
+
+SelectInput.proptypes = {
+  inputId: PropTypes.string.isRequired,
+  inputName: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  labelText: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  options: PropTypes.array.isRequired,
+}

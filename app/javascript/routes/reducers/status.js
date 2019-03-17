@@ -1,32 +1,32 @@
-import { FETCH_OPPOSITE_ROUTES_START, FETCH_OPPOSITE_ROUTES_SUCCESS, FETCH_OPPOSITE_ROUTES_ERROR } from './oppositeRoutes'
-import { FETCH_ROUTE_START, FETCH_ROUTE_SUCCESS, FETCH_ROUTE_ERROR } from './oppositeRoutes'
-
-// Constants
-export const FETCH_USER_PERMISSIONS_START = 'FETCH_USER_PERMISSIONS_START'
-export const FETCH_USER_PERMISSIONS_SUCCESS = 'FETCH_USER_PERMISSIONS_SUCCESS'
-export const FETCH_USER_PERMISSIONS_ERROR = 'FETCH_USER_PERMISSIONS_ERROR'
+export const initialState = {
+  action: window.routeFormAction,
+  editMode: true,
+  policy: {},
+  isFetching: false,
+  fetchSuccess: false,
+  fetchError: false,
+  isSubmitting: false,
+  submitSuccess: false,
+  submitError: false
+}
 
 // Reducer
-const status = (state = {}, action) => {
+const status = (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_USER_PERMISSIONS_START:
-    case FETCH_OPPOSITE_ROUTES_START:
-    case FETCH_ROUTE_START:
+    case 'FETCH_START':
       return Object.assign({}, state, { isFetching: true, fetchSuccess: false, fetchError: false })
-    case FETCH_USER_PERMISSIONS_SUCCESS:
-      return Object.assign({}, state, {policy: action.json}, { isFetching: false, fetchSuccess: true, fetchError: false })
-    case FETCH_OPPOSITE_ROUTES_SUCCESS:
-    case FETCH_ROUTE_SUCCESS:
+    case 'RECEIVE_USER_PERMISSIONS':
+      return Object.assign({}, state, {policy: action.json})
+    case 'FETCH_SUCCESS':
       return Object.assign({}, state, { isFetching: false, fetchSuccess: true, fetchError: false })
-    case FETCH_USER_PERMISSIONS_ERROR:
-    case FETCH_OPPOSITE_ROUTES_ERROR:
-    case FETCH_ROUTE_ERROR:
+    case 'FETCH_ERROR':
       return Object.assign({}, state, { isFetching: false, fetchSuccess: false, fetchError: true })
     default:
       return state
   }
 }
 
+// Helpers
 export const isActionCreate = statusState => statusState.action === 'create'
 export const getRequestMethod = statusState => isActionCreate(statusState) ? 'POST' : 'PATCH'
 

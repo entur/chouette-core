@@ -64,32 +64,28 @@ const actions = {
     type: 'UPDATE_ROUTE_FORM_INPUT',
     attributes
   }),
-  fetchStart: type => ({ type }),
-  fetchSuccess: (type, json) => ({ type, json }),
-  fetchError: (type, error) => ({ type, error }),
-  submitStart: type => ({ type }),
-  submitSuccess: (type, json) => ({ type, json }),
-  submitError: (type, error) => ({ type, error }),
-  fetchWrapper: dispatch => url => async type => {
-    const { fetchStart, fetchSuccess, fetchError } = actions
-    try {
-      dispatch(fetchStart(`FETCH_${type}_START)`))
-      const response = await fetch(url)
-      const json = await response.json()
-      dispatch(fetchSuccess(`FETCH_${type}_SUCCESS`, json))
-    } catch(e) {
-      dispatch(fetchError(`FETCH_${type}_ERROR`, e))
+  fetchWrapper: dispatch => fetchUrl => async resourceName => {
+    const response = await fetch(fetchUrl)
+    if (!response.ok) {
+      const { status, statusText: message } = response
+      throw { status, message }
     }
+    const json = await response.json()
+    dispatch({ type: `RECEIVE_${resourceName}`, json })
   },
-  fetchUserPermissions: dispatch => {
-    actions.fetchWrapper(dispatch)(window.fetchUserPermissionsUrl)('USER_PERMISSIONS')
+  fetchResources: dispatch => mustFetchRoute => async () => {
+    dispatch({ type: 'FETCH_START' })
+    Promise.all([
+      actions.fetchUserPermissions(dispatch),
+      actions.fetchOppositeRoutes(dispatch),
+      ...(mustFetchRoute ? [actions.fetchRoute(dispatch)] : [])
+    ])
+    .then(() => dispatch({ type: 'FETCH_SUCCESS' }))
+    .catch(error => dispatch({ type: 'FETCH_ERROR', error }))
   },
-  fetchOppositeRoutes: dispatch => {
-    actions.fetchWrapper(dispatch)(window.fetchOppositeRoutesUrl)('OPPOSITE_ROUTES')
-  },
-  fetchRoute: dispatch => {
-    actions.fetchWrapper(dispatch)(window.fetchRouteUrl)('ROUTE')
-  },
+  fetchUserPermissions: dispatch => actions.fetchWrapper(dispatch)(window.fetchUserPermissionsUrl)('USER_PERMISSIONS'),
+  fetchOppositeRoutes: dispatch => actions.fetchWrapper(dispatch)(window.fetchOppositeRoutesUrl)('OPPOSITE_ROUTES'),
+  fetchRoute: dispatch => actions.fetchWrapper(dispatch)(window.fetchRouteUrl)('ROUTE'),
   validateField: ({category, ...value}) => ({
     type: 'VALIDATE_FIELD',
     category,
@@ -97,7 +93,7 @@ const actions = {
   }),
   submitRoute: dispatch => requestMethod => async route => {
     try {
-      dispatch(actions.submitStart('SUBMIT_ROUTE_START')) 
+      dispatch({ type: 'SUBMIT_ROUTE_START' }) 
       const response = await fetch(window.routeSubmitUrl, {
         credentials: 'same-origin',
         method: requestMethod,
@@ -110,10 +106,10 @@ const actions = {
         }
       )
       const json = await response.json()
-      dispatch(actions.fetchSuccess('SUBMIT_ROUTE_SUCCESS', json))
+      dispatch({ type: 'SUBMIT_ROUTE_SUCCESS', json })
       window.location.assign(window.redirectUrl)
-    } catch(e) {
-      dispatch(actions.fetchError('SUBMIT_ROUTE_ERROR', e))
+    } catch(error) {
+      dispatch({ type: 'SUBMIT_ROUTE_ERROR', error })
     }
   }
 }

@@ -6,7 +6,7 @@ const deletedStopPoints = (state = [], action, length) => {
       //stopPoint is not persited don't need to track it
       if (!action.stopPointId) return state
 
-      if (state.includes(deletedStopPoint)) return state
+      if (state.find(sp => action.stopPointId === sp.id)) return state
 
       return state.concat(deletedStopPoint)
     default:

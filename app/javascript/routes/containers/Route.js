@@ -13,11 +13,11 @@ import {
   FETCH_ROUTE_ERROR,
 } from '../reducers/route'
 
-const mapStateToProps = ({route, oppositeRoutes, formErrors}) => ({
+const mapStateToProps = ({ route, oppositeRoutes, formErrors, status }) => ({
   route,
   isOutbound: route.wayback === 'outbound',
   errors: formErrors.route,
-  oppositeRoutesOptions: oppositeRoutes[route.wayback] || [],
+  oppositeRoutesOptions: oppositeRoutes[route.wayback] || []
 })
 
 const mapDispatchToProps = (dispatch) => ({

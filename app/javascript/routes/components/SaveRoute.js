@@ -38,5 +38,10 @@ export default class SaveRoute extends SaveButton {
 }
 
 SaveRoute.propTypes = {
-  status: PropTypes.object.isRequired
+  status: PropTypes.object.isRequired,
+  route: PropTypes.object.isRequired,
+  stopPoints: PropTypes.array.isRequired,
+  editMode: PropTypes.bool.isRequired,
+  requestMethod: PropTypes.string.isRequired,
+  routeToSubmit: PropTypes.object.isRequired
 }

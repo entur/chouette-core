@@ -1,31 +1,38 @@
 import omit from 'lodash/omit'
-import { isActionCreate } from './status'
 
 // Constants
 const UPDATE_ROUTE_FORM_INPUT = 'UPDATE_ROUTE_FORM_INPUT'
-export const FETCH_ROUTE_START = 'FETCH_ROUTE_START'
-export const FETCH_ROUTE_SUCCESS = 'FETCH_ROUTE_SUCCESS'
-export const FETCH_ROUTE_ERROR = 'FETCH_ROUTE_ERROR'
+export const RECEIVE_ROUTE = 'RECEIVE_ROUTE'
+
 export const SUBMIT_ROUTE_START = 'SUBMIT_ROUTE_START'
 export const SUBMIT_ROUTE_SUCCESS = 'SUBMIT_ROUTE_SUCCESS'
 export const SUBMIT_ROUTE_ERROR = 'SUBMIT_ROUTE_ERROR'
 
-const route = (state = {}, action) => {
+export const initialState = {
+  name: '',
+  published_name: '',
+  wayback: 'outbound',
+  opposite_route_id: null,
+  line_id: parseInt(window.location.pathname.split('/')[4])
+}
+
+// Reducer
+const route = (state = initialState, action) => {
   switch(action.type) {
     case UPDATE_ROUTE_FORM_INPUT:
       return Object.assign({}, state, action.attributes)
-    case FETCH_ROUTE_SUCCESS:
+    case RECEIVE_ROUTE:
       return omit(action.json, ['stop_points'])
     default:
     return state
   }
 }
 
+// Helpers
 export const handleInputChange = attribute => value => () => ({
   [attribute]: value
 })
   
-
 export const getDirection = e => e.target.checked ? 'outbound' : 'inbound'
 
 export const getStopPointsAttributes = state => {

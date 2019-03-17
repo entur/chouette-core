@@ -22,7 +22,7 @@ export default class RouteForm extends Component {
     } = this.props
     return (
       <div>
-        <form className='form-horizontal'>
+        <form className='form-horizontal' id='route_form'>
           <div className='row'>
             <div className='col-lg-12'>
               <TextInput
@@ -66,4 +66,11 @@ export default class RouteForm extends Component {
       </div>
     )
   }
+}
+
+RouteForm.propTypes = {
+  route: PropTypes.object,
+  isOutbound: PropTypes.bool.isRequired,
+  errors: PropTypes.object.isRequired,
+  oppositeRoutesOptions: PropTypes.array.isRequired
 }

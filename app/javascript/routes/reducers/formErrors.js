@@ -1,6 +1,6 @@
 import { SUBMIT_ROUTE_SUCCESS, SUBMIT_ROUTES_ERROR } from './route'
 
-const initialState = {
+export const initialState = {
   route: {
     name: false,
     published_name: false
@@ -18,10 +18,6 @@ const formErrors = (state = initialState, action) => {
       const { category, value } = action
       const newError = Object.assign({}, state[category], action.value)
       return Object.assign({}, state, { [category]: newError })
-    case SUBMIT_ROUTE_SUCCESS:
-      return initialState
-    case SUBMIT_ROUTES_ERROR:
-      return Object.assign({}, action.formErrors)
     default:
       return state
   }

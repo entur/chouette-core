@@ -11,33 +11,10 @@ import reducers from '../../routes/reducers'
 import App from '../../routes/containers/App'
 
 // logger, DO NOT REMOVE
-var applyMiddleware = require('redux').applyMiddleware
-import {createLogger} from 'redux-logger';
-var thunkMiddleware = require('redux-thunk').default
-var promise = require('redux-promise')
-
-const initialState = {
-  route: {
-    name: '',
-    published_name: '',
-    wayback: 'outbound',
-    opposite_route_id: null,
-    line_id: parseInt(window.location.pathname.split('/')[4])
-  },
-  stopPoints: [],
-  status: {
-    action: window.routeFormAction,
-    editMode: true,
-    policy: {},
-    isFetching: false,
-    fetchSuccess: false,
-    fetchError: false,
-    isSubmitting: false,
-    submitSuccess: false,
-    submitError: false
-  },
-  oppositeRoutes: {}
-}
+import { applyMiddleware } from 'redux'
+import { createLogger } from 'redux-logger'
+import ReduxThunk from 'redux-thunk'
+import promise from 'redux-promise'
   
 let store = null
 
@@ -45,16 +22,16 @@ if(Object.assign){
   const loggerMiddleware = createLogger()
   store = createStore(
    reducers,
-   initialState,
-   applyMiddleware(thunkMiddleware, promise, loggerMiddleware)
+   {},
+   applyMiddleware(ReduxThunk, promise, loggerMiddleware)
  )
 }
 else{
   // IE
   store = createStore(
    reducers,
-   initialState,
-   applyMiddleware(thunkMiddleware, promise)
+   {},
+   applyMiddleware(ReduxThunk, promise)
  )
 }
 

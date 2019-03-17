@@ -1,8 +1,8 @@
 import _ from 'lodash'
-import { FETCH_ROUTE_SUCCESS } from './route'
+import { RECEIVE_ROUTE } from './route'
 
-const stopPoint = (state = {}, action, length) => {
-  switch (action.type) {
+const stopPoint = ({ type }, length) => {
+  switch (type) {
     case 'ADD_STOP':
       return {
         text: '',
@@ -25,7 +25,7 @@ const stopPoints = (state = [], action) => {
     case 'ADD_STOP':
       return [
         ...state,
-        stopPoint(undefined, action, state.length)
+        stopPoint(action, state.length)
       ]
     case 'MOVE_STOP_UP':
       return [
@@ -132,7 +132,7 @@ const stopPoints = (state = [], action) => {
         let emptyMap = _.assign({}, t.olMap, {isOpened: false, json: {}})
         return _.assign({}, t, {olMap: emptyMap})
       })
-    case FETCH_ROUTE_SUCCESS:
+    case RECEIVE_ROUTE:
       return action.json['stop_points']
     default:
       return state

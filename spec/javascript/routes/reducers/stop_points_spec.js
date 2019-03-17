@@ -1,5 +1,5 @@
 import stopPointsReducer from '../../../../app/javascript/routes/reducers/stopPoints'
-import formHelper from '../../../../app/javascript/routes/form_helper'
+import { receivedRoute } from '../helpers'
 import _ from 'lodash'
 
  //  _  _ ___ _    ___ ___ ___  ___
@@ -9,8 +9,6 @@ import _ from 'lodash'
  //
 
 let state = []
-
-formHelper.addInput = (...args)=>{}
 
 let fakeData = {
   geometry: undefined,
@@ -215,5 +213,10 @@ describe('stops reducer', () => {
       stop_point_3
     ],
     openedMapState
+  )
+
+  it_should_handle(
+    { type: 'RECEIVE_ROUTE', json: receivedRoute },
+    receivedRoute['stop_points']
   )
 })
