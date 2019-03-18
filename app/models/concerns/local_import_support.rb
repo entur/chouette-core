@@ -238,6 +238,7 @@ module LocalImportSupport
 
   def save_model(model, filename: nil, line_number:  nil, column_number: nil, resource: nil)
     profile_tag "save_model.#{model.class.name}" do
+      return unless model.changed?
 
       if resource
         filename ||= "#{resource.name}.txt"

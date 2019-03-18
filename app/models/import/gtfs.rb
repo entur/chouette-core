@@ -52,7 +52,7 @@ class Import::Gtfs < Import::Base
     prepare_referential
     referential.pending!
 
-    import_resources :calendars, :calendar_dates unless check_calendar_files_missing_and_create_message
+    import_resources :calendars, :calendar_dates, :calendar_checksums unless check_calendar_files_missing_and_create_message
     import_resources :trips, :stop_times
   end
 
@@ -71,63 +71,74 @@ class Import::Gtfs < Import::Base
   def import_stops
     sorted_stops = source.stops.sort_by { |s| s.parent_station.present? ? 1 : 0 }
     @stop_areas_id_by_registration_number = {}
-    create_resource(:stops).each(sorted_stops, slice: 100, transaction: true) do |stop, resource|
-      stop_area = stop_area_referential.stop_areas.find_or_initialize_by(registration_number: stop.id)
+    Chouette::StopArea.within_workgroup(workgroup) do
+      create_resource(:stops).each(sorted_stops, slice: 100, transaction: true) do |stop, resource|
+        stop_area = stop_area_referential.stop_areas.find_or_initialize_by(registration_number: stop.id)
 
-      stop_area.name = stop.name
-      stop_area.area_type = stop.location_type == '1' ? :zdlp : :zdep
-      stop_area.latitude, stop_area.longitude = stop.lat, stop.lon
-      stop_area.kind = :commercial
-      stop_area.deleted_at = nil
-      stop_area.confirmed_at = Time.now
+        stop_area.name = stop.name
+        stop_area.area_type = stop.location_type == '1' ? :zdlp : :zdep
+        stop_area.latitude, stop_area.longitude = BigDecimal.new(stop.lat), BigDecimal.new(stop.lon)
+        stop_area.kind = :commercial
+        stop_area.deleted_at = nil
+        stop_area.confirmed_at ||= Time.now
 
-      if stop.parent_station.present?
-        if check_parent_is_valid_or_create_message(Chouette::StopArea, stop.parent_station, resource)
-          parent = find_stop_parent_or_create_message(stop.name, stop.parent_station, resource)
-          stop_area.parent = parent
-          stop_area.time_zone = parent.try(:time_zone)
+        if stop.parent_station.present?
+          if check_parent_is_valid_or_create_message(Chouette::StopArea, stop.parent_station, resource)
+            parent = find_stop_parent_or_create_message(stop.name, stop.parent_station, resource)
+            stop_area.parent = parent
+            stop_area.time_zone = parent.try(:time_zone)
+          end
+        elsif stop.timezone.present?
+          stop_area.time_zone = check_time_zone_or_create_message(stop.timezone, resource)
+        else
+          stop_area.time_zone = @default_time_zone
         end
-      elsif stop.timezone.present?
-        stop_area.time_zone = check_time_zone_or_create_message(stop.timezone, resource)
-      else
-        stop_area.time_zone = @default_time_zone
-      end
 
-      save_model stop_area, resource: resource
-      @stop_areas_id_by_registration_number[stop_area.registration_number] = stop_area.id
+        save_model stop_area, resource: resource
+        @stop_areas_id_by_registration_number[stop_area.registration_number] = stop_area.id
+      end
     end
   end
 
+  def lines_by_registration_number(registration_number)
+    @lines_by_registration_number ||= {}
+    @lines_by_registration_number[registration_number] ||= line_referential.lines.includes(:company).find_or_initialize_by(registration_number: registration_number)
+  end
+
   def import_routes
-    create_resource(:routes).each(source.routes, transaction: true) do |route, resource|
-      if route.agency_id.present?
-        next unless check_parent_is_valid_or_create_message(Chouette::Company, route.agency_id, resource)
+    Chouette::Company.within_workgroup(workgroup) do
+      create_resource(:routes).each(source.routes, transaction: true) do |route, resource|
+        if route.agency_id.present?
+          next unless check_parent_is_valid_or_create_message(Chouette::Company, route.agency_id, resource)
+        end
+        line = lines_by_registration_number(route.id)
+        line.name = route.long_name.presence || route.short_name
+        line.number = route.short_name
+        line.published_name = route.long_name
+        unless route.agency_id == line.company.registration_number
+          line.company = line_referential.companies.find_by(registration_number: route.agency_id) if route.agency_id.present?
+        end
+        line.comment = route.desc
+
+        line.transport_mode = case route.type
+                              when '0', '5'
+                                'tram'
+                              when '1'
+                                'metro'
+                              when '2'
+                                'rail'
+                              when '3'
+                                'bus'
+                              when '7'
+                                'funicular'
+                              end
+
+        # TODO: colors
+
+        line.url = route.url
+
+        save_model line, resource: resource
       end
-      line = line_referential.lines.find_or_initialize_by(registration_number: route.id)
-      line.name = route.long_name.presence || route.short_name
-      line.number = route.short_name
-      line.published_name = route.long_name
-      line.company = line_referential.companies.find_by(registration_number: route.agency_id) if route.agency_id.present?
-      line.comment = route.desc
-
-      line.transport_mode = case route.type
-                            when '0', '5'
-                              'tram'
-                            when '1'
-                              'metro'
-                            when '2'
-                              'rail'
-                            when '3'
-                              'bus'
-                            when '7'
-                              'funicular'
-                            end
-
-      # TODO: colors
-
-      line.url = route.url
-
-      save_model line, resource: resource
     end
   end
 
@@ -146,8 +157,8 @@ class Import::Gtfs < Import::Base
     # routes = Set.new
     prev_trip_id = nil
     to_be_saved = []
-    Chouette::VehicleJourney.within_workgroup(referential.workgroup) do
-      Chouette::JourneyPattern.within_workgroup(referential.workgroup) do
+    Chouette::VehicleJourney.within_workgroup(workgroup) do
+      Chouette::JourneyPattern.within_workgroup(workgroup) do
         create_resource(:stop_times).each(
           source.stop_times.group_by(&:trip_id),
           transaction: true,
@@ -340,40 +351,53 @@ class Import::Gtfs < Import::Base
 
   def import_calendars
     return unless source.entries.include?('calendar.txt')
-    create_resource(:calendars).each(source.calendars, slice: 500, transaction: true) do |calendar, resource|
-      time_table = referential.time_tables.build comment: "Calendar #{calendar.service_id}"
-      Chouette::TimeTable.all_days.each do |day|
-        time_table.send("#{day}=", calendar.send(day))
-      end
-      if calendar.start_date == calendar.end_date
-        time_table.dates.build date: calendar.start_date, in_out: true
-      else
-        time_table.periods.build period_start: calendar.start_date, period_end: calendar.end_date
-      end
-      save_model time_table, resource: resource
+      Chouette::TimeTable.skipping_objectid_uniqueness do
+      Chouette::ChecksumManager.no_updates do
+        create_resource(:calendars).each(source.calendars, slice: 500, transaction: true) do |calendar, resource|
+          time_table = referential.time_tables.build comment: "Calendar #{calendar.service_id}"
+          Chouette::TimeTable.all_days.each do |day|
+            time_table.send("#{day}=", calendar.send(day))
+          end
+          if calendar.start_date == calendar.end_date
+            time_table.dates.build date: calendar.start_date, in_out: true
+          else
+            time_table.periods.build period_start: calendar.start_date, period_end: calendar.end_date
+          end
+          time_table.shortcuts_update
+          time_table.skip_save_shortcuts = true
+          save_model time_table, resource: resource
 
-      time_tables_by_service_id[calendar.service_id] = time_table.id
+          time_tables_by_service_id[calendar.service_id] = time_table.id
+        end
+      end
     end
   end
 
   def import_calendar_dates
     return unless source.entries.include?('calendar_dates.txt')
 
-    create_resource(:calendar_dates).each(source.calendar_dates, slice: 500, transaction: true) do |calendar_date, resource|
-      comment = "Calendar #{calendar_date.service_id}"
-      unless_parent_model_in_error(Chouette::TimeTable, comment, resource) do
-        time_table = referential.time_tables.where(id: time_tables_by_service_id[calendar_date.service_id]).last
-        time_table ||= begin
-          tt = referential.time_tables.build comment: comment
-          save_model tt, resource: resource
-          time_tables_by_service_id[calendar_date.service_id] = tt.id
-          tt
-        end
+    Chouette::ChecksumManager.no_updates do
+      Chouette::TimeTableDate.bulk_insert do |worker|
+        create_resource(:calendar_dates).each(source.calendar_dates, slice: 500, transaction: true) do |calendar_date, resource|
+          comment = "Calendar #{calendar_date.service_id}"
+          unless_parent_model_in_error(Chouette::TimeTable, comment, resource) do
+            time_table = time_tables_by_service_id[calendar_date.service_id]
+            time_table ||= begin
+              tt = referential.time_tables.build comment: comment
+              save_model tt, resource: resource
+              time_tables_by_service_id[calendar_date.service_id] = tt.id
+              tt
+            end
 
-        date = time_table.dates.build date: Date.parse(calendar_date.date), in_out: calendar_date.exception_type == "1"
-        save_model date, resource: resource
+            worker.add date: Date.parse(calendar_date.date), in_out: calendar_date.exception_type == "1", time_table_id: time_table.id
+          end
+        end
       end
     end
+  end
+
+  def import_calendar_checksums
+    referential.time_tables.includes(:dates, :periods).find_each{ |tt| tt.update_checksum_without_callbacks!(db_lookup: false) }
   end
 
   def find_stop_parent_or_create_message(stop_area_name, parent_station, resource)

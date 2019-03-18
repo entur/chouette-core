@@ -9,7 +9,7 @@ module Chouette
 
     acts_as_taggable
 
-    attr_accessor :tag_search
+    attr_accessor :tag_search, :skip_save_shortcuts
 
     def self.ransackable_attributes auth_object = nil
       (column_names + ['tag_search']) + _ransackers.keys
@@ -204,6 +204,7 @@ module Chouette
     end
 
     def save_shortcuts
+      return if skip_save_shortcuts
       shortcuts_update
       return unless changes.key?(:start_date) || changes.key?(:end_date)
 
@@ -212,21 +213,14 @@ module Chouette
 
     def shortcuts_update(date=nil)
       dates_array = bounding_dates
-      #if new_record?
-        if dates_array.empty?
-          self.start_date=nil
-          self.end_date=nil
-        else
-          self.start_date=dates_array.min
-          self.end_date=dates_array.max
-        end
-      #else
-      # if dates_array.empty?
-      #   update_attributes :start_date => nil, :end_date => nil
-      # else
-      #   update_attributes :start_date => dates_array.min, :end_date => dates_array.max
-      # end
-      #end
+
+      if dates_array.empty?
+        self.start_date=nil
+        self.end_date=nil
+      else
+        self.start_date=dates_array.min
+        self.end_date=dates_array.max
+      end
     end
 
     def validity_out_from_on?(expected_date)

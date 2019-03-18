@@ -5,7 +5,7 @@ module ObjectidSupport
     before_validation :before_validation_objectid, unless: Proc.new {|model| model.read_attribute(:objectid)}
     after_commit :after_commit_objectid, on: :create, if: Proc.new {|model| model.read_attribute(:objectid).try(:include?, '__pending_id__')}
     validates_presence_of :objectid
-    validates_uniqueness_of :objectid, skip_validation: Proc.new {|model| model.read_attribute(:objectid).nil?}
+    validates_uniqueness_of :objectid, unless: Proc.new {|model| model.read_attribute(:objectid).nil? || model.class.skip_objectid_uniqueness? }
 
     scope :with_short_id, ->(q){
       return self.none unless self.exists?
@@ -22,6 +22,17 @@ module ObjectidSupport
     end
 
     class << self
+
+      def skip_objectid_uniqueness?
+        @skip_objectid_uniqueness
+      end
+
+      def skipping_objectid_uniqueness
+        @skip_objectid_uniqueness = true
+        yield
+        @skip_objectid_uniqueness = false
+      end
+
       def search_with_objectid args={}
         vanilla_search = self.search_without_objectid args
         base = vanilla_search.base

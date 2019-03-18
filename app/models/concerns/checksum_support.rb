@@ -85,8 +85,8 @@ module ChecksumSupport
     Chouette::ChecksumManager.current.log("Updated #{self.class.name}:#{id} checksum: #{self.checksum}")
   end
 
-  def update_checksum_without_callbacks!
-    set_current_checksum_source
+  def update_checksum_without_callbacks!(db_lookup: true)
+    set_current_checksum_source(db_lookup: db_lookup)
     _checksum = Digest::SHA256.new.hexdigest(checksum_source)
     Chouette::ChecksumManager.current.log("Compute checksum for #{self.class.name}:#{id} checksum_source:'#{checksum_source}' checksum: #{_checksum}")
     if _checksum != self.checksum

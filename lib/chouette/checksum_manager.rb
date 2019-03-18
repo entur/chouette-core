@@ -37,6 +37,7 @@ module Chouette::ChecksumManager
   end
 
   def self.start_transaction
+    return if in_no_updates?
     return unless transaction_enabled?
 
     raise AlreadyInTransactionError if in_transaction?
@@ -48,7 +49,12 @@ module Chouette::ChecksumManager
     current.is_a?(Chouette::ChecksumManager::Transactional)
   end
 
+  def self.in_no_updates?
+    current.is_a?(Chouette::ChecksumManager::NoUpdates)
+  end
+
   def self.commit
+    return if in_no_updates?
     return unless transaction_enabled?
 
     current.log "=== COMMITTING TRANSACTION ==="
@@ -70,25 +76,25 @@ module Chouette::ChecksumManager
     Rails.application.config.enable_transactional_checksums
   end
 
-  def self.start_no_update
+  def self.start_no_updates
     self.current = Chouette::ChecksumManager::NoUpdates.new
     log "=== NO CHECKSUM UPDATES ==="
     log "=== BE CAREFUL, YOU WILL NEED TO UPDATE CHECKSUMS MANUALLY ==="
   end
 
-  def self.commit_no_update
+  def self.commit_no_updates
     log "=== ENDING NO CHECKSUM UPDATES ==="
     self.current = nil
   end
 
-  def self.no_update
+  def self.no_updates
     begin
-      start_no_update
+      start_no_updates
       out = yield
-      commit_no_update
+      commit_no_updates
       out
     rescue
-      commit_no_update
+      commit_no_updates
       raise
     end
   end
