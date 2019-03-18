@@ -17,6 +17,7 @@ module LocalImportSupport
       import.profile = true
       import.profile_options = profile_options
       import.name = "Profile #{File.basename(filepath)}"
+      import.save!
       if profile_options[:reuse_referential]
         r = if profile_options[:reuse_referential].is_a?(Referential)
           profile_options[:reuse_referential]
@@ -24,14 +25,19 @@ module LocalImportSupport
           Referential.where(name: import.referential_name).last
         end
         import.referential = r
+        r.switch
+      else
+        import.create_referential
       end
       import.save!
       if profile_options[:operations]
-        import.import_resources *profile_options[:operations]
-      else
-        profile_tag 'full_profile' do
-          import.import
+        import.profile_tag 'import' do
+          ActiveRecord::Base.cache do
+            import.import_resources *profile_options[:operations]
+          end
         end
+      else
+        import.import
       end
       import
     end
@@ -48,8 +54,10 @@ module LocalImportSupport
   def import
     update status: 'running', started_at: Time.now
 
-    profile_tag 'full_import' do
-      import_without_status
+    profile_tag 'import' do
+      ActiveRecord::Base.cache do
+        import_without_status
+      end
     end
     @status ||= 'successful'
     update status: @status, ended_at: Time.now
@@ -108,17 +116,25 @@ module LocalImportSupport
   end
 
   def profile_tag(tag)
-    time = ::Benchmark.realtime do
-      yield
+    @current_profile_scope ||= []
+    @current_profile_scope << tag
+    begin
+      time = ::Benchmark.realtime do
+        puts "START PROFILING #{@current_profile_scope.join('.')}"  if profile?
+        yield
+      end
+      add_profile_time @current_profile_scope.join('.'), time if profile?
+    ensure
+      puts "END PROFILING #{@current_profile_scope.join('.')}" if profile?
+      @current_profile_scope.pop
     end
-    add_profile_time tag, time if profile?
   end
 
   def profile_operation(operation, &block)
     if profile?
-      profile_tag "operation.#{operation}", &block
+      profile_tag operation, &block
     else
-      Chouette::Benchmark.log "#{self.class.name} import #{resource}" do
+      Chouette::Benchmark.log "#{self.class.name} import #{operation}" do
         yield
       end
     end
@@ -221,50 +237,53 @@ module LocalImportSupport
   end
 
   def save_model(model, filename: nil, line_number:  nil, column_number: nil, resource: nil)
-    if resource
-      filename ||= "#{resource.name}.txt"
-      line_number ||= resource.rows_count
-      column_number ||= 0
-    end
+    profile_tag "save_model.#{model.class.name}" do
 
-    unless model.save
-      Rails.logger.error "Can't save #{model.class.name} : #{model.errors.inspect}"
+      if resource
+        filename ||= "#{resource.name}.txt"
+        line_number ||= resource.rows_count
+        column_number ||= 0
+      end
 
-      # if the model cannot be saved, we still ensure we store a consistent checksum
-      model.try(:update_checksum_without_callbacks!) if model.persisted?
-      model.errors.details.each do |key, messages|
-        messages.each do |message|
-          message.each do |criticity, error|
-            if Import::Message.criticity.values.include?(criticity.to_s)
-              create_message(
-                {
-                  criticity: criticity,
-                  message_key: error,
-                  message_attributes: {
-                    test_id: key,
-                    object_attribute: key,
-                    source_attribute: key,
+      unless model.save
+        Rails.logger.error "Can't save #{model.class.name} : #{model.errors.inspect}"
+
+        # if the model cannot be saved, we still ensure we store a consistent checksum
+        model.try(:update_checksum_without_callbacks!) if model.persisted?
+        model.errors.details.each do |key, messages|
+          messages.each do |message|
+            message.each do |criticity, error|
+              if Import::Message.criticity.values.include?(criticity.to_s)
+                create_message(
+                  {
+                    criticity: criticity,
+                    message_key: error,
+                    message_attributes: {
+                      test_id: key,
+                      object_attribute: key,
+                      source_attribute: key,
+                    },
+                    resource_attributes: {
+                      filename: filename,
+                      line_number: line_number,
+                      column_number: column_number
+                    }
                   },
-                  resource_attributes: {
-                    filename: filename,
-                    line_number: line_number,
-                    column_number: column_number
-                  }
-                },
-                resource: resource,
-                commit: true
-              )
+                  resource: resource,
+                  commit: true
+                )
+              end
             end
           end
         end
+        @models_in_error ||= Hash.new { |hash, key| hash[key] = [] }
+        @models_in_error[model.class.name] << model_key(model)
+        @status = "failed"
+        return
       end
-      @models_in_error ||= Hash.new { |hash, key| hash[key] = [] }
-      @models_in_error[model.class.name] << model_key(model)
-      @status = "failed"
-      return
-    end
 
-    Rails.logger.debug "Created #{model.inspect}"
+      Rails.logger.debug "Created #{model.inspect}"
+    end
   end
 
   def check_parent_is_valid_or_create_message(klass, key, resource)

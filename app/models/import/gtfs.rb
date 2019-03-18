@@ -70,6 +70,7 @@ class Import::Gtfs < Import::Base
 
   def import_stops
     sorted_stops = source.stops.sort_by { |s| s.parent_station.present? ? 1 : 0 }
+    @stop_areas_id_by_registration_number = {}
     create_resource(:stops).each(sorted_stops, slice: 100, transaction: true) do |stop, resource|
       stop_area = stop_area_referential.stop_areas.find_or_initialize_by(registration_number: stop.id)
 
@@ -93,6 +94,7 @@ class Import::Gtfs < Import::Base
       end
 
       save_model stop_area, resource: resource
+      @stop_areas_id_by_registration_number[stop_area.registration_number] = stop_area.id
     end
   end
 
@@ -144,104 +146,130 @@ class Import::Gtfs < Import::Base
     # routes = Set.new
     prev_trip_id = nil
     to_be_saved = []
-    create_resource(:stop_times).each(
-      source.stop_times.group_by(&:trip_id),
-      transaction: true,
-      memory_profile: -> { "Import stop times from #{rows_count}" }
-    ) do |row, resource|
-      begin
-        trip_id, stop_times = row
-        to_be_saved = []
-        prev_trip_id = trip_id
+    Chouette::VehicleJourney.within_workgroup(referential.workgroup) do
+      Chouette::JourneyPattern.within_workgroup(referential.workgroup) do
+        create_resource(:stop_times).each(
+          source.stop_times.group_by(&:trip_id),
+          transaction: true,
+          memory_profile: -> { "Import stop times from #{rows_count}" }
+        ) do |row, resource|
+            begin
+              profile_tag 'trip' do
+                trip_id, stop_times = row
+                to_be_saved = []
+                prev_trip_id = trip_id
 
-        trip = @trips[trip_id]
-        line = line_referential.lines.find_by registration_number: trip.route_id
-        route = referential.routes.build line: line
-        route.wayback = (trip.direction_id == '0' ? :outbound : :inbound)
-        name = route.published_name = trip.headsign.presence || trip.short_name.presence || route.wayback.to_s.capitalize
-        route.name = name
-        to_be_saved << route
+                trip = @trips[trip_id]
+                line = line_referential.lines.find_by registration_number: trip.route_id
+                route = referential.routes.build line: line
+                route.wayback = (trip.direction_id == '0' ? :outbound : :inbound)
+                name = route.published_name = trip.headsign.presence || trip.short_name.presence || route.wayback.to_s.capitalize
+                route.name = name
+                to_be_saved << route
 
-        journey_pattern = route.journey_patterns.build name: name
-        # to_be_saved << journey_pattern
+                journey_pattern = route.journey_patterns.build name: name
+                # to_be_saved << journey_pattern
 
-        vehicle_journey = journey_pattern.vehicle_journeys.build route: route
-        vehicle_journey.published_journey_name = trip.short_name.presence || trip.id
+                vehicle_journey = journey_pattern.vehicle_journeys.build route: route
+                vehicle_journey.published_journey_name = trip.short_name.presence || trip.id
 
-        to_be_saved << vehicle_journey
+                to_be_saved << vehicle_journey
 
-        time_table = referential.time_tables.find_by(id: time_tables_by_service_id[trip.service_id]) if time_tables_by_service_id[trip.service_id]
-        if time_table
-          vehicle_journey.time_tables << time_table
-        else
-          create_message(
-            {
-              criticity: :warning,
-              message_key: 'gtfs.trips.unknown_service_id',
-              message_attributes: { service_id: trip.service_id },
-              resource_attributes: {
-                filename: "#{resource.name}.txt",
-                line_number: resource.rows_count,
-                column_number: 0
-              }
-            },
-            resource: resource,
-            commit: true
-          )
+                time_table = referential.time_tables.find_by(id: time_tables_by_service_id[trip.service_id]) if time_tables_by_service_id[trip.service_id]
+                if time_table
+                  vehicle_journey.time_tables << time_table
+                else
+                  create_message(
+                    {
+                      criticity: :warning,
+                      message_key: 'gtfs.trips.unknown_service_id',
+                      message_attributes: { service_id: trip.service_id },
+                      resource_attributes: {
+                        filename: "#{resource.name}.txt",
+                        line_number: resource.rows_count,
+                        column_number: 0
+                      }
+                    },
+                    resource: resource,
+                    commit: true
+                  )
+                end
+
+                stop_times.sort_by! { |s| s.stop_sequence.to_i }
+
+                raise InvalidTripTimesError unless consistent_stop_times(stop_times)
+
+                stop_points_with_times = stop_times.each_with_index.map do |stop_time, i|
+                  [stop_time, import_stop_time(stop_time, route, resource, i)]
+                end
+                to_be_saved.each do |model|
+                  save_model model, resource: resource
+                end
+
+                stop_points = stop_points_with_times.map do |s|
+                  stop_point = s.last
+                  @objectid_formatter ||= Chouette::ObjectidFormatter.for_objectid_provider(StopAreaReferential, id: referential.stop_area_referential_id)
+                  stop_point[:route_id] = route.id
+                  stop_point[:objectid] = @objectid_formatter.objectid(stop_point)
+                  stop_point
+                end
+
+                profile_tag 'stop_points_bulk_insert' do
+                  worker = nil
+                  Chouette::StopPoint.bulk_insert(:route_id, :objectid, :stop_area_id, :position, return_primary_keys: true) do |w|
+                    stop_points.compact.each { |s| w.add(s.attributes) }
+                    worker = w
+                  end
+                  # stop_points = , values: stop_points.map{ |s| s.attributes.slice(*%w[route_id objectid stop_area_id position]) }).result_sets
+                  stop_points = Chouette::StopPoint.find worker.result_sets.last.rows
+                end
+                profile_tag 'add_stop_points_to_jp' do
+                  journey_pattern.stop_points = stop_points
+                end
+
+                stop_points.each_with_index do |stop_point, i|
+                  add_stop_point stop_points_with_times[i].first, stop_point, journey_pattern, resource
+                end
+                save_model journey_pattern, resource: resource
+              end
+            rescue Import::Gtfs::InvalidTripNonZeroFirstOffsetError, Import::Gtfs::InvalidTripTimesError => e
+              message_key = e.is_a?(Import::Gtfs::InvalidTripNonZeroFirstOffsetError) ? 'trip_starting_with_non_zero_day_offset' : 'trip_with_inconsistent_stop_times'
+              create_message(
+                {
+                  criticity: :error,
+                  message_key: message_key,
+                  message_attributes: {
+                    trip_id: vehicle_journey.published_journey_name
+                  },
+                  resource_attributes: {
+                    filename: "#{resource.name}.txt",
+                    line_number: resource.rows_count,
+                    column_number: 0
+                  }
+                },
+                resource: resource, commit: true
+              )
+              @status = 'failed'
+            rescue Import::Gtfs::InvalidTimeError => e
+              create_message(
+                {
+                  criticity: :error,
+                  message_key: 'invalid_stop_time',
+                  message_attributes: {
+                    time: e.time,
+                    trip_id: vehicle_journey.published_journey_name
+                  },
+                  resource_attributes: {
+                    filename: "#{resource.name}.txt",
+                    line_number: resource.rows_count,
+                    column_number: 0
+                  }
+                },
+                resource: resource, commit: true
+              )
+              @status = 'failed'
+            end
         end
-
-        stop_times.sort_by! { |s| s.stop_sequence.to_i }
-
-        raise InvalidTripTimesError unless consistent_stop_times(stop_times)
-
-        stop_points = stop_times.each_with_index.map do |stop_time, i|
-          [stop_time, import_stop_time(stop_time, route, resource, i==0)]
-        end
-        to_be_saved.each do |model|
-          save_model model, resource: resource
-        end
-        stop_points.each do |stop_time, stop_point|
-          next if stop_point.nil?
-          add_stop_point stop_time, stop_point, journey_pattern, resource
-        end
-        save_model journey_pattern, resource: resource
-
-      rescue Import::Gtfs::InvalidTripNonZeroFirstOffsetError, Import::Gtfs::InvalidTripTimesError => e
-        message_key = e.is_a?(Import::Gtfs::InvalidTripNonZeroFirstOffsetError) ? 'trip_starting_with_non_zero_day_offset' : 'trip_with_inconsistent_stop_times'
-        create_message(
-          {
-            criticity: :error,
-            message_key: message_key,
-            message_attributes: {
-              trip_id: vehicle_journey.published_journey_name
-            },
-            resource_attributes: {
-              filename: "#{resource.name}.txt",
-              line_number: resource.rows_count,
-              column_number: 0
-            }
-          },
-          resource: resource, commit: true
-        )
-        @status = 'failed'
-      rescue Import::Gtfs::InvalidTimeError => e
-        create_message(
-          {
-            criticity: :error,
-            message_key: 'invalid_stop_time',
-            message_attributes: {
-              time: e.time,
-              trip_id: vehicle_journey.published_journey_name
-            },
-            resource_attributes: {
-              filename: "#{resource.name}.txt",
-              line_number: resource.rows_count,
-              column_number: 0
-            }
-          },
-          resource: resource, commit: true
-        )
-        @status = 'failed'
       end
     end
   end
@@ -262,10 +290,10 @@ class Import::Gtfs < Import::Base
     true
   end
 
-  def import_stop_time(stop_time, route, resource, first)
+  def import_stop_time(stop_time, route, resource, position)
     unless_parent_model_in_error(Chouette::StopArea, stop_time.stop_id, resource) do
 
-      if first
+      if position == 0
         departure_time = GTFS::Time.parse(stop_time.departure_time)
         raise InvalidTimeError.new(stop_time.departure_time) unless departure_time.present?
         arrival_time = GTFS::Time.parse(stop_time.arrival_time)
@@ -273,37 +301,37 @@ class Import::Gtfs < Import::Base
         raise InvalidTripNonZeroFirstOffsetError unless departure_time.day_offset.zero? && arrival_time.day_offset.zero?
       end
 
-      stop_area = stop_area_referential.stop_areas.find_by(registration_number: stop_time.stop_id)
-      stop_point = route.stop_points.build stop_area: stop_area
-
-      stop_point
+      stop_area_id = @stop_areas_id_by_registration_number[stop_time.stop_id]
+      Chouette::StopPoint.new(stop_area_id: stop_area_id, position: position )
     end
   end
 
   def add_stop_point(stop_time, stop_point, journey_pattern, resource)
-    journey_pattern.stop_points << stop_point
-    # JourneyPattern#vjas_add creates automaticaly VehicleJourneyAtStop
-    vehicle_journey_at_stop = journey_pattern.vehicle_journey_at_stops.where(stop_point_id: stop_point.id).last
-    departure_time = GTFS::Time.parse(stop_time.departure_time)
-    raise InvalidTimeError.new(stop_time.departure_time) unless departure_time.present?
+    profile_tag 'add_stop_point' do
+      # JourneyPattern#vjas_add creates automaticaly VehicleJourneyAtStop
 
-    arrival_time = GTFS::Time.parse(stop_time.arrival_time)
-    raise InvalidTimeError.new(stop_time.arrival_time) unless arrival_time.present?
+      vehicle_journey_at_stop = journey_pattern.vehicle_journey_at_stops.where(stop_point_id: stop_point.id).last
+      departure_time = GTFS::Time.parse(stop_time.departure_time)
+      raise InvalidTimeError.new(stop_time.departure_time) unless departure_time.present?
 
-    if @previous_stop_sequence.nil? || stop_time.stop_sequence.to_i <= @previous_stop_sequence
-      @vehicle_journey_at_stop_first_offset = departure_time.day_offset
+      arrival_time = GTFS::Time.parse(stop_time.arrival_time)
+      raise InvalidTimeError.new(stop_time.arrival_time) unless arrival_time.present?
+
+      if @previous_stop_sequence.nil? || stop_time.stop_sequence.to_i <= @previous_stop_sequence
+        @vehicle_journey_at_stop_first_offset = departure_time.day_offset
+      end
+
+      vehicle_journey_at_stop.departure_time = departure_time.time(@default_time_zone)
+      vehicle_journey_at_stop.arrival_time = arrival_time.time(@default_time_zone)
+      vehicle_journey_at_stop.departure_day_offset = departure_time.day_offset - @vehicle_journey_at_stop_first_offset
+      vehicle_journey_at_stop.arrival_day_offset = arrival_time.day_offset - @vehicle_journey_at_stop_first_offset
+
+      # TODO: offset
+
+      @previous_stop_sequence = stop_time.stop_sequence.to_i
+
+      save_model vehicle_journey_at_stop, resource: resource
     end
-
-    vehicle_journey_at_stop.departure_time = departure_time.time(@default_time_zone)
-    vehicle_journey_at_stop.arrival_time = arrival_time.time(@default_time_zone)
-    vehicle_journey_at_stop.departure_day_offset = departure_time.day_offset - @vehicle_journey_at_stop_first_offset
-    vehicle_journey_at_stop.arrival_day_offset = arrival_time.day_offset - @vehicle_journey_at_stop_first_offset
-
-    # TODO: offset
-
-    @previous_stop_sequence = stop_time.stop_sequence.to_i
-
-    save_model vehicle_journey_at_stop, resource: resource
   end
 
   def time_tables_by_service_id

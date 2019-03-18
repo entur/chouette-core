@@ -70,11 +70,39 @@ module Chouette::ChecksumManager
     Rails.application.config.enable_transactional_checksums
   end
 
+  def self.start_no_update
+    self.current = Chouette::ChecksumManager::NoUpdates.new
+    log "=== NO CHECKSUM UPDATES ==="
+    log "=== BE CAREFUL, YOU WILL NEED TO UPDATE CHECKSUMS MANUALLY ==="
+  end
+
+  def self.commit_no_update
+    log "=== ENDING NO CHECKSUM UPDATES ==="
+    self.current = nil
+  end
+
+  def self.no_update
+    begin
+      start_no_update
+      out = yield
+      commit_no_update
+      out
+    rescue
+      commit_no_update
+      raise
+    end
+  end
+
   def self.transaction
-    start_transaction
-    out = yield
-    commit
-    out
+    begin
+      start_transaction
+      out = yield
+      commit
+      out
+    rescue
+      commit
+      raise
+    end
   end
 
   def self.watch object, from: nil
@@ -149,11 +177,7 @@ module Chouette::ChecksumManager
   end
 
   def self.child_after_save object
-    if object.changed? || object.destroyed?
-      parents = checksum_parents object
-      log "Request from #{object.class.name}##{object.id} checksum updates for #{parents.count} parent(s): #{parents_to_sentence(parents)}"
-      parents.each { |parent| watch parent, from: object }
-    end
+    current.child_after_save(object)
   end
 
   def self.child_before_destroy object
