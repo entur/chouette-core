@@ -3,19 +3,54 @@ module LocalImportSupport
 
   included do |into|
     include ImportResourcesSupport
-    after_commit :import_async, on: :create
+    after_commit :import_async, on: :create, unless: :profile?
 
     delegate :line_referential, :stop_area_referential, to: :workbench
+    attr_accessor :profile
+    attr_accessor :profile_options
+    attr_accessor :profile_times
+  end
+
+  module ClassMethods
+    def profile(filepath, profile_options={})
+      import = self.new(file: open(filepath), creator: 'Profiler', workbench: Workbench.first)
+      import.profile = true
+      import.profile_options = profile_options
+      import.name = "Profile #{File.basename(filepath)}"
+      if profile_options[:reuse_referential]
+        r = if profile_options[:reuse_referential].is_a?(Referential)
+          profile_options[:reuse_referential]
+        else
+          Referential.where(name: import.referential_name).last
+        end
+        import.referential = r
+      end
+      import.save!
+      if profile_options[:operations]
+        import.import_resources *profile_options[:operations]
+      else
+        profile_tag 'full_profile' do
+          import.import
+        end
+      end
+      import
+    end
   end
 
   def import_async
     Delayed::Job.enqueue LongRunningJob.new(self, :import), queue: :imports
   end
 
+  def profile?
+    @profile
+  end
+
   def import
     update status: 'running', started_at: Time.now
 
-    import_without_status
+    profile_tag 'full_import' do
+      import_without_status
+    end
     @status ||= 'successful'
     update status: @status, ended_at: Time.now
     referential&.active!
@@ -49,28 +84,74 @@ module LocalImportSupport
     Rails.logger.error "Import #{self.inspect} failed due to worker being dead"
   end
 
+  def add_profile_time(tag, time)
+    @profile_times ||= Hash.new{ |h, k| h[k] = [] }
+    @profile_times[tag] << time
+  end
+
+  def profile_stats
+    @profile_times ||= Hash.new{ |h, k| h[k] = [] }
+    @computed_profile_stats ||= begin
+      profile_stats = {}
+      @profile_times.each do |k, times|
+        sum = times.sum
+        profile_stats[k] = {
+          sum: sum,
+          count: times.count,
+          min: times.min,
+          max: times.max,
+          average: sum/times.count
+        }
+      end
+      profile_stats
+    end
+  end
+
+  def profile_tag(tag)
+    time = ::Benchmark.realtime do
+      yield
+    end
+    add_profile_time tag, time if profile?
+  end
+
+  def profile_operation(operation, &block)
+    if profile?
+      profile_tag "operation.#{operation}", &block
+    else
+      Chouette::Benchmark.log "#{self.class.name} import #{resource}" do
+        yield
+      end
+    end
+  end
+
   def import_resources(*resources)
     resources.each do |resource|
-      Chouette::Benchmark.log "#{self.class.name} import #{resource}" do
+      profile_operation resource do
         send "import_#{resource}"
       end
     end
   end
 
   def create_referential
-    self.referential ||=  Referential.new(
-      name: referential_name,
-      organisation_id: workbench.organisation_id,
-      workbench_id: workbench.id,
-      metadatas: [referential_metadata]
-    )
-    begin
-      self.referential.save!
-    rescue => e
-      Rails.logger.error "Unable to create referential: #{self.referential.errors.messages}"
-      raise
+    profile_operation 'create_referential' do
+      self.referential ||=  Referential.new(
+        name: referential_name,
+        organisation_id: workbench.organisation_id,
+        workbench_id: workbench.id,
+        metadatas: [referential_metadata]
+      )
+
+      if profile?
+        Referential.find(self.referential.overlapped_referential_ids).each &:archive!
+      end
+      begin
+        self.referential.save!
+      rescue => e
+        Rails.logger.error "Unable to create referential: #{self.referential.errors.messages}"
+        raise
+      end
+      main_resource.update referential: referential if main_resource
     end
-    main_resource.update referential: referential if main_resource
   end
 
   def referential_name
