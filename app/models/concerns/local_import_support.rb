@@ -118,16 +118,18 @@ module LocalImportSupport
   def profile_tag(tag)
     @current_profile_scope ||= []
     @current_profile_scope << tag
+    out = time = nil
     begin
       time = ::Benchmark.realtime do
         puts "START PROFILING #{@current_profile_scope.join('.')}"  if profile?
-        yield
+        out = yield
       end
       add_profile_time @current_profile_scope.join('.'), time if profile?
     ensure
-      puts "END PROFILING #{@current_profile_scope.join('.')}" if profile?
+      puts "END PROFILING #{@current_profile_scope.join('.')} in #{time}s" if profile?
       @current_profile_scope.pop
     end
+    out
   end
 
   def profile_operation(operation, &block)

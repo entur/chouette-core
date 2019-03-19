@@ -24,7 +24,7 @@ module ObjectidSupport
     class << self
 
       def skip_objectid_uniqueness?
-        @skip_objectid_uniqueness
+        ApplicationModel.skip_objectid_uniqueness? || @skip_objectid_uniqueness
       end
 
       def skipping_objectid_uniqueness
