@@ -28,6 +28,7 @@ RUN apt-get update && mkdir -p /usr/share/man/man1 /usr/share/man/man7 && \
 ENV DEV_PACKAGES="build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core"
 ENV RUN_PACKAGES="libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron"
 
+
 # Install bundler packages
 COPY Gemfile Gemfile.lock /app/
 RUN apt-get update && apt-get -y install --no-install-recommends $DEV_PACKAGES $RUN_PACKAGES && \
@@ -46,6 +47,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl gnupg ca-c
     echo "deb https://deb.nodesource.com/node_6.x stretch main" > /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && apt-get install -y --no-install-recommends yarn nodejs
 
+
 # Install yarn packages
 COPY package.json yarn.lock /app/
 RUN cd /app && yarn --frozen-lockfile install
@@ -57,6 +59,8 @@ COPY . /app/
 COPY config/database.yml.docker app/config/database.yml
 COPY config/secrets.yml.docker app/config/secrets.yml
 
+RUN if [ ! -f /app/config/environments/production.rb ]; then echo "creating production env file from sample" && cp /app/config/environments/production.rb.sample /app/config/environments/production.rb; fi
+
 # Run assets:precompile (with nulldb)
 RUN cd /app && bundle exec rake ci:fix_webpacker assets:precompile i18n:js:export RAILS_DB_ADAPTER=nulldb RAILS_DB_PASSWORD=none RAILS_ENV=production
 
@@ -64,6 +68,8 @@ FROM base as final
 
 # Install application file
 COPY . /app/
+
+RUN if [ ! -f /app/config/environments/production.rb ]; then echo "creating production env file from sample" && cp /app/config/environments/production.rb.sample /app/config/environments/production.rb; fi
 
 # Override database.yml and secrets.yml files
 COPY config/database.yml.docker app/config/database.yml
