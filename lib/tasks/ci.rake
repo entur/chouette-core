@@ -79,15 +79,17 @@ namespace :ci do
       # but development db isn't available during ci tasks
       Rake::Task["db:abort_if_pending_migrations"].clear
 
+      parallel_specs_command = "parallel_test spec -t rspec"
+
+      runtime_log = "log/parallel_runtime_specs.log"
+      parallel_specs_command += " --runtime-log #{runtime_log}" if File.exists? runtime_log
+
       begin
-        Rake::Task["parallel:spec"].invoke
+        sh parallel_specs_command
       ensure
+        sh "cat #{runtime_log} | grep '^spec' | sort -t: -k2 -n -r -"
         Dir["log/*_specs.log"].sort.each do |spec_log_file|
-          filter = ""
-          if spec_log_file == "log/parallel_runtime_specs.log"
-            filter = "| grep '^spec' | sort -t: -k2 -n -r -"
-          end
-          sh "cat #{spec_log_file} #{filter}"
+          sh "cat #{spec_log_file}"
         end
       end
     else
