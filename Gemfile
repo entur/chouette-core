@@ -158,6 +158,7 @@ gem 'redis-rails'
 
 gem 'newrelic_rpm'
 gem 'letter_opener'
+gem 'letter_opener_web', '~> 1.0'
 
 #gem 'gtfs'
 gem 'gtfs', af83: 'gtfs'

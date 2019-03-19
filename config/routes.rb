@@ -279,6 +279,7 @@ ChouetteIhm::Application.routes.draw do
     end
   end
 
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if %i[letter_opener_web letter_opener].include?(Rails.application.config.action_mailer.delivery_method)
 
   root :to => "dashboards#show"
 
