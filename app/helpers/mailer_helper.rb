@@ -3,6 +3,10 @@ module MailerHelper
     link_to text, url, opts.update(style: mailer_style(:link)), &block
   end
 
+  def mailer_footer_link_to(text, url, opts = {}, &block)
+    link_to text, url, opts.update(style: mailer_style(:footer_link)), &block
+  end
+
   def mailer_button(text, url, opts = {})
     link_to text, url, opts.update(style: mailer_style(:button))
   end
