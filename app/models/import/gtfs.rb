@@ -85,6 +85,7 @@ class Import::Gtfs < Import::Base
         stop_area.kind = :commercial
         stop_area.deleted_at = nil
         stop_area.confirmed_at ||= Time.now
+        stop_area.comment = stop.desc
 
         if stop.parent_station.present?
           if check_parent_is_valid_or_create_message(Chouette::StopArea, stop.parent_station, resource)

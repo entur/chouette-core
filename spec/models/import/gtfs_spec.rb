@@ -122,23 +122,23 @@ RSpec.describe Import::Gtfs do
   end
 
   describe '#import_stops' do
-    let(:import) { build_import 'google-sample-feed.zip' }
+    let(:import) { build_import 'google-sample-feed-with-stop-desc.zip' }
     it "should create a stop_area for each stop" do
       import.import_stops
 
       defined_attributes = [
-        :registration_number, :name, :parent_id, :latitude, :longitude
+        :registration_number, :name, :parent_id, :latitude, :longitude, :comment
       ]
       expected_attributes = [
-        ["AMV", "Amargosa Valley (Demo)", nil, 36.641496, -116.40094],
-        ["EMSI", "E Main St / S Irving St (Demo)", nil, 36.905697, -116.76218],
-        ["DADAN", "Doing Ave / D Ave N (Demo)", nil, 36.909489, -116.768242],
-        ["NANAA", "North Ave / N A Ave (Demo)", nil, 36.914944, -116.761472],
-        ["NADAV", "North Ave / D Ave N (Demo)", nil, 36.914893, -116.76821],
-        ["STAGECOACH", "Stagecoach Hotel & Casino (Demo)", nil, 36.915682, -116.751677],
-        ["BULLFROG", "Bullfrog (Demo)", nil, 36.88108, -116.81797],
-        ["BEATTY_AIRPORT", "Nye County Airport (Demo)", nil, 36.868446, -116.784582],
-        ["FUR_CREEK_RES", "Furnace Creek Resort (Demo)", nil, 36.425288, -117.133162]
+        ["AMV", "Amargosa Valley (Demo)", nil, 36.641496, -116.40094,'amv'],
+        ["EMSI", "E Main St / S Irving St (Demo)", nil, 36.905697, -116.76218,'emsi'],
+        ["DADAN", "Doing Ave / D Ave N (Demo)", nil, 36.909489, -116.768242,'dadan'],
+        ["NANAA", "North Ave / N A Ave (Demo)", nil, 36.914944, -116.761472,'nanaa'],
+        ["NADAV", "North Ave / D Ave N (Demo)", nil, 36.914893, -116.76821,'nadav'],
+        ["STAGECOACH", "Stagecoach Hotel & Casino (Demo)", nil, 36.915682, -116.751677,'stagecoach'],
+        ["BULLFROG", "Bullfrog (Demo)", nil, 36.88108, -116.81797,'bullfrog'],
+        ["BEATTY_AIRPORT", "Nye County Airport (Demo)", nil, 36.868446, -116.784582,'beatty_airport'],
+        ["FUR_CREEK_RES", "Furnace Creek Resort (Demo)", nil, 36.425288, -117.133162,'fur_creek_res']
       ]
 
       expect(workbench.stop_area_referential.stop_areas.pluck(*defined_attributes)).to match_array(expected_attributes)
