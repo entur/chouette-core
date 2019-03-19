@@ -1,5 +1,13 @@
 namespace :ci do
 
+  def cache_files
+    @cache_files ||= []
+  end
+
+  def cache_file(name)
+    cache_files << name
+  end
+
   def database_name
     @database_name ||=
       begin
@@ -96,6 +104,7 @@ namespace :ci do
       Rake::Task["spec"].invoke
     end
   end
+  cache_file "log/parallel_runtime_specs.log"
 
   task :build => ["ci:setup", "ci:assets", "ci:spec", "ci:jest", "ci:check_security"]
 
@@ -114,7 +123,45 @@ namespace :ci do
   end
 
   task :docker => ["ci:build"]
+
+  namespace :cache do
+
+    def cache_dir
+      "cache"
+    end
+
+    def cache_dir?
+      Dir.exists? cache_dir
+    end
+
+    def store_file(file)
+      return unless cache_dir?
+      cp file, cache_dir if File.exists?(file)
+    end
+
+    def fetch_file(file)
+      return unless cache_dir?
+      cache_file = File.join(cache_dir, File.basename(file))
+      cp cache_file, file if File.exists?(cache_file)
+    end
+
+    # Retrive usefull data from cache at the beginning of the build
+    task :fetch do
+      cache_files.each do |cache_file|
+        puts "Retrieve #{cache_file} from cache"
+        fetch_file cache_file
+      end
+    end
+
+    # Fill cache at the end of the build
+    task :store do
+      cache_files.each do |cache_file|
+        puts "Store #{cache_file} in cache"
+        store_file cache_file
+      end
+    end
+  end
 end
 
 desc "Run continuous integration tasks (spec, ...)"
-task :ci => ["ci:build"]
+task :ci => ["ci:cache:fetch", "ci:build", "ci.cache:store"]
