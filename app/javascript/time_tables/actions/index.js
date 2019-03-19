@@ -295,6 +295,7 @@ const actions = {
           dispatch(next)
         } else {
           dispatch(actions.receiveTimeTables(json))
+          window.location.assign(window.redirectUrl)
         }
       }
     })
