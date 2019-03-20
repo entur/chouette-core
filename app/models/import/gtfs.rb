@@ -446,8 +446,9 @@ class Import::Gtfs < Import::Base
       checksum_sources = []
       group.each do |r|
         ids << r.id
-        checksum_sources << self.class.sanitize(r.current_checksum_source(db_lookup: false))
-        checksums << Digest::SHA256.new.hexdigest(checksum_sources.last)
+        source = r.current_checksum_source(db_lookup: false)
+        checksum_sources << self.class.sanitize(source)
+        checksums << Digest::SHA256.new.hexdigest(source)
       end
       sql = <<SQL
         UPDATE #{referential.slug}.#{collection.klass.table_name} tmp SET checksum_source = data_table.checksum_source, checksum = data_table.checksum
@@ -464,10 +465,10 @@ SQL
   def import_missing_checksums
     Chouette::JourneyPattern.within_workgroup(workgroup) do
       Chouette::VehicleJourney.within_workgroup(workgroup) do
-        update_checkum_in_batches referential.vehicle_journey_at_stops.select(:id, :checksum_source, :departure_time, :arrival_time, :departure_day_offset, :arrival_day_offset, :checksum, :checksum_source)
-        update_checkum_in_batches referential.routes.select(:id, :checksum_source, :name, :published_name, :wayback).includes(:stop_points, :routing_constraint_zones)
-        update_checkum_in_batches referential.journey_patterns.select(:id, :checksum_source, :custom_field_values, :name, :published_name, :registration_number, :costs).includes(:stop_points)
-        update_checkum_in_batches referential.vehicle_journeys.select(:id, :checksum_source, :custom_field_values, :published_journey_name, :published_journey_identifier, :ignored_routing_contraint_zone_ids, :ignored_stop_area_routing_constraint_ids, :company_id).includes(:company_light, :footnotes, :vehicle_journey_at_stops, :purchase_windows)
+        update_checkum_in_batches referential.vehicle_journey_at_stops.select(:id, :departure_time, :arrival_time, :departure_day_offset, :arrival_day_offset)
+        update_checkum_in_batches referential.routes.select(:id, :name, :published_name, :wayback).includes(:stop_points, :routing_constraint_zones)
+        update_checkum_in_batches referential.journey_patterns.select(:id, :custom_field_values, :name, :published_name, :registration_number, :costs).includes(:stop_points)
+        update_checkum_in_batches referential.vehicle_journeys.select(:id, :custom_field_values, :published_journey_name, :published_journey_identifier, :ignored_routing_contraint_zone_ids, :ignored_stop_area_routing_constraint_ids, :company_id).includes(:company_light, :footnotes, :vehicle_journey_at_stops, :purchase_windows)
       end
     end
   end
