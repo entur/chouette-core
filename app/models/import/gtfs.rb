@@ -118,7 +118,7 @@ class Import::Gtfs < Import::Base
         line.name = route.long_name.presence || route.short_name
         line.number = route.short_name
         line.published_name = route.long_name
-        unless route.agency_id == line.company.registration_number
+        unless route.agency_id == line.company&.registration_number
           line.company = line_referential.companies.find_by(registration_number: route.agency_id) if route.agency_id.present?
         end
         line.comment = route.desc
