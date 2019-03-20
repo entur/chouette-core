@@ -18,16 +18,18 @@ module LocalImportSupport
       import.profile_options = profile_options
       import.name = "Profile #{File.basename(filepath)}"
       import.save!
-      if profile_options[:reuse_referential]
-        r = if profile_options[:reuse_referential].is_a?(Referential)
-          profile_options[:reuse_referential]
+      if profile_options[:operations]
+        if profile_options[:reuse_referential]
+          r = if profile_options[:reuse_referential].is_a?(Referential)
+            profile_options[:reuse_referential]
+          else
+            Referential.where(name: import.referential_name).last
+          end
+          import.referential = r
+          r.switch
         else
-          Referential.where(name: import.referential_name).last
+          import.create_referential
         end
-        import.referential = r
-        r.switch
-      else
-        import.create_referential
       end
       import.save!
       if profile_options[:operations]
