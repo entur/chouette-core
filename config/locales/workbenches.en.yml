@@ -2,7 +2,7 @@ en:
   workbenches:
     current_offer: Current offer
     show:
-      title: "Transport offer %{name}"
+      title: "Data set %{name}"
     edit:
       title: "Configure the workbench"
       link:  "Settings"
@@ -24,7 +24,7 @@ en:
         see: "See the list"
         no_content: "No content yet."
     actions:
-      show_output: "Merge Transport Offer"
+      show_output: "Merge Data set"
       affect_ccset: "Configure"
     errors:
       locked_referential_to_aggregate:
