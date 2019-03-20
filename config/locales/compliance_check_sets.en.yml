@@ -10,13 +10,13 @@ en:
           name_compliance_control_set: Specify a compliance control set name...
           error_period_filter: End date must be greater than or equal to begin date
     index:
-      title: Compliance control set
-      new: New compliance control set
+      title: Compliance check set
+      new: New compliance check set
       new_control: Creating a Control
       select_types: Control Type Selection
-      edit: Edit compliance control set
+      edit: Edit compliance check set
     workgroup_index:
-      title: "Workgroup's compliance control sets"
+      title: "Workgroup's compliance check sets"
 
     search_no_results: No control reports match your search
     executed:
@@ -46,6 +46,8 @@ en:
         assigned_to: Assigned to
         compliance_control_set: Compliance control set
         name: Name
+        context: Context
+        context_i18n: Context
         status: Status
         notification_target: Notifications recipients
       compliance_check_resources:
