@@ -10,7 +10,7 @@ module OperationsHelper
     title = verbose ? nil : txt
 
     out = if %w[new running pending].include? status
-      content_tag :span, '', class: "fa fa-clock-o", title: title
+      render_icon "fa fa-clock-o", title
     else
       cls = ''
       cls = 'success' if status == 'successful'
@@ -20,7 +20,7 @@ module OperationsHelper
       cls = 'disabled' if status == 'canceled'
       cls = 'danger' if %w[failed aborted error].include? status
 
-      content_tag :span, '', class: "fa fa-circle text-#{cls}", title: title
+      render_icon "fa fa-circle text-#{cls}", title
     end
     if verbose
       out += content_tag :span , txt

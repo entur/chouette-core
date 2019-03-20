@@ -27,7 +27,7 @@ const vehicleJourney= (state = {}, action, keep) => {
           current_time.minute = parseInt(action.data["start_time.minute"].value) + (initTZOffet - 60 * parseInt(initTZOffet / 60))
         }
       }
-      
+
       _.each(action.stopPointsList, (sp) =>{
         let inJourney = false
         let newVjas
@@ -177,7 +177,6 @@ const vehicleJourney= (state = {}, action, keep) => {
             actions.getDelta(schedule, false)
             newSchedule.departure_time[action.timeUnit] = actions.pad(val, action.timeUnit)
             if(!action.isArrivalsToggled){
-              console.log({schedule})
               schedule = actions.getShiftedSchedule({arrival_time: newSchedule.departure_time, departure_time: newSchedule.departure_time}, - schedule.delta)
               newSchedule.arrival_time = schedule.arrival_time
             }
@@ -260,12 +259,14 @@ export default function vehicleJourneys(state = [], action) {
       })
     case 'EDIT_VEHICLEJOURNEYS_CONSTRAINT_ZONES':
       let newExclusions = JSON.parse(JSON.stringify(action.zones))
+      let newStopAreasExclusions = JSON.parse(JSON.stringify(action.stop_area_constraints))
       return state.map((vj,i) =>{
         if(vj.selected){
           let updatedVJ = _.assign({}, vj)
           action.vehicleJourneys.map((vjm, j) =>{
             if(vj.objectid == vjm.objectid){
               updatedVJ.ignored_routing_contraint_zone_ids =  newExclusions
+              updatedVJ.ignored_stop_area_routing_constraint_ids =  newStopAreasExclusions
             }
           })
           return updatedVJ
@@ -363,6 +364,7 @@ export default function vehicleJourneys(state = [], action) {
       })
     case 'DID_VALIDATE_VEHICLE_JOURNEYS':
       return [...action.vehicleJourneys]
+
     default:
       return state
   }

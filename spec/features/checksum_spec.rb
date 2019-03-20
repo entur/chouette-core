@@ -1,5 +1,5 @@
 RSpec.describe 'Checksum', type: :feature do
-  let(:footnote){ create :footnote, code: 1, label: "footnote 1"}
+  let(:footnote){ create :footnote, code: 1, label: "footnote 1", line: line}
   let(:purchase_window) do
      create :purchase_window, {
        name: "purchase_window",
@@ -35,13 +35,18 @@ RSpec.describe 'Checksum', type: :feature do
     create(:routing_constraint_zone, route: route, stop_points: route.stop_points[0..1])
   }
 
+  let(:line){
+    create(:line, company: company)
+  }
+
   let(:route) do
-    stop_area_1 && stop_area_2
+    stop_area_1 && stop_area_2 && stop_area_3
     r = create :route, {
       name: "name",
       published_name: "published_name",
       wayback: 'inbound',
       stop_points_count: 0,
+      line: line
     }
     create :stop_point, stop_area: stop_area_1, route: r, position: 0
     create :stop_point, stop_area: stop_area_2, route: r, position: 1

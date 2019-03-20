@@ -15,19 +15,18 @@
       [ \
         TableBuilderHelper::Column.new( \
           name: t('imports.show.referential_name'), \
-          attribute: 'name', \
-          sortable: false, \
-          link_to: lambda do |item| \
-            referential_path(item.referential) if item.referential.present? \
-          end \
+          attribute: lambda do |item| \
+            link_to_if_i_can(item.referential.name, item.referential) if item.referential.present? \
+          end, \
+          sortable: false \
         ), \
         TableBuilderHelper::Column.new( \
           key: :status, \
-          attribute: Proc.new { |n| operation_status(n.netex_import&.status || n.status, verbose: true, default_status: :pending) }, \
+          attribute: lambda do |n| \
+            url = n.child_import.present? ? [parent, n.child_import] : [parent, @import, n]; \
+            link_to_if_i_can(operation_status(n.child_import&.status || n.status, verbose: true, default_status: :pending), url) \
+          end, \
           sortable: false, \
-          link_to: lambda do |item| \
-            item.netex_import.present? ? [@import.workbench, item.netex_import] : [@import.workbench, @import, item] \
-          end \
         ), *controls \
       ],
       cls: 'table',

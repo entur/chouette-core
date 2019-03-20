@@ -11,12 +11,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181221094635) do
+ActiveRecord::Schema.define(version: 20190311095017) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "hstore"
   enable_extension "postgis"
+  enable_extension "hstore"
   enable_extension "unaccent"
 
   create_table "access_links", id: :bigserial, force: :cascade do |t|
@@ -86,8 +86,10 @@ ActiveRecord::Schema.define(version: 20181221094635) do
     t.string   "notification_target"
     t.datetime "notified_recipients_at"
     t.integer  "user_id",                limit: 8
+    t.string   "type"
   end
 
+  add_index "aggregates", ["type"], name: "index_aggregates_on_type", using: :btree
   add_index "aggregates", ["workgroup_id"], name: "index_aggregates_on_workgroup_id", using: :btree
 
   create_table "api_keys", id: :bigserial, force: :cascade do |t|
@@ -107,9 +109,9 @@ ActiveRecord::Schema.define(version: 20181221094635) do
     t.integer   "organisation_id", limit: 8
     t.datetime  "created_at"
     t.datetime  "updated_at"
+    t.integer   "workgroup_id",    limit: 8
     t.integer   "int_day_types"
     t.date      "excluded_dates",                            array: true
-    t.integer   "workgroup_id",    limit: 8
     t.jsonb     "metadata",                  default: {}
   end
 
@@ -328,6 +330,33 @@ ActiveRecord::Schema.define(version: 20181221094635) do
 
   add_index "custom_fields", ["resource_type"], name: "index_custom_fields_on_resource_type", using: :btree
 
+  create_table "delayed_jobs", id: :bigserial, force: :cascade do |t|
+    t.integer  "priority",                  default: 0, null: false
+    t.integer  "attempts",                  default: 0, null: false
+    t.text     "handler",                               null: false
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "organisation_id", limit: 8
+    t.string   "operation_type"
+  end
+
+  add_index "delayed_jobs", ["organisation_id"], name: "index_delayed_jobs_on_organisation_id", using: :btree
+  add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
+
+  create_table "delayed_workers", id: :bigserial, force: :cascade do |t|
+    t.string   "name"
+    t.string   "version"
+    t.datetime "last_heartbeat_at"
+    t.string   "host_name"
+    t.string   "label"
+  end
+
   create_table "destination_reports", id: :bigserial, force: :cascade do |t|
     t.integer  "destination_id",  limit: 8
     t.integer  "publication_id",  limit: 8
@@ -351,8 +380,10 @@ ActiveRecord::Schema.define(version: 20181221094635) do
     t.string   "secret_file"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+    t.integer  "publication_api_id",   limit: 8
   end
 
+  add_index "destinations", ["publication_api_id"], name: "index_destinations_on_publication_api_id", using: :btree
   add_index "destinations", ["publication_setup_id"], name: "index_destinations_on_publication_setup_id", using: :btree
 
   create_table "export_messages", id: :bigserial, force: :cascade do |t|
@@ -409,15 +440,9 @@ ActiveRecord::Schema.define(version: 20181221094635) do
     t.integer  "publication_id",         limit: 8
   end
 
+  add_index "exports", ["publication_id"], name: "index_exports_on_publication_id", using: :btree
   add_index "exports", ["referential_id"], name: "index_exports_on_referential_id", using: :btree
   add_index "exports", ["workbench_id"], name: "index_exports_on_workbench_id", using: :btree
-
-  create_table "exports_publications", id: :bigserial, force: :cascade do |t|
-    t.integer "export_id",      limit: 8
-    t.integer "publication_id"
-  end
-
-  add_index "exports_publications", ["export_id", "publication_id"], name: "index_exports_publications_on_export_id_and_publication_id", using: :btree
 
   create_table "facilities", id: :bigserial, force: :cascade do |t|
     t.integer  "stop_area_id",       limit: 8
@@ -684,14 +709,6 @@ ActiveRecord::Schema.define(version: 20181221094635) do
   add_index "networks", ["objectid"], name: "networks_objectid_key", unique: true, using: :btree
   add_index "networks", ["registration_number"], name: "networks_registration_number_key", using: :btree
 
-  create_table "notifications", id: :bigserial, force: :cascade do |t|
-    t.string   "objectid"
-    t.json     "payload"
-    t.string   "channel"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "organisations", id: :bigserial, force: :cascade do |t|
     t.string   "name"
     t.datetime "created_at"
@@ -723,6 +740,39 @@ ActiveRecord::Schema.define(version: 20181221094635) do
 
   add_index "pt_links", ["objectid"], name: "pt_links_objectid_key", unique: true, using: :btree
 
+  create_table "publication_api_keys", id: :bigserial, force: :cascade do |t|
+    t.string   "name"
+    t.string   "token"
+    t.integer  "publication_api_id", limit: 8
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+  end
+
+  add_index "publication_api_keys", ["publication_api_id"], name: "index_publication_api_keys_on_publication_api_id", using: :btree
+
+  create_table "publication_api_sources", id: :bigserial, force: :cascade do |t|
+    t.integer  "publication_id",     limit: 8
+    t.integer  "publication_api_id", limit: 8
+    t.string   "key"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "export_id",          limit: 8
+  end
+
+  add_index "publication_api_sources", ["publication_api_id"], name: "index_publication_api_sources_on_publication_api_id", using: :btree
+  add_index "publication_api_sources", ["publication_id", "key"], name: "index_publication_api_sources_on_publication_id_and_key", using: :btree
+  add_index "publication_api_sources", ["publication_id"], name: "index_publication_api_sources_on_publication_id", using: :btree
+
+  create_table "publication_apis", id: :bigserial, force: :cascade do |t|
+    t.string   "name"
+    t.string   "slug"
+    t.integer  "workgroup_id", limit: 8
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "publication_apis", ["workgroup_id"], name: "index_publication_apis_on_workgroup_id", using: :btree
+
   create_table "publication_setups", id: :bigserial, force: :cascade do |t|
     t.integer  "workgroup_id",   limit: 8
     t.string   "export_type"
@@ -741,7 +791,6 @@ ActiveRecord::Schema.define(version: 20181221094635) do
     t.integer  "parent_id",            limit: 8
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
-    t.integer  "referential_id",       limit: 8
     t.string   "status"
     t.datetime "started_at"
     t.datetime "ended_at"
@@ -749,7 +798,6 @@ ActiveRecord::Schema.define(version: 20181221094635) do
 
   add_index "publications", ["parent_type", "parent_id"], name: "index_publications_on_parent_type_and_parent_id", using: :btree
   add_index "publications", ["publication_setup_id"], name: "index_publications_on_publication_setup_id", using: :btree
-  add_index "publications", ["referential_id"], name: "index_publications_on_referential_id", using: :btree
 
   create_table "purchase_windows", id: :bigserial, force: :cascade do |t|
     t.string    "name"
@@ -949,6 +997,19 @@ ActiveRecord::Schema.define(version: 20181221094635) do
     t.string   "registration_number_format"
   end
 
+  create_table "stop_area_routing_constraints", id: :bigserial, force: :cascade do |t|
+    t.integer  "from_id",         limit: 8
+    t.integer  "to_id",           limit: 8
+    t.boolean  "both_way"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.string   "checksum"
+    t.text     "checksum_source"
+  end
+
+  add_index "stop_area_routing_constraints", ["from_id"], name: "index_stop_area_routing_constraints_on_from_id", using: :btree
+  add_index "stop_area_routing_constraints", ["to_id"], name: "index_stop_area_routing_constraints_on_to_id", using: :btree
+
   create_table "stop_areas", id: :bigserial, force: :cascade do |t|
     t.integer  "parent_id",                       limit: 8
     t.string   "objectid",                                                                         null: false
@@ -1121,10 +1182,12 @@ ActiveRecord::Schema.define(version: 20181221094635) do
     t.string   "username"
     t.datetime "synced_at"
     t.string   "permissions",                                                array: true
+    t.string   "profile"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["invitation_token"], name: "index_users_on_invitation_token", unique: true, using: :btree
+  add_index "users", ["profile"], name: "index_users_on_profile", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
 
@@ -1147,29 +1210,30 @@ ActiveRecord::Schema.define(version: 20181221094635) do
   add_index "vehicle_journey_at_stops", ["vehicle_journey_id"], name: "index_vehicle_journey_at_stops_on_vehicle_journey_id", using: :btree
 
   create_table "vehicle_journeys", id: :bigserial, force: :cascade do |t|
-    t.integer  "route_id",                           limit: 8
-    t.integer  "journey_pattern_id",                 limit: 8
-    t.integer  "company_id",                         limit: 8
-    t.string   "objectid",                                                  null: false
-    t.integer  "object_version",                     limit: 8
+    t.integer  "route_id",                                 limit: 8
+    t.integer  "journey_pattern_id",                       limit: 8
+    t.integer  "company_id",                               limit: 8
+    t.string   "objectid",                                                        null: false
+    t.integer  "object_version",                           limit: 8
     t.string   "comment"
     t.string   "transport_mode"
     t.string   "published_journey_name"
     t.string   "published_journey_identifier"
     t.string   "facility"
     t.string   "vehicle_type_identifier"
-    t.integer  "number",                             limit: 8
+    t.integer  "number",                                   limit: 8
     t.boolean  "mobility_restricted_suitability"
     t.boolean  "flexible_service"
-    t.integer  "journey_category",                             default: 0,  null: false
+    t.integer  "journey_category",                                   default: 0,  null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "checksum"
     t.text     "checksum_source"
     t.string   "data_source_ref"
-    t.jsonb    "custom_field_values",                          default: {}
-    t.jsonb    "metadata",                                     default: {}
-    t.integer  "ignored_routing_contraint_zone_ids",           default: [],              array: true
+    t.jsonb    "custom_field_values",                                default: {}
+    t.jsonb    "metadata",                                           default: {}
+    t.integer  "ignored_routing_contraint_zone_ids",                 default: [],              array: true
+    t.integer  "ignored_stop_area_routing_constraint_ids",           default: [],              array: true
   end
 
   add_index "vehicle_journeys", ["journey_pattern_id"], name: "index_vehicle_journeys_on_journey_pattern_id", using: :btree
@@ -1199,20 +1263,22 @@ ActiveRecord::Schema.define(version: 20181221094635) do
 
   create_table "workgroups", id: :bigserial, force: :cascade do |t|
     t.string   "name"
-    t.integer  "line_referential_id",        limit: 8
-    t.integer  "stop_area_referential_id",   limit: 8
-    t.datetime "created_at",                                                           null: false
-    t.datetime "updated_at",                                                           null: false
-    t.string   "import_types",                         default: [],                                 array: true
-    t.string   "export_types",                         default: [],                                 array: true
-    t.integer  "owner_id",                   limit: 8
-    t.integer  "output_id",                  limit: 8
+    t.integer  "line_referential_id",                   limit: 8
+    t.integer  "stop_area_referential_id",              limit: 8
+    t.datetime "created_at",                                                                      null: false
+    t.datetime "updated_at",                                                                      null: false
+    t.string   "import_types",                                    default: [],                                 array: true
+    t.string   "export_types",                                    default: [],                                 array: true
+    t.integer  "owner_id",                              limit: 8
+    t.integer  "output_id",                             limit: 8
     t.hstore   "compliance_control_set_ids"
-    t.integer  "sentinel_min_hole_size",               default: 3
-    t.integer  "sentinel_delay",                       default: 7
-    t.time     "nightly_aggregate_time",               default: '2000-01-01 00:00:00'
-    t.boolean  "nightly_aggregate_enabled",            default: false
+    t.integer  "sentinel_min_hole_size",                          default: 3
+    t.integer  "sentinel_delay",                                  default: 7
+    t.time     "nightly_aggregate_time",                          default: '2000-01-01 00:00:00'
+    t.boolean  "nightly_aggregate_enabled",                       default: false
     t.datetime "nightly_aggregated_at"
+    t.datetime "aggregated_at"
+    t.string   "nightly_aggregate_notification_target",           default: "none"
   end
 
   add_foreign_key "access_links", "access_points", name: "aclk_acpt_fkey"

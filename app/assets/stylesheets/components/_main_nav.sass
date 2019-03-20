@@ -75,18 +75,26 @@ $menuW: 300px
       left: 0
       bottom: 0
       z-index: 1050
+      overflow: auto
+
+      .brandname
+        margin-bottom: 25px
 
       .version
         font-size: 0.8em
-        position: absolute
-        left: 10px
-        bottom: 10px
+        margin: 20px 10px 10px
         opacity: 0.7
 
       h5
         font-size: 1em
         margin: 0 30px 0px 50px
         padding-bottom: 10px
+
+      & > a
+        font-size: 1.1em
+        color: white
+        display: block
+        padding: 10px 25px 0
 
     &.open .menu-content
       margin-left: 0
@@ -95,8 +103,8 @@ $menuW: 300px
     // Menu items
     .menu-content
       .panel-group
-        margin: 0
-        padding: 25px 0 0 0
+        margin: 0 0 25px
+        padding: 0 0 0
 
         .panel
           border-radius: 0
@@ -161,13 +169,8 @@ $menuW: 300px
             background-color: transparent
             padding-top: 5px
 
-            .workbench_configuration
+            .subtitle
               color: white
-              font-weight: 700
-              padding: 10px 25px 5px 40px
-
-            .workgroup_configuration
-              color: #fff
               font-weight: 700
               padding: 10px 25px 5px 40px
 

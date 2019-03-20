@@ -1,5 +1,8 @@
 class MergesController < ChouetteController
   include PolicyChecker
+  include ActionView::Helpers::TagHelper
+  include IconHelper
+  include ReferentialsHelper
 
   defaults resource_class: Merge
   belongs_to :workbench
@@ -18,7 +21,7 @@ class MergesController < ChouetteController
       autocomplete_collection = autocomplete_collection.order('created_at desc')
     end
 
-    render json: autocomplete_collection.limit(10)
+    render json: autocomplete_collection.select(:name, :id).limit(10).map{|r| {name: decorate_referential_name(r), id: r.id}}
   end
 
   def rollback

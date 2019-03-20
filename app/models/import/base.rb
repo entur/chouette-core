@@ -42,6 +42,29 @@ class Import::Base < ApplicationModel
     ActiveModel::Name.new Import::Base, Import::Base, "Import"
   end
 
+  def operation_type
+    :import
+  end
+
+  # call this method to mark an import as failed, as weel as the resulting referential
+  def force_failure!
+    if parent
+      parent.force_failure!
+      return
+    end
+
+    do_force_failure!
+  end
+
+  def do_force_failure!
+    children.each &:do_force_failure!
+
+    update status: 'failed', ended_at: Time.now
+    referential&.failed!
+    resources.map(&:referential).compact.each &:failed!
+    notify_parent
+  end
+
   def child_change
     Rails.logger.info "child_change for #{inspect}"
     if self.class.finished_statuses.include?(status)
@@ -53,10 +76,17 @@ class Import::Base < ApplicationModel
   end
 
   def purge_imports
-    workbench.imports.file_purgeable.each do |import|
+    workbench.imports.file_purgeable.where.not(file: nil).each do |import|
       import.update(remove_file: true)
     end
     workbench.imports.purgeable.destroy_all
+  end
+
+  def file_type
+    return unless file
+    return :gtfs if Import::Gtfs.accepts_file?(file.path)
+    return :netex if Import::Netex.accepts_file?(file.path)
+    return :neptune if Import::Neptune.accepts_file?(file.path)
   end
 
   private

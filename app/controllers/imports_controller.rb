@@ -52,9 +52,9 @@ class ImportsController < ChouetteController
 
   protected
 
-   def begin_of_association_chain
+  def begin_of_association_chain
     return Workgroup.find(params[:workgroup_id]) if params[:workgroup_id]
-    
+
     super
   end
 end

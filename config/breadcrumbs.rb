@@ -5,13 +5,13 @@ crumb :workbench do |workbench|
   link workbench.name, workbench_path(workbench)
 end
 
-crumb :workgroup do |workgroup|
-  link workgroup.name, workgroup_path(workgroup)
+crumb :workgroups do |workgroup|
+  link Workgroup.t, workgroups_path()
 end
 
-crumb :workgroup_hole_sentinel_settings do
-  link I18n.t('workgroups.edit_hole_sentinel.title')
-  parent :workgroup
+crumb :workgroup do |workgroup|
+  link workgroup.name, workgroup_path(workgroup)
+  parent :workgroups
 end
 
 crumb :workbench_configure do |workbench|
@@ -38,9 +38,39 @@ crumb :merge do |merge|
   parent :merges, merge.workbench
 end
 
+crumb :publications_menu do |workgroup|
+  link 'layouts.navbar.publications.subtitle'.t
+  parent workgroup
+end
+
+crumb :publication_apis do |workgroup|
+  link PublicationApi.t, workgroup_publication_apis_path(workgroup)
+  parent :publications_menu, workgroup
+end
+
+crumb :publication_api do |publication_api|
+  link publication_api.name, [publication_api.workgroup, publication_api]
+  parent :publication_apis, publication_api.workgroup
+end
+
+crumb :new_publication_api_key do |publication_api|
+  link 'publication_api_keys.actions.new'.t
+  parent publication_api
+end
+
+crumb :publication_api_key do |publication_api_key|
+  link publication_api_key.name
+  parent publication_api_key.publication_api
+end
+
+crumb :new_publication_api do |workgroup|
+  link 'publication_apis.actions.new'.t
+  parent :publication_apis, workgroup
+end
+
 crumb :publication_setups do |workgroup|
   link PublicationSetup.t, workgroup_publication_setups_path(workgroup)
-  parent workgroup
+  parent :publications_menu, workgroup
 end
 
 crumb :publication do |publication|
@@ -203,8 +233,23 @@ crumb :import_resource do |import_resource|
   parent :import, import_resource.root_import.workbench, import_resource.root_import
 end
 
+crumb :user do |user|
+  link user.name, organisation_user_path(user)
+  parent user.organisation
+end
+
+crumb :edit_user do |user|
+  link 'users.actions.edit'.t
+  parent user
+end
+
+crumb :new_invitation do |organisation|
+  link 'actions.invite_user'.t
+  parent organisation
+end
+
 crumb :organisation do |organisation|
-  link breadcrumb_name(organisation), organisation_path(organisation)
+  link breadcrumb_name(organisation), organisation_path()
 end
 
 crumb :compliance_control_sets do
@@ -231,12 +276,21 @@ end
 
 crumb :stop_area_providers do |stop_area_referential|
   link StopAreaProvider.t, stop_area_referential_stop_area_providers_path(stop_area_referential)
-  parent stop_area_referential
 end
 
 crumb :stop_area_provider do |stop_area_referential, stop_area_provider|
   link stop_area_provider.name, stop_area_referential_stop_area_provider_path(stop_area_referential, stop_area_provider)
+  parent :stop_area_providers, stop_area_referential
+end
+
+crumb :stop_area_routing_constraints do |stop_area_referential|
+  link StopAreaRoutingConstraint.t, [stop_area_referential, :stop_area_routing_constraints]
   parent stop_area_referential
+end
+
+crumb :stop_area_routing_constraint do |stop_area_routing_constraint|
+  link stop_area_routing_constraint.name, [stop_area_routing_constraint.stop_area_referential, stop_area_routing_constraint]
+  parent :stop_area_routing_constraints, stop_area_routing_constraint.stop_area_referential
 end
 
 crumb :stop_area do |stop_area_referential, stop_area|
@@ -338,14 +392,21 @@ crumb :vehicle_journeys do |referential, route|
   parent :route, referential, route
 end
 
-crumb :workgroup do |_|
-  link I18n.t('workgroups.edit.title')
+crumb :workgroup_aggregation_settings do |workgroup|
+  link I18n.t('workgroups.edit_aggregate.title')
+  parent workgroup
 end
 
-crumb :workgroup_aggregation_settings do
-  link I18n.t('workgroups.edit_aggregate.title')
-  parent :workgroup
+crumb :workgroup_edit_controls do |workgroup|
+  link I18n.t('workgroups.edit_controls.title')
+  parent workgroup
 end
+
+crumb :workgroup_hole_sentinel_settings do |workgroup|
+  link I18n.t('workgroups.edit_hole_sentinel.title')
+  parent workgroup
+end
+
 
 crumb :api_keys do |workbench|
   link I18n.t('api_keys.index.title'), workbench_api_keys_path(workbench)

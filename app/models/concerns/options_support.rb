@@ -1,6 +1,12 @@
 module OptionsSupport
   extend ActiveSupport::Concern
-  included do
+  included do |into|
+    after_initialize do
+      if self.attribute_names.include?('options') && options.nil?
+        self.options = {}
+      end
+    end
+
     def self.option name, opts={}
       store_accessor :options, name
 
@@ -49,7 +55,7 @@ module OptionsSupport
   end
 
   def visible_options
-    (options || {}).select{|k, v| ! k.match  /^_/}
+    (options || {}).select{|k, v| ! k.match(/^_/) && !self.class.options[k.to_sym][:hidden]}
   end
 
   def display_option_value option_name, context

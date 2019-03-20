@@ -23,7 +23,7 @@ class SubscriptionsController < ChouetteController
       sign_in resource.user
       redirect_to "/"
     else
-      render "devise/sessions/new"
+      render "devise/registrations/new"
     end
   end
 
@@ -39,6 +39,6 @@ class SubscriptionsController < ChouetteController
   def notify_subscription
     return unless SubscriptionMailer.enabled?
     return unless resource.user.persisted?
-    MailerJob.perform_later("SubscriptionMailer", "created", resource.user.id)
+    SubscriptionMailer.created(resource.user.id).deliver_later
   end
 end

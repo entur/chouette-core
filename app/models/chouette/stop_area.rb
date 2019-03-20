@@ -21,6 +21,7 @@ module Chouette
       assoc.has_many :access_links
     end
 
+    scope :light, ->{ select(:id, :name, :city_name, :zip_code, :time_zone, :registration_number, :kind, :area_type, :time_zone, :stop_area_referential_id, :objectid) }
     has_and_belongs_to_many :routing_lines, :class_name => 'Chouette::Line', :foreign_key => "stop_area_id", :association_foreign_key => "line_id", :join_table => "routing_constraints_lines", :order => "lines.number"
     has_and_belongs_to_many :routing_stops, :class_name => 'Chouette::StopArea', :foreign_key => "parent_id", :association_foreign_key => "child_id", :join_table => "stop_areas_stop_areas", :order => "stop_areas.name"
     has_and_belongs_to_many :stop_area_providers
@@ -69,7 +70,7 @@ module Chouette
     end
 
     def parent_area_type_must_be_greater
-      return unless self.parent
+      return unless self.parent && has_valid_area_type?
 
       parent_area_type = Chouette::AreaType.find(self.parent.area_type)
       if Chouette::AreaType.find(self.area_type) >= parent_area_type
@@ -85,9 +86,13 @@ module Chouette
       end
     end
 
+    def has_valid_area_type?
+      kind.present? && area_type.present? && Chouette::AreaType.send(self.kind).map(&:to_s).include?(self.area_type)
+    end
+
     def area_type_of_right_kind
       return unless self.kind
-      unless Chouette::AreaType.send(self.kind).map(&:to_s).include?(self.area_type)
+      unless has_valid_area_type?
         errors.add(:area_type, I18n.t('stop_areas.errors.incorrect_kind_area_type'))
       end
     end

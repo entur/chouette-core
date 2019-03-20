@@ -21,6 +21,10 @@ class AF83::Decorator::Link
     link_method *args
   end
 
+  def confirm msg
+    _data({ confirm: msg })
+  end
+
   def class *args
     link_class args
   end
@@ -126,6 +130,27 @@ class AF83::Decorator::Link
     (options[:link_class] || []).join(' ')
   end
 
+  def data(val=nil, &block)
+    if val || block_given?
+      @options[:data] ||= {}
+      if block_given? || val.is_a?(Proc)
+        @options[:data] = block || val
+      else
+        @options[:data].update val
+      end
+    else
+      data = options[:data] || {}
+      data = context.instance_exec(self, &data) if data.is_a?(Proc)
+      out  = data.dup
+
+      options[:_data]&.each do |k, v|
+        v = context.instance_exec(self, &v) if v.is_a?(Proc)
+        out[k] = v
+      end
+      out
+    end
+  end
+
   def html_options
     out = {}
     options.each do |k, v|
@@ -138,6 +163,7 @@ class AF83::Decorator::Link
     out[:class] += " disabled" if disabled?
     out[:class].strip!
     out[:disabled] = disabled?
+    out[:data] = data
     out
   end
 

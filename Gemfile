@@ -5,6 +5,8 @@ source 'https://rubygems.org'
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 git_source(:af83) { |name| "https://github.com/af83/#{name}.git" }
 
+gem 'bundler', '~> 1.17'
+
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 4.2.11'
 gem 'rack-protection', '~> 1.5.5'
@@ -140,6 +142,10 @@ gem 'rmagick'
 
 gem 'sidekiq', require: ['sidekiq', 'sidekiq/web']
 gem 'sidekiq-limit_fetch'
+gem 'delayed_job_active_record'
+gem 'delayed_job_web'
+gem 'delayed_job_heartbeat_plugin'
+
 gem 'whenever', github: 'af83/whenever', require: false # '~> 0.9'
 gem 'rake'
 gem 'devise-async'
@@ -152,6 +158,7 @@ gem 'redis-rails'
 
 gem 'newrelic_rpm'
 gem 'letter_opener'
+gem 'letter_opener_web', '~> 1.0'
 
 #gem 'gtfs'
 gem 'gtfs', af83: 'gtfs'

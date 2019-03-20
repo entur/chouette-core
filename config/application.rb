@@ -20,6 +20,7 @@ module ChouetteIhm
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
     config.autoload_paths << config.root.join('lib')
+    config.autoload_paths << config.root.join('app', 'jobs')
 
     # custom exception pages
     config.exceptions_app = self.routes
@@ -45,6 +46,7 @@ module ChouetteIhm
     SmartEnv.add :TEST_ENV_NUMBER
     SmartEnv.add :WORKBENCH_IMPORT_DIR
     SmartEnv.add :CHOUETTE_ADDITIONAL_COMPLIANCE_CONTROLS, default: ""
+    SmartEnv.add :CHOUETTE_ADDITIONAL_PUBLICATION_DESTINATIONS, default: ""
     SmartEnv.add_boolean :AUTOMATED_AUDITS_ENABLED
     SmartEnv.add_boolean :BYPASS_AUTH_FOR_SIDEKIQ
     SmartEnv.add_boolean :CHOUETTE_ROUTE_POSITION_CHECK
@@ -53,7 +55,11 @@ module ChouetteIhm
     SmartEnv.add_boolean :SUBSCRIPTION_NOTIFIER_ENABLED
     SmartEnv.add_boolean :CHOUETTE_SIDEKIQ_CANCEL_SYNCS_ON_BOOT
     SmartEnv.add_boolean :CHOUETTE_EMAIL_USER
-    SmartEnv.add_boolean :CHOUETTE_TRANSACTIONAL_CHECKSUMS
+    SmartEnv.add_boolean :CHOUETTE_TRANSACTIONAL_CHECKSUMS, default: true
+    SmartEnv.add_boolean :ENABLE_DELAYED_JOB_REAPER, default: true
+    SmartEnv.add :DELAYED_JOB_REAPER_HEARTBEAT_INTERVAL_SECONDS, default: 20
+    SmartEnv.add :DELAYED_JOB_REAPER_HEARTBEAT_TIMEOUT_SECONDS, default: 60
+    SmartEnv.add_boolean :DELAYED_JOB_REAPER_WORKER_TERMINATION_ENABLED, default: true
 
     config.i18n.default_locale = SmartEnv[:RAILS_LOCALE].to_sym
 
@@ -63,7 +69,7 @@ module ChouetteIhm
     config.active_record.observers = [:route_observer, :calendar_observer, :import_observer, :export_observer, :compliance_check_set_observer, :merge_observer, :aggregate_observer]
     config.active_record.raise_in_transactional_callbacks = true
 
-    config.active_job.queue_adapter = :sidekiq
+    config.active_job.queue_adapter = :delayed_job
 
     config.action_dispatch.rescue_responses.merge!(
       'FeatureChecker::NotAuthorizedError' => :unauthorized
@@ -83,7 +89,10 @@ module ChouetteIhm
     config.additional_compliance_controls = []
     config.additional_compliance_controls.push *SmartEnv["CHOUETTE_ADDITIONAL_COMPLIANCE_CONTROLS"].split(',')
 
-    config.enable_transactional_checksums = SmartEnv.boolean('CHOUETTE_TRANSACTIONAL_CHECKSUMS') 
+    config.additional_destinations = []
+    config.additional_destinations.push *SmartEnv["CHOUETTE_ADDITIONAL_PUBLICATION_DESTINATIONS"].split(',')
+
+    config.enable_transactional_checksums = SmartEnv.boolean('CHOUETTE_TRANSACTIONAL_CHECKSUMS')
 
     unless Rails.env.production?
         # Work around sprockets+teaspoon mismatch:

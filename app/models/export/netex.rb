@@ -5,8 +5,13 @@ class Export::Netex < Export::Base
       option :duration, type: :integer, default_value: 90, required: true
     end
     val.line do
+      option :duration, type: :integer, default_value: 365, hidden: true
       option :line_code, collection: ->(referential){referential.lines.map{|l| [l.display_name, l.id]}}, depends_on_referential: true
     end
+  end
+
+  def self.human_name(options={})
+    I18n.t("export.#{self.name.demodulize.underscore}.#{options['export_type'] || :default}")
   end
 
   private

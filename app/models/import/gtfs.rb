@@ -1,76 +1,9 @@
 class Import::Gtfs < Import::Base
-  after_commit :launch_worker, on: :create
+  include LocalImportSupport
 
   after_commit :update_main_resource_status, on:  [:create, :update]
 
-  def launch_worker
-    GtfsImportWorker.perform_async_or_fail(self)
-  end
-
-  def main_resource
-    @resource ||= parent.resources.find_or_create_by(name: referential_name, resource_type: 'referential', reference: self.name) if parent
-  end
-
-  def update_main_resource_status
-    main_resource.update_status_from_importer status
-    true
-  end
-
-  def create_resource name
-    resources.find_or_initialize_by(name: name, resource_type: 'file', reference: name)
-  end
-
-  def next_step
-    main_resource&.next_step
-  end
-
-  def create_message args, opts={}
-    resource = opts[:resource] || main_resource || self
-    resource.messages.build args
-    return unless opts[:commit]
-
-    begin
-      resource.save!
-    rescue
-      Rails.logger.error "Invalid resource: #{resource.errors.inspect}"
-      Rails.logger.error "Last message: #{resource.messages.last.errors.inspect}"
-      raise
-    end
-    resource.update_status_from_messages
-  end
-
-  def import
-    update status: 'running', started_at: Time.now
-
-    import_without_status
-    @status ||= 'successful'
-    update status: @status, ended_at: Time.now
-    referential&.active!
-  rescue => e
-    update status: 'failed', ended_at: Time.now
-    Rails.logger.error "Error in GTFS import: #{e} #{e.backtrace.join('\n')}"
-    if (referential && overlapped_referential_ids = referential.overlapped_referential_ids).present?
-      overlapped = Referential.find overlapped_referential_ids.last
-      create_message(
-        criticity: :error,
-        message_key: "referential_creation_overlapping_existing_referential",
-        message_attributes: {
-          referential_name: referential.name,
-          overlapped_name: overlapped.name,
-          overlapped_url:  Rails.application.routes.url_helpers.referential_path(overlapped)
-        }
-      )
-    else
-      create_message criticity: :error, message_key: :full_text, message_attributes: {text: e.message}
-    end
-    referential&.failed!
-  ensure
-    main_resource&.save
-    save
-    notify_parent
-  end
-
-  def self.accept_file?(file)
+  def self.accepts_file?(file)
     Zip::File.open(file) do |zip_file|
       zip_file.glob('agency.txt').size == 1
     end
@@ -79,34 +12,16 @@ class Import::Gtfs < Import::Base
     return false
   end
 
-  def create_referential
-    self.referential ||=  Referential.new(
-      name: referential_name,
-      organisation_id: workbench.organisation_id,
-      workbench_id: workbench.id,
-      metadatas: [referential_metadata]
-    )
-    begin
-      self.referential.save!
-    rescue => e
-      Rails.logger.error "Unable to create referential: #{self.referential.errors.messages}"
-      raise
-    end
-    main_resource.update referential: referential if main_resource
-  end
-
-  def referential_name
-    name.presence || File.basename(local_file.to_s)
-  end
-
   def referential_metadata
     registration_numbers = source.routes.map(&:id)
     line_ids = line_referential.lines.where(registration_number: registration_numbers).pluck(:id)
 
-    start_dates, end_dates = source.calendars.map { |c| [c.start_date, c.end_date] }.transpose
+    start_dates = []
+    end_dates = []
 
-    start_dates ||= []
-    end_dates ||= []
+    if source.entries.include?('calendar.txt')
+      start_dates, end_dates = source.calendars.map { |c| [c.start_date, c.end_date] }.transpose
+    end
 
     included_dates = []
     if source.entries.include?('calendar_dates.txt')
@@ -122,75 +37,8 @@ class Import::Gtfs < Import::Base
     ReferentialMetadata.new line_ids: line_ids, periodes: [min_date..max_date]
   end
 
-  attr_accessor :local_file
-  def local_file
-    @local_file ||= download_local_file
-  end
-
-  attr_accessor :download_host
-  def download_host
-    @download_host ||= Rails.application.config.rails_host
-  end
-
-  def local_temp_directory
-    @local_temp_directory ||=
-      begin
-        directory = Rails.application.config.try(:import_temporary_directory) || Rails.root.join('tmp', 'imports')
-        FileUtils.mkdir_p directory
-        directory
-      end
-  end
-
-  def local_temp_file(&block)
-    Tempfile.open("chouette-import", local_temp_directory) do |file|
-      file.binmode
-      yield file
-    end
-  end
-
-  def download_path
-    Rails.application.routes.url_helpers.download_workbench_import_path(workbench, id, token: token_download)
-  end
-
-  def download_uri
-    @download_uri ||=
-      begin
-        host = download_host
-        host = "http://#{host}" unless host =~ %r{https?://}
-        URI.join(host, download_path)
-      end
-  end
-
-  def download_local_file
-    local_temp_file do |file|
-      begin
-        Net::HTTP.start(download_uri.host, download_uri.port) do |http|
-          http.request_get(download_uri.request_uri) do |response|
-            response.read_body do |segment|
-              file.write segment
-            end
-          end
-        end
-      ensure
-        file.close
-      end
-
-      file.path
-    end
-  end
-
   def source
-    @source ||= ::GTFS::Source.build local_file, strict: false
-  end
-
-  delegate :line_referential, :stop_area_referential, to: :workbench
-
-  def import_resources(*resources)
-    resources.each do |resource|
-      Chouette::Benchmark.log "ImportGTFS import #{resource}" do
-        send "import_#{resource}"
-      end
-    end
+    @source ||= ::GTFS::Source.build local_file.path, strict: false
   end
 
   def prepare_referential
@@ -204,7 +52,7 @@ class Import::Gtfs < Import::Base
     prepare_referential
     referential.pending!
 
-    import_resources :calendars, :calendar_dates
+    import_resources :calendars, :calendar_dates unless check_calendar_files_missing_and_create_message
     import_resources :trips, :stop_times
   end
 
@@ -213,14 +61,15 @@ class Import::Gtfs < Import::Base
       company = line_referential.companies.find_or_initialize_by(registration_number: agency.id)
       company.attributes = { name: agency.name }
       company.url = agency.url
-      company.time_zone = agency.timezone
+      @default_time_zone ||= check_time_zone_or_create_message(agency.timezone, resource)
+      company.time_zone = @default_time_zone
 
       save_model company, resource: resource
     end
   end
 
   def import_stops
-    sorted_stops = source.stops.sort_by { |s| s.parent_station ? 1 : 0 }
+    sorted_stops = source.stops.sort_by { |s| s.parent_station.present? ? 1 : 0 }
     create_resource(:stops).each(sorted_stops, slice: 100, transaction: true) do |stop, resource|
       stop_area = stop_area_referential.stop_areas.find_or_initialize_by(registration_number: stop.id)
 
@@ -233,11 +82,15 @@ class Import::Gtfs < Import::Base
 
       if stop.parent_station.present?
         if check_parent_is_valid_or_create_message(Chouette::StopArea, stop.parent_station, resource)
-          stop_area.parent = find_stop_parent_or_create_message(stop.name, stop.parent_station, resource)
+          parent = find_stop_parent_or_create_message(stop.name, stop.parent_station, resource)
+          stop_area.parent = parent
+          stop_area.time_zone = parent.try(:time_zone)
         end
+      elsif stop.timezone.present?
+        stop_area.time_zone = check_time_zone_or_create_message(stop.timezone, resource)
+      else
+        stop_area.time_zone = @default_time_zone
       end
-
-      # TODO correct default timezone
 
       save_model stop_area, resource: resource
     end
@@ -293,7 +146,6 @@ class Import::Gtfs < Import::Base
     to_be_saved = []
     create_resource(:stop_times).each(
       source.stop_times.group_by(&:trip_id),
-      slice: 10,
       transaction: true,
       memory_profile: -> { "Import stop times from #{rows_count}" }
     ) do |row, resource|
@@ -342,8 +194,8 @@ class Import::Gtfs < Import::Base
 
         raise InvalidTripTimesError unless consistent_stop_times(stop_times)
 
-        stop_points = stop_times.map do |stop_time|
-          [stop_time, import_stop_time(stop_time, route, resource)]
+        stop_points = stop_times.each_with_index.map do |stop_time, i|
+          [stop_time, import_stop_time(stop_time, route, resource, i==0)]
         end
         to_be_saved.each do |model|
           save_model model, resource: resource
@@ -410,10 +262,10 @@ class Import::Gtfs < Import::Base
     true
   end
 
-  def import_stop_time(stop_time, route, resource)
+  def import_stop_time(stop_time, route, resource, first)
     unless_parent_model_in_error(Chouette::StopArea, stop_time.stop_id, resource) do
 
-      if stop_time.stop_sequence.to_i == 1 # first stop has stop_sequence == 1
+      if first
         departure_time = GTFS::Time.parse(stop_time.departure_time)
         raise InvalidTimeError.new(stop_time.departure_time) unless departure_time.present?
         arrival_time = GTFS::Time.parse(stop_time.arrival_time)
@@ -442,8 +294,8 @@ class Import::Gtfs < Import::Base
       @vehicle_journey_at_stop_first_offset = departure_time.day_offset
     end
 
-    vehicle_journey_at_stop.departure_time = departure_time.time
-    vehicle_journey_at_stop.arrival_time = arrival_time.time
+    vehicle_journey_at_stop.departure_time = departure_time.time(@default_time_zone)
+    vehicle_journey_at_stop.arrival_time = arrival_time.time(@default_time_zone)
     vehicle_journey_at_stop.departure_day_offset = departure_time.day_offset - @vehicle_journey_at_stop_first_offset
     vehicle_journey_at_stop.arrival_day_offset = arrival_time.day_offset - @vehicle_journey_at_stop_first_offset
 
@@ -459,12 +311,17 @@ class Import::Gtfs < Import::Base
   end
 
   def import_calendars
+    return unless source.entries.include?('calendar.txt')
     create_resource(:calendars).each(source.calendars, slice: 500, transaction: true) do |calendar, resource|
       time_table = referential.time_tables.build comment: "Calendar #{calendar.service_id}"
       Chouette::TimeTable.all_days.each do |day|
         time_table.send("#{day}=", calendar.send(day))
       end
-      time_table.periods.build period_start: calendar.start_date, period_end: calendar.end_date
+      if calendar.start_date == calendar.end_date
+        time_table.dates.build date: calendar.start_date, in_out: true
+      else
+        time_table.periods.build period_start: calendar.start_date, period_end: calendar.end_date
+      end
       save_model time_table, resource: resource
 
       time_tables_by_service_id[calendar.service_id] = time_table.id
@@ -491,75 +348,6 @@ class Import::Gtfs < Import::Base
     end
   end
 
-  def save_model(model, filename: nil, line_number:  nil, column_number: nil, resource: nil)
-    if resource
-      filename ||= "#{resource.name}.txt"
-      line_number ||= resource.rows_count
-      column_number ||= 0
-    end
-
-    unless model.save
-      Rails.logger.error "Can't save #{model.class.name} : #{model.errors.inspect}"
-
-      model.errors.details.each do |key, messages|
-        messages.each do |message|
-          message.each do |criticity, error|
-            if Import::Message.criticity.values.include?(criticity.to_s)
-              create_message(
-                {
-                  criticity: criticity,
-                  message_key: error,
-                  message_attributes: {
-                    test_id: key,
-                    object_attribute: key,
-                    source_attribute: key,
-                  },
-                  resource_attributes: {
-                    filename: filename,
-                    line_number: line_number,
-                    column_number: column_number
-                  }
-                },
-                resource: resource,
-                commit: true
-              )
-            end
-          end
-        end
-      end
-      @models_in_error ||= Hash.new { |hash, key| hash[key] = [] }
-      @models_in_error[model.class.name] << model_key(model)
-      @status = "failed"
-      return
-    end
-
-    Rails.logger.debug "Created #{model.inspect}"
-  end
-
-  def check_parent_is_valid_or_create_message(klass, key, resource)
-    if @models_in_error&.key?(klass.name) && @models_in_error[klass.name].include?(key)
-      create_message(
-        {
-          criticity: :error,
-          message_key: :invalid_parent,
-          message_attributes: {
-            parent_class: klass,
-            parent_key: key,
-            test_id: :parent,
-          },
-          resource_attributes: {
-            filename: "#{resource.name}.txt",
-            line_number: resource.rows_count,
-            column_number: 0
-          }
-        },
-        resource: resource, commit: true
-      )
-      return false
-    end
-    true
-  end
-
   def find_stop_parent_or_create_message(stop_area_name, parent_station, resource)
     parent = stop_area_referential.stop_areas.find_by(registration_number: parent_station)
     unless parent
@@ -583,26 +371,42 @@ class Import::Gtfs < Import::Base
     return parent
   end
 
-  def unless_parent_model_in_error(klass, key, resource)
-    return unless check_parent_is_valid_or_create_message(klass, key, resource)
-
-    yield
+  def check_time_zone_or_create_message(imported_time_zone, resource)
+    return unless imported_time_zone
+    time_zone = TZInfo::Timezone.all_country_zone_identifiers.select{|t| t==imported_time_zone}[0]
+    unless time_zone
+      create_message(
+        {
+          criticity: :error,
+          message_key: :invalid_time_zone,
+          message_attributes: {
+            time_zone: imported_time_zone,
+          },
+          resource_attributes: {
+            filename: "#{resource.name}.txt",
+            line_number: resource.rows_count,
+            column_number: 0
+          }
+        },
+        resource: resource, commit: true
+      )
+    end
+    return time_zone
   end
 
-  def model_key(model)
-    return model.registration_number if model.respond_to?(:registration_number)
+  def check_calendar_files_missing_and_create_message
+    if source.entries.include?('calendar.txt') || source.entries.include?('calendar_dates.txt')
+      return false
+    end
 
-    return model.comment if model.is_a?(Chouette::TimeTable)
-    return model.checksum_source if model.is_a?(Chouette::VehicleJourneyAtStop)
-
-    model.objectid
-  end
-
-  def notify_parent
-    return unless super
-
-    main_resource.update_status_from_importer self.status
-    next_step
+    create_message(
+      {
+        criticity: :error,
+        message_key: 'missing_calendar_or_calendar_dates_in_zip_file',
+      },
+      resource: resource, commit: true
+    )
+    @status = 'failed'
   end
 
   class InvalidTripNonZeroFirstOffsetError < StandardError; end

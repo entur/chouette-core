@@ -18,6 +18,20 @@ RSpec.describe Chouette::VehicleJourneyAtStop, type: :model do
     end
   end
 
+  context 'when updated in a ChecksumManager transaction' do
+    it 'should compute checksum right' do
+      vjas = nil
+      vj = create(:vehicle_journey)
+      Chouette::ChecksumManager.transaction do
+        vjas = create(:vehicle_journey_at_stop, arrival_time: '07:00', departure_time: '08:00', vehicle_journey: vj)
+        vjas = Chouette::VehicleJourneyAtStop.find vjas.id
+        vjas.update departure_time: '10:00'
+      end
+      expect { vjas.reload.set_current_checksum_source }.to_not change { vjas.checksum_source }
+      expect(vjas.current_checksum_source).to eq '10:00|07:00|0|0'
+    end
+  end
+
   describe "#day_offset_outside_range?" do
     let (:at_stop) { build_stubbed(:vehicle_journey_at_stop) }
 
@@ -68,6 +82,13 @@ RSpec.describe Chouette::VehicleJourneyAtStop, type: :model do
         summer_time = Timecop.freeze("2000/08/01 12:00:00".to_time) { at_stop.departure_local }
         winter_time = Timecop.freeze("2000/12/01 12:00:00".to_time) { at_stop.departure_local }
         expect(summer_time).to eq winter_time
+      end
+
+      it 'should convert time to UTC vals' do
+        at_stop.arrival_local_time = '12:00'
+        at_stop.departure_local_time = '23:00'
+        expect(at_stop.send(:format_time, at_stop.arrival_time)).to eq '18:00'
+        expect(at_stop.send(:format_time, at_stop.departure_time)).to eq '05:00'
       end
     end
   end

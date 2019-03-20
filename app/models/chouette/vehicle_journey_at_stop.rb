@@ -95,6 +95,14 @@ module Chouette
       local_time arrival_time, offset
     end
 
+    def departure_local_time= local_time
+      self.departure_time = format_time local_time(local_time.to_time, -time_zone_offset)
+    end
+
+    def arrival_local_time= local_time
+      self.arrival_time = format_time local_time(local_time.to_time, -time_zone_offset)
+    end
+
     def departure_local
       format_time departure_local_time
     end
@@ -104,11 +112,11 @@ module Chouette
     end
 
     def departure_time_with_zone
-      departure_time.in_time_zone(time_zone).change(day: 1)
+      handle_midnight(departure_time).in_time_zone(time_zone).change(day: 1)
     end
 
     def arrival_time_with_zone
-      arrival_time.in_time_zone(time_zone).change(day: 1)
+      handle_midnight(arrival_time).in_time_zone(time_zone).change(day: 1)
     end
 
     def time_zone
@@ -123,12 +131,27 @@ module Chouette
     private
     def local_time time, offset=nil
       return nil unless time
-      time + (offset || time_zone_offset)
+      handle_midnight(time) + (offset || time_zone_offset)
     end
 
     def format_time time
       time.strftime "%H:%M" if time
     end
 
+    def handle_midnight time
+      # This handle tyhe very specific case whare a stop time equals to midnight UTC
+      # For example, if a cours has the following times in Los Angeles (UTC-8):
+      # 15:00, 16:00
+      # Once converted in UTC, we get:
+      # 01/01/2000 23:00, 01/01/2000 00:00
+      # When converted back with the TZ, we obtain:
+      # 01/01/2000 15:00, 31/12/1999 16:00
+      # Thus, we have to cheat to keep the stops in the right sequence
+
+      return time if time_zone_offset == 0
+
+      time += 1.day if time.hour == 0
+      time
+    end
   end
 end

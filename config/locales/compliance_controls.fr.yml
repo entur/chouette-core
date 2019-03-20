@@ -14,7 +14,8 @@ fr:
         routing_constraint_zone: 'ITL'
         vehicle_journey: 'Course'
         dummy: 'Test'
-        company: Transporteur
+        company: 'Transporteur'
+        stop_area: 'Arrêt'
     form:
       company_name: Indiquez le nom d'un transporteur
     search_no_results: 'Aucun contrôle ne correspond à votre recherche'
@@ -246,6 +247,11 @@ fr:
       prerequisite: "Aucun"
       messages:
         3_generic_4: "Le champ %{field_name} n’est pas renseigné"
+    stop_area_control/time_zone:
+      description: "Tous les arrêts doivent avoir un fuseau horaire"
+      prerequisite: "None"
+      messages:
+        3_stoparea_1: "L'arret %{source_objectid} doit avoir un fuseau horaire défini"
 
   activerecord:
     models:
@@ -305,7 +311,7 @@ fr:
       vehicle_journey_control/purchase_window_dates:
         one: Cohérence date de fin de vente - date de fin de circulation
       vehicle_journey_control/empty_time_table:
-        one: Une course ne doit pas être lié à un calendrier d'application vide
+        one: Une course ne doit pas être liée à un calendrier d'application vide
       routing_constraint_zone_control/vehicle_journey_at_stops:
         one: "Chronologie croissante des horaires"
       routing_constraint_zone_control/maximum_length:
@@ -329,7 +335,7 @@ fr:
       company_control/name_is_present:
         one: "Présence du nom des transporteurs"
       stop_area_control/time_zone:
-        one: "Les arrêts sont géolocalisés"
+        one: "Les arrêts ont un fuseau horaire"
       custom_field_control/presence:
         one: "Présence d'un champ personnalisé"
 

@@ -11,10 +11,20 @@ class Export::Base < ActiveRecord::Base
   belongs_to :referential
   belongs_to :publication
 
+  has_many :publication_api_sources, foreign_key: :export_id
+
   validates :type, :referential_id, presence: true
 
   after_create :purge_exports
   attr_accessor :synchronous
+
+  scope :not_used_by_publication_apis, -> {
+    joins('LEFT JOIN public.publication_api_sources ON publication_api_sources.export_id = exports.id')
+    .where("publication_api_sources.id IS NULL")
+  }
+  scope :purgeable, -> {
+    not_used_by_publication_apis.where("exports.created_at <= ?", clean_after.days.ago)
+  }
 
   class << self
     def messages_class_name
@@ -25,7 +35,7 @@ class Export::Base < ActiveRecord::Base
       "Export::Resource"
     end
 
-    def human_name
+    def human_name(options={})
       I18n.t("export.#{self.name.demodulize.underscore}")
     end
 
@@ -37,7 +47,7 @@ class Export::Base < ActiveRecord::Base
   end
 
   def human_name
-    self.class.human_name
+    self.class.human_name(options)
   end
   alias_method :human_type, :human_name
 

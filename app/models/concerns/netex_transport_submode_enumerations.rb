@@ -12,7 +12,7 @@ module NetexTransportSubmodeEnumerations
     submodes = NetexTransportSubmodeEnumerations.submodes_for_transports
 
     return if submodes[transport_mode&.to_sym].blank? && transport_submode.blank?
-    return if submodes[transport_mode&.to_sym]&.include?(transport_submode)
+    return if submodes[transport_mode&.to_sym]&.include?(transport_submode.presence)
 
     errors.add(:transport_mode, :submode_mismatch)
   end
@@ -61,8 +61,8 @@ module NetexTransportSubmodeEnumerations
       submodes_for_transports.map do |t,s|
         {
           t => s.map do |k|
-            { value: k, label: I18n.t("enumerize.transport_submode.#{ k.presence || 'undefined' }") }
-          end.sort_by { |k| k[:value] ? k[:label] : "" }
+            [I18n.t("enumerize.transport_submode.#{ k.presence || 'undefined' }"), k]
+          end.sort_by { |k| k.last ? k.first : "" }
         }
       end.reduce({}, :merge)
     end

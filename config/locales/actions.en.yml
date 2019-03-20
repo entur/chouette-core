@@ -9,6 +9,8 @@ en:
     clean_up: 'Purge'
     clone: 'Clone'
     combine: 'Combine'
+    copy: 'Copy (ctrl-c)'
+    copy_paste_mode: 'Copy.Paste mode'
     create_api_key: "Create an API key"
     deactivate: 'Deactivate'
     delete: "Delete"
@@ -19,9 +21,12 @@ en:
     erase: 'Erase'
     filter: 'Filter'
     import: 'Import'
+    invite_user: 'Invite a new user'
     new: "Add new"
+    paste: 'Paste (ctrl-v)'
     processing: "Processing…"
     remove: Remove
+    restore: Cancel deletion
     search: "Search"
     select: Select
     show: "See"
@@ -34,6 +39,7 @@ en:
   back: "Go Back"
   cancel_confirm: You're about to cancel your current work. Are you sure ?
   cancel: "Cancel"
+  discard: Discard
   no_result_text: "No Results"
   ok: Ok
   or: "or"

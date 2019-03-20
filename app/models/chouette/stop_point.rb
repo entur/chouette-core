@@ -10,7 +10,8 @@ module Chouette
     include ObjectidSupport
 
     belongs_to :stop_area
-    belongs_to :stop_area_light, -> {select(:name, :city_name, :zip_code, :time_zone, :registration_number, :kind, :area_type, :time_zone)}, class_name: "Chouette::StopArea", foreign_key: :stop_area_id
+    add_light_belongs_to :stop_area
+
     belongs_to :route, inverse_of: :stop_points
     has_many :journey_patterns, through: :route
     has_many :vehicle_journey_at_stops, dependent: :destroy
@@ -30,6 +31,7 @@ module Chouette
     end
 
     scope :default_order, -> { order("position") }
+    scope :light, -> { select(:id, :objectid, :stop_area_id, :for_alighting, :for_boarding, :position) }
 
     scope :commercial, -> { joins(:stop_area).where("stop_areas.kind = ?", "commercial") }
     scope :non_commercial, -> { joins(:stop_area).where("stop_areas.kind = ?", "non_commercial") }

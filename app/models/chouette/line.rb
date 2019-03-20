@@ -14,7 +14,9 @@ module Chouette
     belongs_to :company
     belongs_to :network
     belongs_to :line_referential
-    belongs_to :company_light, -> {select(:id, :name)}, class_name: "Chouette::Company", foreign_key: :company_id
+
+    # this 'light' relation prevents the custom fields loading
+    belongs_to :company_light, -> { select(:id, :name, :line_referential_id, :objectid) }, class_name: "Chouette::Company", foreign_key: :company_id
 
     has_array_of :secondary_companies, class_name: 'Chouette::Company'
 
@@ -123,6 +125,10 @@ module Chouette
 
     def status
       activated? ? :activated : :deactivated
+    end
+
+    def code
+      (stable_id.presence || number.presence || registration_number.presence || id).to_s.parameterize
     end
   end
 end

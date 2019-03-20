@@ -6,6 +6,8 @@ fr:
     missing_calendar_in_zip_file: "Le dossier %{source_filename} ne contient pas de calendrier"
     invalid_parent: Parent invalide
     parent_not_found: Le parent %{parent_name} de l'arrêt %{stop_area_name} n'a pas pu être trouvé
+    multiple_networks_in_file: "Le fichier %{source_filename} contient plusieurs réseaux, les lignes importées n'ont donc pas étées associées."
+    multiple_companies_in_file: "Le fichier %{source_filename} contient plusieurs transporteurs, les lignes importées n'ont donc pas étées associées."
     referential_creation_missing_lines_in_files: "Le référentiel %{referential_name} n'a pas pu être créé car aucune donnée d'offre n'est présente dans le fichier"
     referential_creation_missing_lines: "Le référentiel %{referential_name} n'a pas pu être créé car aucune ligne n'appartient à l'organisation"
     referential_creation_overlapping_existing_referential: "Le référentiel %{referential_name} n'a pas pu être créé car un référentiel existe déjà sur les mêmes périodes et lignes: <a href='%{overlapped_url}'>%{overlapped_name}</a>"
@@ -13,7 +15,10 @@ fr:
     trip_starting_with_non_zero_day_offset: La course %{trip_id} commence avec un offset non-nul
     trip_with_inconsistent_stop_times: La course %{trip_id} a des horaires incohérents
     invalid_stop_time: 'La course %{trip_id} comporte un temps de passage invalide: "%{time}"'
+    invalid_time_zone: 'Le fuseau horaire %{time_zone} est invalide'
+    unknown_file_format: "Le fichier ne correspond à aucun format reconnu"
     wrong_calendar_in_zip_file: "Le calendrier contenu dans %{source_filename} contient des données incorrectes ou incohérentes"
+    missing_calendar_or_calendar_dates_in_zip_file: "Le dossier ne contient ni fichier calendar.txt ni fichier calendar_dates.txt"
     gtfs:
       agencies:
         imported: "%{count} agence(s) importée(s)"

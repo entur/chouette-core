@@ -25,6 +25,7 @@ class Referential < ApplicationModel
   attr_accessor :lower_corner
 
   attr_accessor :from_current_offer
+  attr_accessor :urgent
 
   has_one :user
   has_many :import_resources, class_name: 'Import::Resource', dependent: :destroy
@@ -157,6 +158,14 @@ class Referential < ApplicationModel
     end
   end
 
+  def contains_urgent_offer?
+    metadatas.any?{|m| m.urgent? }
+  end
+
+  def flagged_urgent_at
+    metadatas.pluck(:flagged_urgent_at).compact.max
+  end
+
   def lines
     if metadatas.blank?
       workbench ? workbench.lines : associated_lines
@@ -276,11 +285,30 @@ class Referential < ApplicationModel
     end
   end
 
+  def circulation_start
+    time_tables.used.order('start_date ASC').select(:start_date).first&.start_date
+  end
+
+  def circulation_end
+    time_tables.used.order('end_date ASC').select(:end_date).last&.end_date
+  end
+
   before_validation :define_default_attributes
 
   def define_default_attributes
     self.time_zone ||= Time.zone.name
     self.objectid_format ||= workbench.objectid_format if workbench
+  end
+
+  before_save :set_metadatas_urgency
+  def set_metadatas_urgency
+    return if urgent.nil?
+
+    if urgent
+      metadatas.each {|m| m.flagged_urgent_at ||= Time.now }
+    else
+      metadatas.each {|m| m.flagged_urgent_at = nil }
+    end
   end
 
   def switch(verbose: true, &block)
@@ -302,7 +330,7 @@ class Referential < ApplicationModel
   end
 
   def self.new_from(from, workbench)
-    Referential.new(
+    clone = Referential.new(
       name: I18n.t("activerecord.copy", name: from.name),
       prefix: from.prefix,
       time_zone: from.time_zone,
@@ -314,6 +342,8 @@ class Referential < ApplicationModel
       metadatas: from.metadatas.map { |m| ReferentialMetadata.new_from(m, workbench) },
       ready: false
     )
+    clone.metadatas = clone.metadatas.select(&:valid?)
+    clone
   end
 
   def self.available_srids
@@ -389,6 +419,11 @@ class Referential < ApplicationModel
       metadata = metadatas.build attributes
       metadata.periodes = [date_range] if date_range
     end
+  end
+
+  def associated_stop_areas
+    ids = routes.joins(:stop_points).select('stop_area_id').uniq.pluck(:stop_area_id)
+    stop_areas.where(id: ids)
   end
 
   def metadatas_period

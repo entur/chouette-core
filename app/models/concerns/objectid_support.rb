@@ -18,7 +18,7 @@ module ObjectidSupport
     end
 
     ransacker :actual_short_id, args: [:parent, :ransacker_args] do |parent, referential|
-      Arel.sql referential.objectid_formatter.short_id_sql_expr(table_name)
+      Arel.sql referential.objectid_formatter.short_id_sql_expr(self)
     end
 
     class << self
@@ -53,6 +53,7 @@ module ObjectidSupport
         vanilla_search
       end
       alias_method_chain :search, :objectid
+      alias_method :ransack, :search
 
       def ransackable_scopes(auth_object = nil)
         [:with_short_id]

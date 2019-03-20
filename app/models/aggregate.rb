@@ -22,6 +22,8 @@ class Aggregate < ActiveRecord::Base
     raise "You cannot rollback to the current version" if current?
     workgroup.output.update current: self.new
     following_aggregates.each(&:cancel!)
+    publish
+    workgroup.aggregated!
   end
 
   def cancel!
@@ -56,6 +58,7 @@ class Aggregate < ActiveRecord::Base
 
     clean_previous_operations
     publish
+    workgroup.aggregated!
   rescue => e
     Rails.logger.error "Aggregate failed: #{e} #{e.backtrace.join("\n")}"
     failed!
@@ -118,3 +121,6 @@ class Aggregate < ActiveRecord::Base
     create_compliance_check_set :after_aggregate, after_aggregate_compliance_control_set, new
   end
 end
+
+#STI
+require_dependency 'aggregates/nightly_aggregate'

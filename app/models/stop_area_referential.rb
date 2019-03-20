@@ -11,6 +11,10 @@ class StopAreaReferential < ApplicationModel
   has_one  :workgroup, dependent: :nullify
   has_many :stop_area_providers
 
+  def stop_area_routing_constraints
+    StopAreaRoutingConstraint.joins(:to, :from).where('stop_areas.stop_area_referential_id = ?', self.id)
+  end
+
   def add_member(organisation, options = {})
     attributes = options.merge organisation: organisation
     stop_area_referential_memberships.build attributes unless organisations.include?(organisation)

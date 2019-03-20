@@ -39,7 +39,7 @@ ChouetteIhm::Application.routes.draw do
       end
     end
 
-    resources :referentials, only: %w(new create)
+    resources :referentials, only: %w(new create index)
   end
 
   resources :workgroups, concerns: :iev_interfaces do
@@ -49,18 +49,29 @@ ChouetteIhm::Application.routes.draw do
       put :update_controls
       get :edit_hole_sentinel
     end
-    resources :compliance_check_sets, only: [:index, :show]
+
+    resources :compliance_check_sets, only: [:index, :show] do
+      get :executed, on: :member
+      resources :compliance_checks, only: [:show]
+      resources :compliance_check_messages, only: [:index]
+    end
     resource :output, controller: :workgroup_outputs
     resources :aggregates do
       member do
         put :rollback
       end
     end
+
     resources :publication_setups do
       resources :publications, only: :show do
         resources :exports, only: :show
       end
     end
+
+    resources :publication_apis do
+      resources :publication_api_keys
+    end
+
     resources :calendars do
       get :autocomplete, on: :collection, controller: 'autocomplete_calendars'
       member do
@@ -151,7 +162,7 @@ ChouetteIhm::Application.routes.draw do
 
   devise_for :users, :controllers => {
     invitations: 'users/invitations',
-    registrations: 'devise/sessions'
+    passwords: 'users/passwords'
   }
 
   devise_scope :user do
@@ -172,14 +183,20 @@ ChouetteIhm::Application.routes.draw do
 
   if SmartEnv.boolean "BYPASS_AUTH_FOR_SIDEKIQ"
     mount Sidekiq::Web => '/sidekiq'
+    match "/delayed_job" => DelayedJobWeb, :anchor => false, :via => [:get, :post]
   else
     authenticate :user, lambda { |u| u.can_monitor_sidekiq? } do
       mount Sidekiq::Web => '/sidekiq'
+      match "/delayed_job" => DelayedJobWeb, :anchor => false, :via => [:get, :post]
     end
   end
 
   namespace :api do
     namespace :v1 do
+      get 'datas/:slug', to: 'datas#infos', as: :infos
+      get 'datas/:slug.:key.zip', to: 'datas#download_full', as: :download_full
+      get 'datas/:slug/lines/:line_id.:key.zip', to: 'datas#download_line', as: :download_line
+
       resources :workbenches, except: %i(destroy) do
         resources :imports, only: [:index, :show, :create]
       end
@@ -201,7 +218,19 @@ ChouetteIhm::Application.routes.draw do
   end
 
   resource :organisation, :only => [:show, :edit, :update] do
-    resources :users
+    resources :users do
+      member do
+        put :block
+        put :unblock
+        put :reinvite
+        put :reset_password
+      end
+
+      collection do
+        get :new_invitation
+        post :invite
+      end
+    end
   end
 
   resources :compliance_control_sets do
@@ -223,6 +252,7 @@ ChouetteIhm::Application.routes.draw do
     resources :stop_area_providers do
       get :autocomplete, on: :collection
     end
+    resources :stop_area_routing_constraints
     resources :stop_areas do
       put :deactivate, on: :member
       put :activate, on: :member
@@ -249,6 +279,7 @@ ChouetteIhm::Application.routes.draw do
     end
   end
 
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if %i[letter_opener_web letter_opener].include?(Rails.application.config.action_mailer.delivery_method)
 
   root :to => "dashboards#show"
 

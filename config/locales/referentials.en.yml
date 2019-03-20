@@ -130,6 +130,7 @@ en:
         organisation: 'Organization'
         number_of_lines: 'No. of lines'
         from_current_offer: "Use current offer"
+        urgent: 'Contains urgent data'
   formtastic:
     titles:
       referential:
@@ -156,6 +157,7 @@ en:
   notice:
     referentials:
       deleted: "Datasets has been successfully destroyed"
+      create: The creation is in progress. Please wait and refresh the page in a few moments..
       duplicate: "The duplication is in progress. Please wait and refresh the page in a few moments."
       validate: "The validation is in progress. Please wait and refresh the page in a few moments."
     referential:

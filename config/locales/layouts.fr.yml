@@ -26,6 +26,7 @@ fr:
         edit_workgroup: Configuration de l'application
       configuration: Paramétrages
       organisation_configuration: Mon organisation
+      workgroups_configuration: Groupes de travail
       security_configuration: Sécurité
       tools: Outils
       sync: Synchronisation
@@ -44,6 +45,8 @@ fr:
         edit_control_sets: Jeux de Contrôle
         edit_aggregate: Agrégation
         edit_hole_sentinel: Détection de trous d'offre
+      publications:
+        subtitle: Publications
     history_tag:
       title: "Métadonnées"
       created_at: "Créé le"
