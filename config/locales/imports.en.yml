@@ -2,7 +2,7 @@ en:
   imports:
     search_no_results: "No import matching your query"
     filters:
-      referential: "Select data space..."
+      referential: "Select data set..."
       name_or_creator_cont: "Select an import or creator name..."
       error_period_filter: "End date must be greater or equal than begin date"
     actions:

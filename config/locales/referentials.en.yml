@@ -4,18 +4,18 @@ en:
       name_or_number_or_short_id: 'Search by name, number or objectid'
       name: 'Search by name'
       line: 'Search by associated lines'
-    search_no_results: 'No data space matching your query'
+    search_no_results: 'No data set matching your query'
     error_period_filter: "The period filter must have valid bounding dates"
     index:
-      title: 'Data spaces'
+      title: 'Data sets'
     edit:
-      title: "Edit the data space"
+      title: "Edit the data set"
     show:
       lines: "lines"
       networks: "networks"
       vehicle_journeys: "vehicle journeys"
       time_tables: "time tables"
-      title: "Data space"
+      title: "Data set"
       clean_up: "Clean up"
       api_keys: "Authentification keys for an API REST access"
       show_all_referentials: Show all referentials
@@ -24,27 +24,27 @@ en:
         one: The %{lines} line is outside of %{organisation} functional scope
         other: The lines %{lines} are outside of %{organisation} functional scope
     counts:
-      objects: "Data space elements"
+      objects: "Data set elements"
       count: "count"
     validity_out:
       validity_out_time_tables: "Closed timetables"
       validity_out_soon_time_tables: "Timetables closed in %{count} days"
     new:
-      title: "Create a new data space"
+      title: "Create a new data set"
       duplicated:
-        title: 'Clone a data space'
-      submit: "Create a data space"
+        title: 'Clone a data set'
+      submit: "Create a data set"
     select_compliance_control_set:
         title: "Select a Compliance Control Set"
         select:
           empty_list: You need to have a compliance control set to validate this referential
           no_item_selected: You need to select a compliance control set from the list
     actions:
-      new: "Add a data space"
-      destroy_confirm: "Do you confirm to destroy this data space ?"
-      destroy: "Destroy this data space"
-      edit: "Edit this data space"
-      clone: "Clone this data space"
+      new: "Add a data set"
+      destroy_confirm: "Do you confirm to destroy this data set ?"
+      destroy: "Destroy this data set"
+      edit: "Edit this data set"
+      clone: "Clone this data set"
     errors:
       inconsistent_organisation: "Organisation of asscociated workbench is (%{indirect_name}), while directly associated organisation is (%{direct_name}), they need to be equal"
       validity_period: "Invalid validity periode"
@@ -81,9 +81,9 @@ en:
               blank: A referential must have at least one period
     models:
       referential:
-        zero: "data space"
-        one: "data space"
-        other: "data spaces"
+        zero: "data set"
+        one: "data set"
+        other: "data sets"
     attributes:
       referential:
         name: "Name"
@@ -161,7 +161,7 @@ en:
       duplicate: "The duplication is in progress. Please wait and refresh the page in a few moments."
       validate: "The validation is in progress. Please wait and refresh the page in a few moments."
     referential:
-      archived: "The data space has been successfully archived"
-      unarchived: "The data space has been successfully unarchived"
-      unarchived_failed: "The data space cannot be unarchived"
-      deleted: "The data space has been successfully destroyed"
+      archived: "The data set has been successfully archived"
+      unarchived: "The data set has been successfully unarchived"
+      unarchived_failed: "The data set cannot be unarchived"
+      deleted: "The data set has been successfully destroyed"
