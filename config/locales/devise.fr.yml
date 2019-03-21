@@ -65,7 +65,6 @@ norme Neptune (NFP 99 506)"
     hints:
       user:
         edit:
-          password: 'Laissez le vide si vous ne voulez pas le changer'
           current_password: "Nous avons besoin de votre mot de passe pour confirmer les changements"
     placeholders:
       user:
