@@ -28,9 +28,12 @@ module ObjectidSupport
       end
 
       def skipping_objectid_uniqueness
-        @skip_objectid_uniqueness = true
-        yield
-        @skip_objectid_uniqueness = false
+        begin
+          @skip_objectid_uniqueness = true
+          yield
+        ensure
+          @skip_objectid_uniqueness = false
+        end
       end
 
       def search_with_objectid args={}

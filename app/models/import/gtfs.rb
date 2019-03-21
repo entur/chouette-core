@@ -80,7 +80,8 @@ class Import::Gtfs < Import::Base
 
         stop_area.name = stop.name
         stop_area.area_type = stop.location_type == '1' ? :zdlp : :zdep
-        stop_area.latitude, stop_area.longitude = BigDecimal.new(stop.lat), BigDecimal.new(stop.lon)
+        stop_area.latitude = stop.lat && BigDecimal.new(stop.lat)
+        stop_area.longitude = stop.lon && BigDecimal.new(stop.lon)
         stop_area.kind = :commercial
         stop_area.deleted_at = nil
         stop_area.confirmed_at ||= Time.now
@@ -169,12 +170,13 @@ class Import::Gtfs < Import::Base
           memory_profile: -> { "Import stop times from #{rows_count}" }
         ) do |row, resource|
             begin
+              stop_points_with_times = stop_points = vehicle_journey = journey_pattern = route = nil
+
               profile_tag 'trip' do
                 trip_id, stop_times = row
                 to_be_saved = []
                 prev_trip_id = trip_id
 
-                stop_points_with_times = stop_points = vehicle_journey = journey_pattern = route = nil
                 profile_tag 'preparation' do
                   trip = @trips[trip_id]
                   line = line_referential.lines.find_by registration_number: trip.route_id
@@ -245,7 +247,6 @@ class Import::Gtfs < Import::Base
                     stop_points.compact.each { |s| w.add(s.attributes) }
                     worker = w
                   end
-                  # stop_points = , values: stop_points.map{ |s| s.attributes.slice(*%w[route_id objectid stop_area_id position]) }).result_sets
                   stop_points = Chouette::StopPoint.find worker.result_sets.last.rows
                 end
                 profile_tag 'add_stop_points_to_jp' do
@@ -256,22 +257,17 @@ class Import::Gtfs < Import::Base
                   end
 
                   journey_pattern.stop_points.reload
-
-
                   journey_pattern.shortcuts_update_for_add(stop_points.last)
-                  # skip skipping_objectid_uniqueness
                 end
 
                 profile_tag 'vjas_bulk_insert' do
                   Chouette::VehicleJourneyAtStop.bulk_insert do |worker|
-                    # stop_points.each do |stop_point|
-                    #   worker.add vehicle_journey_id: vehicle_journey.id, stop_point_id: stop_point.id, for_boarding: :normal, for_alighting: :normal
-                    # end
                     stop_points.each_with_index do |stop_point, i|
                       add_stop_point stop_points_with_times[i].first, stop_point, journey_pattern, vehicle_journey, resource, worker
                     end
                   end
                 end
+                journey_pattern.vehicle_journey_at_stops.reload
                 save_model journey_pattern, resource: resource
               end
             rescue Import::Gtfs::InvalidTripNonZeroFirstOffsetError, Import::Gtfs::InvalidTripTimesError => e
@@ -415,20 +411,21 @@ class Import::Gtfs < Import::Base
   def import_calendar_dates
     return unless source.entries.include?('calendar_dates.txt')
 
+    positions = Hash.new{ |h, k| h[k] = 0 }
     Chouette::ChecksumManager.no_updates do
       Chouette::TimeTableDate.bulk_insert do |worker|
         create_resource(:calendar_dates).each(source.calendar_dates, slice: 500, transaction: true) do |calendar_date, resource|
           comment = "Calendar #{calendar_date.service_id}"
           unless_parent_model_in_error(Chouette::TimeTable, comment, resource) do
-            time_table = time_tables_by_service_id[calendar_date.service_id]
-            time_table ||= begin
+            time_table_id = time_tables_by_service_id[calendar_date.service_id]
+            time_table_id ||= begin
               tt = referential.time_tables.build comment: comment
               save_model tt, resource: resource
               time_tables_by_service_id[calendar_date.service_id] = tt.id
-              tt
             end
 
-            worker.add date: Date.parse(calendar_date.date), in_out: calendar_date.exception_type == "1", time_table_id: time_table.id
+            worker.add position: positions[time_table_id], date: Date.parse(calendar_date.date), in_out: calendar_date.exception_type == "1", time_table_id: time_table_id
+            positions[time_table_id] += 1
           end
         end
       end

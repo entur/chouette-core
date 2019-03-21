@@ -89,6 +89,7 @@ module CustomFieldsSupport
       return if custom_fields_initialized?
       return unless self.attributes.has_key?("custom_field_values")
       return unless self.workgroup.present?
+      
       self.custom_field_values ||= {}
       custom_fields.values.each &:initialize_custom_field
       custom_fields.each do |k, v|
@@ -104,7 +105,8 @@ module CustomFieldsSupport
 
     private
     def custom_fields_values_are_valid
-      return unless self[:custom_fields_values].present?
+      return if skip_custom_fields_initialization
+
       custom_fields.values.all?{|cf| cf.valid?}
     end
   end
