@@ -75,7 +75,7 @@ gem 'codifligne', af83: 'stif-codifline-api'
 gem 'reflex', af83: 'stif-reflex-api'
 
 # Authentication
-gem 'devise', '~> 3.5.4'
+gem 'devise'
 gem 'devise_cas_authenticatable'
 gem 'devise-encryptable'
 gem 'devise_invitable'
@@ -148,7 +148,6 @@ gem 'delayed_job_heartbeat_plugin'
 
 gem 'whenever', github: 'af83/whenever', require: false # '~> 0.9'
 gem 'rake'
-gem 'devise-async'
 gem 'apartment', '~> 2.2.0'
 gem 'aasm'
 gem 'puma', '~> 3.10.0'
@@ -217,7 +216,7 @@ group :test, :development do
   gem 'rb-inotify', require: RUBY_PLATFORM.include?('linux') && 'rb-inotify'
   gem 'rb-fsevent', require: RUBY_PLATFORM.include?('darwin') && 'rb-fsevent'
   gem 'transpec'
-  gem 'shoulda-matchers', '~> 3.1'
+  gem 'shoulda-matchers'
   gem "teaspoon-jasmine"
   gem "phantomjs"
   gem 'parallel_tests'
