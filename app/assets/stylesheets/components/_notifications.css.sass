@@ -41,7 +41,7 @@
       color: $brand-color-secondary-contrast
       text-decoration: none
       &:hover
-        background-color: $brand-color-primary
+        background-color: transparentize($brand-color-secondary-contrast, 0.9)
       &.close-notification
         position: absolute
         transition: opacity 0.2s
@@ -54,7 +54,7 @@
         opacity: 0
         z-index: 11
         &:hover
-          background-color: $brand-color-primary
+          background-color: transparentize($brand-color-secondary-contrast, 0.9)
         span
           position: absolute
           top: 50%
