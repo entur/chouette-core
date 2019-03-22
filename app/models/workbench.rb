@@ -86,11 +86,7 @@ class Workbench < ApplicationModel
   end
 
   def notifications_channel
-    if Rails.env.development?
-      "/workbenches/#{id}"
-    else
-      "/workbenches/#{hash}"
-    end
+    "/workbenches/#{id}"
   end
 
   def referential_to_aggregate

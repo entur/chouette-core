@@ -57,10 +57,11 @@ class Import::Gtfs < Import::Base
   end
 
   def import_without_status
+    @progress = 0
+    
     prepare_referential
     referential.pending!
 
-    @progress = 0
     if check_calendar_files_missing_and_create_message
       @progress += 2.0/(steps_count+2)
       notify_progress @progress

@@ -35,6 +35,7 @@ class window.NotificationCenter
     @setCookie @channel + "_reloadState", Date.now()
 
   setCookie: (name, value, days=null) ->
+    value = window.escape(value)
     if days
       date = new Date()
       date.setTime date.getTime() + (days * 24 * 60 * 60 * 1000)
@@ -51,7 +52,7 @@ class window.NotificationCenter
     while i < ca.length
       c = ca[i]
       c = c.substring(1, c.length)  while c.charAt(0) is " "
-      return c.substring(nameEQ.length, c.length)  if c.indexOf(nameEQ) is 0
+      return value = window.unescape(c.substring(nameEQ.length, c.length)) if c.indexOf(nameEQ) is 0
       i++
     null
 
