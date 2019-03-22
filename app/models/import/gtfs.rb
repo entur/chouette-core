@@ -7,7 +7,7 @@ class Import::Gtfs < Import::Base
   after_commit :update_main_resource_status, on:  [:create, :update]
 
   def steps_count
-    7
+    9
   end
 
   def self.accepts_file?(file)
@@ -58,12 +58,12 @@ class Import::Gtfs < Import::Base
 
   def import_without_status
     @progress = 0
-    
+
     prepare_referential
     referential.pending!
 
     if check_calendar_files_missing_and_create_message
-      @progress += 2.0/(steps_count+2)
+      @progress += 3.0/(steps_count+2)
       notify_progress @progress
     else
       import_resources :calendars, :calendar_dates, :calendar_checksums
