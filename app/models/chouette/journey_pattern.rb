@@ -14,6 +14,8 @@ module Chouette
     has_many :stop_areas, through: :stop_points
     has_many :courses_stats, class_name: "Stat::JourneyPatternCoursesByDate"
 
+    scope :light, ->{ select(:id, :name, :route_id, :objectid) }
+
     validates_presence_of :route
     validates_presence_of :name
 

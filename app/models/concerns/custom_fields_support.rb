@@ -4,6 +4,7 @@ module CustomFieldsSupport
   included do
     validate :custom_fields_values_are_valid
     after_initialize :initialize_custom_fields
+    attr_accessor :skip_custom_fields_initialization
 
     def self.reset_custom_fields
       @_custom_fields = nil
@@ -84,9 +85,11 @@ module CustomFieldsSupport
     end
 
     def initialize_custom_fields
+      return if skip_custom_fields_initialization
       return if custom_fields_initialized?
       return unless self.attributes.has_key?("custom_field_values")
       return unless self.workgroup.present?
+      
       self.custom_field_values ||= {}
       custom_fields.values.each &:initialize_custom_field
       custom_fields.each do |k, v|
@@ -102,6 +105,8 @@ module CustomFieldsSupport
 
     private
     def custom_fields_values_are_valid
+      return if skip_custom_fields_initialization
+
       custom_fields.values.all?{|cf| cf.valid?}
     end
   end

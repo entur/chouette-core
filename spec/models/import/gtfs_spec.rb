@@ -349,7 +349,6 @@ RSpec.describe Import::Gtfs do
     before do
       import.prepare_referential
       import.import_calendars
-      allow(import).to receive(:save_model).and_wrap_original { |m, model| m.call(model); model.run_callbacks(:commit) }
     end
 
     it 'should store the trips in memory' do
@@ -429,6 +428,7 @@ RSpec.describe Import::Gtfs do
 
     it "should create a VehicleJourneyAtStop for each stop_time" do
       import.import_stop_times
+      import.import_missing_checksums
 
       def t(value)
         Time.parse(value)

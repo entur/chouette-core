@@ -7,12 +7,16 @@ module Chouette
       end
 
       def before_validation(model)
-        oid = Chouette::Objectid::Netex.new(local_id: SecureRandom.uuid, object_type: model.class.name.gsub('Chouette::',''))
+        oid = objectid(model)
         model.update(objectid: oid.to_s) if oid.valid?
       end
 
       def after_commit(model)
         # unused method in this context
+      end
+
+      def objectid(model)
+        Chouette::Objectid::Netex.new(local_id: SecureRandom.uuid, object_type: model.class.name.gsub('Chouette::',''))
       end
 
       def get_objectid(definition)

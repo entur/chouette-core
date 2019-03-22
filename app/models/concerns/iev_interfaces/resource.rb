@@ -14,6 +14,8 @@ module IevInterfaces::Resource
   end
 
   def each(collection, opts = {})
+    checksum_manager_method = opts[:skip_checksums] ? :no_updates : :transaction
+
     inner_block = proc do |items|
       items.each do |item|
         inc_rows_count
@@ -24,7 +26,7 @@ module IevInterfaces::Resource
     transaction_block = proc do |items|
       if opts[:transaction]
         ActiveRecord::Base.transaction do
-          Chouette::ChecksumManager.transaction do
+          Chouette::ChecksumManager.send(checksum_manager_method) do
             inner_block.call items
           end
         end

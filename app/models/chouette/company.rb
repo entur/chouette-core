@@ -23,6 +23,5 @@ module Chouette
       self.class.current_workgroup || workgroup_without_cache
     end
     alias_method_chain :workgroup, :cache
-    
   end
 end
