@@ -56,13 +56,13 @@ module LocalImportSupport
   def import
     update status: 'running', started_at: Time.now
 
+    @progress = 0
     profile_tag 'import' do
       ActiveRecord::Base.cache do
-        @progress = 0
         import_without_status
-        @progress = nil
       end
     end
+    @progress = nil
     @status ||= 'successful'
     referential&.active!
     update status: @status, ended_at: Time.now
