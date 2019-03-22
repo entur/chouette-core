@@ -107,7 +107,7 @@ RSpec.describe Export::Gtfs, type: [:model, :with_exportable_referential] do
 
       random_vehicle_journey_at_stop = vehicle_journey_at_stops.sample
       stop_time = source.stop_times.detect{|stop_time| stop_time.arrival_time == GTFS::Time.format_datetime(random_vehicle_journey_at_stop.arrival_time, random_vehicle_journey_at_stop.arrival_day_offset, 'Europe/Paris') }
-      expect(stop_time).not_to be_nil
+      expect(stop_time).not_to be_nil, "Did not find stop with time #{GTFS::Time.format_datetime(random_vehicle_journey_at_stop.arrival_time, random_vehicle_journey_at_stop.arrival_day_offset, 'Europe/Paris') } among #{source.stop_times.map(&:arrival_time)}"
       expect(stop_time.departure_time).to eq(GTFS::Time.format_datetime(random_vehicle_journey_at_stop.departure_time, random_vehicle_journey_at_stop.departure_day_offset, 'Europe/Paris'))
     end
   end
