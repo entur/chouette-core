@@ -12,24 +12,16 @@ class window.NotificationCenter
        @lastReload = Date.now()
     else
       url = "/notifications?channel=" + @channel
-      if @lastSeen
-        url = url + "&lastSeen=" + @lastSeen if @lastSeen?
-        $.get(url).then (response)=>
-          for payload in response
-            @lastSeen = payload.id
-            @setCookie @channel + "_lastSeen", @lastSeen
-            @receiver.receivedNotification(payload)
-          setTimeout =>
-            @checkNotifications()
-          , @period
-      else
-        $.get(url).then (response)=>
-          payload = response[0]
+      url = url + "&lastSeen=" + @lastSeen if @lastSeen?
+      
+      $.get(url).then (response)=>
+        for payload in response
           @lastSeen = payload.id
           @setCookie @channel + "_lastSeen", @lastSeen
-          setTimeout =>
-            @checkNotifications()
-          , @period
+          @receiver.receivedNotification(payload)
+        setTimeout =>
+          @checkNotifications()
+        , @period
 
   reloadState: =>
     @setCookie @channel + "_reloadState", Date.now()
