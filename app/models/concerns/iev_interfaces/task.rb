@@ -152,15 +152,27 @@ module IevInterfaces::Task
     end
   end
 
+  def operation_progress_weight(operation_name)
+    1
+  end
+
+  def operations_progress_total_weight
+    steps_count
+  end
+
+  def operation_relative_progress_weight(operation_name)
+    operation_progress_weight(operation_name).to_f/operations_progress_total_weight
+  end
+
   def notify_operation_progress(operation_name)
     if @progress
-      @progress += 1.0/(steps_count+2)
+      @progress += operation_relative_progress_weight(operation_name)
       notify_progress @progress
     end
   end
 
   def notify_sub_operation_progress(operation_name, progress)
-    notify_progress(@progress + 1.0/steps_count*progress) if @progress
+    notify_progress(@progress + operation_relative_progress_weight(operation_name)*progress) if @progress
   end
 
   def update_status

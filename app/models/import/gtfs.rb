@@ -6,8 +6,12 @@ class Import::Gtfs < Import::Base
 
   after_commit :update_main_resource_status, on:  [:create, :update]
 
-  def steps_count
-    9
+  def operation_progress_weight(operation_name)
+    operation_name.to_sym == :stop_times ? 90 : 10.0/9
+  end
+
+  def operations_progress_total_weight
+    100
   end
 
   def self.accepts_file?(file)
@@ -57,14 +61,13 @@ class Import::Gtfs < Import::Base
   end
 
   def import_without_status
-    @progress = 0
-
     prepare_referential
     referential.pending!
 
     if check_calendar_files_missing_and_create_message
-      @progress += 3.0/(steps_count+2)
-      notify_progress @progress
+      notify_operation_progress :calendars
+      notify_operation_progress :calendar_dates
+      notify_operation_progress :calendar_checksums
     else
       import_resources :calendars, :calendar_dates, :calendar_checksums
     end
