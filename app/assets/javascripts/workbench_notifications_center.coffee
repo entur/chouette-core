@@ -14,7 +14,8 @@ class WorkbenchNotification
     requestAnimationFrame =>
       @container.addClass "updated-notification"
     setTimeout =>
-      @container.removeClass "updated-notification"
+      requestAnimationFrame =>
+        @container.removeClass "updated-notification"
     , 500
 
   show: (fancy=true)->
