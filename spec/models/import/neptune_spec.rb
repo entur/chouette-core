@@ -108,6 +108,7 @@ RSpec.describe Import::Neptune do
       stop_area = Chouette::StopArea.find_by registration_number: 'NAVSTEX:StopArea:gen6'
       expect(stop_area.latitude).to be_present
       expect(stop_area.longitude).to be_present
+      expect(stop_area.fare_code).to be_present
     end
 
     it 'should update existing stop_areas' do

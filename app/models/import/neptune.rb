@@ -249,7 +249,7 @@ class Import::Neptune < Import::Base
         stop_area.comment = source_stop_area[:comment]
         stop_area.street_name = source_stop_area[:address].try(:[], :street_name)
         stop_area.nearest_topic_name = source_stop_area[:nearest_topic_name]
-        stop_area.fare_code = source_stop_area[:fare_code]
+        stop_area.fare_code = source_stop_area[:stop_area_extension][:fare_code]
         stop_area.area_type = stop_area_type_mapping(source_stop_area[:stop_area_extension][:area_type])
         stop_area.kind = :commercial
         if source_stop_area[:centroid_of_area]
