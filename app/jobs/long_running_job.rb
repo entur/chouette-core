@@ -1,4 +1,8 @@
 LongRunningJob = Struct.new(:object, :method) do
+  def max_attempts
+    1
+  end
+
   def perform
     object.send method
   end
