@@ -22,7 +22,7 @@ class Import::Neptune < Import::Base
   end
 
   def prepare_referential
-    import_resources :lines, :companies, :networks
+    import_resources :companies, :networks, :lines
 
     create_referential
     referential.switch

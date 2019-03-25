@@ -89,6 +89,15 @@ RSpec.describe Import::Neptune do
       expect{ import.send(:import_lines) }.to_not change{ workbench.line_referential.lines.count }
       expect(line.reload.attributes.except('updated_at')).to eq attrs
     end
+
+    it "should set company and network" do
+      import.send(:import_companies)
+      import.send(:import_networks)
+      import.send(:import_lines)
+      line = workbench.line_referential.lines.last
+      expect(line.company).to be_present
+      expect(line.network).to be_present
+    end
   end
 
   describe "#import_stop_areas" do
