@@ -2,7 +2,6 @@ class Feature
   def self.all
     %w{
       application_days_on_calendars
-      change_locale
       consolidated_offers
       core_controls
       core_control_blocks

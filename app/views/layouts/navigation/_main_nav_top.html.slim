@@ -5,7 +5,7 @@
       = render 'layouts/navigation/breadcrumb'
 
     .menu-item-group.pull-right
-      - if !user_signed_in? || has_feature?(:change_locale)
+      - if I18n.available_locales.size > 1
         .dropdown.languages.menu-item
           = link_to 'javascript:void(0)', class: 'dropdown-toggle', data: { toggle: 'dropdown' } do
             = image_tag("language_engine/#{selected_language}_flag.png", { :'data-locale' => "#{selected_language}" } )
