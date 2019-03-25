@@ -136,15 +136,20 @@ class Import::Neptune < Import::Base
 
   def import_time_tables
     @time_tables = Hash.new{|h, k| h[k] = []}
+    @imported_time_tables = []
     each_element_matching_css('ChouettePTNetwork Timetable') do |source_timetable|
       tt = Chouette::TimeTable.find_or_initialize_by objectid: source_timetable[:object_id]
-      tt.int_day_types = int_day_types_mapping source_timetable[:day_type]
-      tt.created_at = source_timetable[:creation_time]
-      tt.comment = source_timetable[:comment].presence || source_timetable[:object_id]
-      tt.metadata = { creator_username: source_timetable[:creator_id] }
-      save_model tt
-      add_time_table_dates tt, source_timetable[:calendar_day]
-      add_time_table_periods tt, source_timetable[:period]
+      unless @imported_time_tables.include?(tt.object_id)
+        @imported_time_tables << tt.object_id
+        tt.int_day_types = int_day_types_mapping source_timetable[:day_type]
+        tt.created_at = source_timetable[:creation_time].presence
+        tt.comment = source_timetable[:comment].presence || source_timetable[:object_id]
+        tt.metadata = { creator_username: source_timetable[:creator_id] }
+        save_model tt
+        add_time_table_dates tt, source_timetable[:calendar_day]
+        add_time_table_periods tt, source_timetable[:period]
+      end
+
       make_enum(source_timetable[:vehicle_journey_id]).each do |vehicle_journey_id|
         @time_tables[vehicle_journey_id] << tt.id
       end
@@ -154,8 +159,7 @@ class Import::Neptune < Import::Base
   def add_time_table_dates(timetable, dates)
     return unless dates
 
-    dates = make_enum dates
-    dates.each do |date|
+    make_enum(dates).each do |date|
       @timetables_period_start = [@timetables_period_start, date.to_date].compact.min
       @timetables_period_end = [@timetables_period_end, date.to_date].compact.max
       next if timetable.dates.where(in_out: true, date: date).exists?
@@ -167,14 +171,15 @@ class Import::Neptune < Import::Base
   def add_time_table_periods(timetable, periods)
     return unless periods
 
-    periods = make_enum periods
-    periods.each do |period|
+    make_enum(periods).each do |period|
       @timetables_period_start = [@timetables_period_start, period[:start_of_period].to_date].compact.min
       @timetables_period_end = [@timetables_period_end, period[:end_of_period].to_date].compact.max
 
-      timetable.periods.build(period_start: period[:start_of_period], period_end: period[:end_of_period])
+      next if timetable.periods.where(period_start: period[:start_of_period], period_end: period[:end_of_period]).exists?
+      timetable.periods.create(period_start: period[:start_of_period], period_end: period[:end_of_period])
     end
-    timetable.periods = timetable.optimize_overlapping_periods
+
+    timetable.periods = timetable.optimize_overlapping_periods.map {|p| p.time_table_id = timetable.id; p.save; p }
   end
 
   def int_day_types_mapping day_types
@@ -294,67 +299,73 @@ class Import::Neptune < Import::Base
   end
 
   def import_routes_in_line(line, source_routes, line_desc)
-    source_routes = make_enum source_routes
+    profile_tag :import_routes_in_line do
+      source_routes = make_enum source_routes
 
-    source_routes.each do |source_route|
-      published_name = source_route[:published_name] || source_route[:name]
-      route = line.routes.build do |route|
-        route.published_name = published_name
-        route.name = source_route[:name]
-        route.wayback = route_wayback_mapping source_route[:route_extension][:way_back]
-        route.metadata = { creator_username: source_route[:creator_id], created_at: source_route[:creation_time] }
-        route.opposite_route_id = @opposite_route_id.delete source_route[:object_id]
+      source_routes.each do |source_route|
+        published_name = source_route[:published_name] || source_route[:name]
+        route = line.routes.build do |route|
+          route.published_name = published_name
+          route.name = source_route[:name]
+          route.wayback = route_wayback_mapping source_route[:route_extension][:way_back]
+          route.metadata = { creator_username: source_route[:creator_id], created_at: source_route[:creation_time] }
+          route.opposite_route_id = @opposite_route_id.delete source_route[:object_id]
+        end
+
+        add_stop_points_to_route(route, source_route[:pt_link_id], line_desc[:pt_link], source_route[:object_id])
+        save_model route
+
+        if source_route[:way_back_route_id].present? && !route.opposite_route_id
+          @opposite_route_id[source_route[:way_back_route_id]] = route.id
+        end
+        @routes[source_route[:object_id]] = route
       end
-
-      add_stop_points_to_route(route, source_route[:pt_link_id], line_desc[:pt_link], source_route[:object_id])
-      save_model route
-
-      if source_route[:way_back_route_id].present? && !route.opposite_route_id
-        @opposite_route_id[source_route[:way_back_route_id]] = route.id
-      end
-      @routes[source_route[:object_id]] = route
     end
   end
 
   def import_journey_patterns_in_line(line, source_journey_patterns)
-    source_journey_patterns = make_enum source_journey_patterns
+    profile_tag :import_journey_patterns_in_line do
+      source_journey_patterns = make_enum source_journey_patterns
 
-    source_journey_patterns.each do |source_journey_pattern|
-      route = @routes[source_journey_pattern[:route_id]]
-      journey_pattern = route.journey_patterns.build do |journey_pattern|
-        journey_pattern.published_name = source_journey_pattern[:published_name]
-        journey_pattern.registration_number = source_journey_pattern[:registration].try(:[], :registration_number)
-        journey_pattern.name = source_journey_pattern[:name]
-        journey_pattern.metadata = { creator_username: source_journey_pattern[:creator_id], created_at: source_journey_pattern[:creation_time] }
+      source_journey_patterns.each do |source_journey_pattern|
+        route = @routes[source_journey_pattern[:route_id]]
+        journey_pattern = route.journey_patterns.build do |journey_pattern|
+          journey_pattern.published_name = source_journey_pattern[:published_name]
+          journey_pattern.registration_number = source_journey_pattern[:registration].try(:[], :registration_number)
+          journey_pattern.name = source_journey_pattern[:name]
+          journey_pattern.metadata = { creator_username: source_journey_pattern[:creator_id], created_at: source_journey_pattern[:creation_time] }
+        end
+
+        add_stop_points_to_journey_pattern(journey_pattern, source_journey_pattern[:stop_point_list], source_journey_pattern[:route_id])
+        save_model journey_pattern
+        @journey_patterns[source_journey_pattern[:object_id]] = journey_pattern
       end
-
-      add_stop_points_to_journey_pattern(journey_pattern, source_journey_pattern[:stop_point_list], source_journey_pattern[:route_id])
-      save_model journey_pattern
-      @journey_patterns[source_journey_pattern[:object_id]] = journey_pattern
     end
   end
 
   def import_vehicle_journeys_in_line(line, source_vehicle_journeys)
-    source_vehicle_journeys = make_enum source_vehicle_journeys
+    profile_tag :import_vehicle_journeys_in_line do
+      source_vehicle_journeys = make_enum source_vehicle_journeys
 
-    source_vehicle_journeys.each do |source_vehicle_journey|
-      if source_vehicle_journey[:journey_pattern_id]
-        journey_pattern = @journey_patterns[source_vehicle_journey[:journey_pattern_id]]
-      else
-        journey_pattern = @routes[source_vehicle_journey[:route_id]].journey_patterns.last
-      end
-      vehicle_journey = journey_pattern.vehicle_journeys.build do |vehicle_journey|
-        vehicle_journey.number =  source_vehicle_journey[:number]
-        vehicle_journey.published_journey_name = source_vehicle_journey[:published_journey_name]
-        vehicle_journey.route = journey_pattern.route
-        vehicle_journey.metadata = { creator_username: source_vehicle_journey[:creator_id], created_at: source_vehicle_journey[:creation_time] }
-        vehicle_journey.transport_mode, _ = transport_mode_name_mapping(source_vehicle_journey[:transport_mode_name])
-        vehicle_journey.company = line_referential.companies.find_by registration_number: source_vehicle_journey[:operator_id]
-        vehicle_journey.time_table_ids = @time_tables.delete(source_vehicle_journey[:object_id])
-      end
-      add_stop_points_to_vehicle_journey(vehicle_journey, source_vehicle_journey[:vehicle_journey_at_stop], source_vehicle_journey[:route_id])
+      source_vehicle_journeys.each do |source_vehicle_journey|
+        if source_vehicle_journey[:journey_pattern_id]
+          journey_pattern = @journey_patterns[source_vehicle_journey[:journey_pattern_id]]
+        else
+          journey_pattern = @routes[source_vehicle_journey[:route_id]].journey_patterns.last
+        end
+        vehicle_journey = journey_pattern.vehicle_journeys.build do |vehicle_journey|
+          vehicle_journey.number =  source_vehicle_journey[:number]
+          vehicle_journey.published_journey_name = source_vehicle_journey[:published_journey_name]
+          vehicle_journey.route = journey_pattern.route
+          vehicle_journey.metadata = { creator_username: source_vehicle_journey[:creator_id], created_at: source_vehicle_journey[:creation_time] }
+          vehicle_journey.transport_mode, _ = transport_mode_name_mapping(source_vehicle_journey[:transport_mode_name])
+          vehicle_journey.company = line_referential.companies.find_by registration_number: source_vehicle_journey[:operator_id]
+          vehicle_journey.time_table_ids = @time_tables.delete(source_vehicle_journey[:object_id])
+        end
+        add_stop_points_to_vehicle_journey(vehicle_journey, source_vehicle_journey[:vehicle_journey_at_stop], source_vehicle_journey[:route_id])
 
-      save_model vehicle_journey
+        save_model vehicle_journey
+      end
     end
   end
 
