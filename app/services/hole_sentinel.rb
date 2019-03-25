@@ -10,6 +10,7 @@ class HoleSentinel
     return holes unless days_ahead.positive?
 
     referential.switch do
+
       referential.lines.each do |line|
         line_holes = Stat::JourneyPatternCoursesByDate.where('date >= CURRENT_DATE').holes_for_line(line)
 
@@ -19,6 +20,9 @@ class HoleSentinel
 
         # then we check that we have N consecutive 'no circulation' days
         next unless line_holes.offset(min_hole_size).first&.date == line_holes.first.date + min_hole_size
+
+        # then we check if there is any notification rule covering the hole
+        next unless @workbench.notification_rules.covering(line_holes.first.date...line_holes.last.date).empty?
 
         holes[line.id] = line_holes.first.date
       end

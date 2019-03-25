@@ -31,8 +31,13 @@ class Workbench < ApplicationModel
 
   has_many :referentials, dependent: :destroy
   has_many :referential_metadatas, through: :referentials, source: :metadatas
+  has_many :notification_rules, dependent: :destroy
 
   before_validation :initialize_output
+
+  # def notifiable_lines
+  #   lines.where(id: NotificationRule.pluck(:line_id))
+  # end
 
   def locked_referential_to_aggregate_belongs_to_output
     return unless locked_referential_to_aggregate.present?

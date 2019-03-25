@@ -36,6 +36,7 @@ class Permission
         time_tables
         vehicle_journeys
         workbenches
+        notification_rules
       ]
     end
 
