@@ -121,7 +121,7 @@ en:
         routing_constraint_zone: Routing constraint zone
         validity_period: "Inclusive validity period"
         updated_at: "Updated"
-        merged_at: "Finalized"
+        merged_at: "Merged"
         archived_at: "Archived"
         archived_at_null: "Unarchived"
         created_from: 'Created from'
