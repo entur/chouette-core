@@ -9,7 +9,7 @@ en:
       title: "Aggregated offer %{name}"
       finalized_offer: "Merged offer"
     actions:
-      create: Aggregated data spaces
+      create: Aggregated data sets
       rollback: Rollback
       rollback_confirm: Are you sure to rollback to this aggregated offer ?
     statuses:
@@ -33,11 +33,11 @@ en:
         ended_at: Ended at
         status: "Status"
         creator: "Creator"
-        referentials: "Data spaces"
+        referentials: "Data sets"
         new: Aggregated dataset
         operator: User
-        available_referentials: "Avalaible data spaces"
-        selected_referentials: "Selected data spaces"
+        available_referentials: "Avalaible data sets"
+        selected_referentials: "Selected data sets"
         notification_target: Notifications recipients
         contains_urgent_offer: Handles urgent offer
     errors:
