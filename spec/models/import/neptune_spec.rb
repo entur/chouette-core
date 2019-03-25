@@ -109,6 +109,7 @@ RSpec.describe Import::Neptune do
       expect(stop_area.latitude).to be_present
       expect(stop_area.longitude).to be_present
       expect(stop_area.fare_code).to be_present
+      expect(stop_area.nearest_topic_name).to be_present
     end
 
     it 'should update existing stop_areas' do
