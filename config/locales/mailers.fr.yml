@@ -1,6 +1,7 @@
 fr:
   mailers:
     info_contact: 'Pour toute question, écrivez un mail à '
+    footer: 'est conçu et développé par'
     hello: 'Bonjour,'
     audit_mailer:
       audit:
@@ -102,7 +103,7 @@ fr:
       finished:
         button: Voir l'agrégation automatique
         subject: L'agrégation automatique est terminée
-        body: | 
+        body: |
           Bonjour, l'agrégation automatique est terminée
           L'agrégation automatique <strong>"%{agg_name}"</strong> a été effectuée . Elle est maintenant terminée.
           Pour y accéder :

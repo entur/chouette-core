@@ -1,6 +1,7 @@
 en:
   mailers:
     info_contact: 'If you have any question, please send an email to '
+    footer: 'is designed and developped by'
     audit_mailer:
       audit:
         subject: "Audit automatique du %{date}"
@@ -112,7 +113,7 @@ en:
       finished:
         button: See Nightly Aggregation
         subject: The nightly aggregation is over
-        body: | 
+        body: |
           Hello, the aggregation is over
           The automatic aggregation %{agg_name} is now over.
           The operation status is %{status}<br/><br/>
