@@ -1,7 +1,7 @@
 class NotificationRulesController < ChouetteController
   include PolicyChecker
   include RansackDateFilter
-  before_action only: [:index] { set_date_time_params("period", Date, prefix: :notification_rule) }
+  before_action(only: [:index]) { set_date_time_params("period", Date, prefix: :notification_rule) }
 
   defaults resource_class: NotificationRule
   belongs_to :workbench
