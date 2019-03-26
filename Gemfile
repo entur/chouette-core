@@ -5,29 +5,29 @@ source 'https://rubygems.org'
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 git_source(:af83) { |name| "https://github.com/af83/#{name}.git" }
 
-gem 'bundler', '~> 1.17'
+gem 'bundler', '~> 2.0'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 4.2.11'
+gem 'rails', '5.2.2.1'
 gem 'rack-protection', '~> 1.5.5'
 
 # Use SCSS for stylesheets
-gem 'sass-rails', '~> 4.0.3'
+gem 'sass-rails'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '~> 2.7.2'
 # Use CoffeeScript for .js.coffee assets and views
-gem 'coffee-rails', '~> 4.0.0'
+gem 'coffee-rails'
 
 # Webpacker
 gem 'webpacker', '3.2.1'
 
 # Use jquery as the JavaScript library
-gem 'jquery-rails', '~> 3.1.4' # Update to v4 for Rails 4.2
+gem 'jquery-rails'
 gem 'jquery-ui-rails'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
-gem 'sdoc', '~> 0.4.0', group: :doc
+gem 'sdoc', group: :doc
 
 # Select2 for pretty select boxes w. autocomplete
 gem 'select2-rails', '~> 4.0', '>= 4.0.3'
@@ -65,7 +65,7 @@ platforms :ruby do
   #gem 'sqlite3'
 end
 
-gem 'activerecord-postgis-adapter', "~> 3.0.0"
+gem 'activerecord-postgis-adapter'
 gem 'polylines'
 gem 'bulk_insert'
 
@@ -85,8 +85,8 @@ gem 'pundit'
 
 # Map, Geolocalization
 gem 'map_layers', '0.0.4'
-gem 'rgeo', '~> 0.5.2'
-gem 'georuby-ext', '0.0.5'
+gem 'rgeo'
+gem 'georuby-ext'
 gem 'georuby', '2.3.0' # Fix version for georuby-ext because api has changed
 gem 'ffi', '> 1.9.24'
 gem 'mimemagic'
@@ -95,10 +95,10 @@ gem 'mimemagic'
 gem 'language_engine', af83: 'language_engine'
 gem 'calendar_helper', '0.2.5'
 gem 'cocoon'
-gem 'slim-rails', '~> 3.1'
-gem 'formtastic', '3.1.5'
+gem 'slim-rails'
+gem 'formtastic'
 gem 'RedCloth', '~> 4.3.0'
-gem 'simple_form', '~> 3.5.1'
+gem 'simple_form'
 gem 'font-awesome-sass', '~> 4.7'
 gem 'will_paginate-bootstrap'
 gem 'gretel'
@@ -122,15 +122,15 @@ gem 'will_paginate'
 gem 'ransack'
 #gem "squeel", github: 'activerecord-hackery/squeel'
 gem 'active_attr'
-gem 'active_model-errors_details'
+# gem 'active_model-errors_details'
 
 gem 'sequel'
 
 gem 'draper'
 
 gem 'enumerize', '~> 2.1.2'
-gem 'deep_cloneable', '~> 2.0.0'
-gem 'acts-as-taggable-on', '~> 4.0.0'
+gem 'deep_cloneable'
+gem 'acts-as-taggable-on'
 gem 'nokogiri', '>=1.8.5'
 
 gem 'acts_as_list', '~> 0.9.11'
@@ -165,13 +165,13 @@ gem 'gtfs', af83: 'gtfs'
 
 
 group :development do
-  gem 'capistrano', '2.13.5'
+  gem 'capistrano'
   gem 'capistrano-ext'
   #gem 'capistrano-npm', require: false
   gem 'rails-erd'
   # MetaRequest is incompatible with rgeo-activerecord
   # gem 'meta_request'
-  gem 'quiet_assets'
+  # gem 'quiet_assets'
   gem 'license_finder'
   gem 'bundler-audit'
   gem 'spring-commands-rspec'
@@ -207,7 +207,7 @@ group :test, :development do
   gem 'awesome_print'
   gem 'pry-rails'
   gem 'pry-byebug'
-  gem 'rspec-rails', '~> 3.5.0'
+  gem 'rspec-rails'
   gem 'webmock'
   gem 'capybara', '~> 2.4.0'
   gem 'database_cleaner'
@@ -216,7 +216,7 @@ group :test, :development do
   gem 'factory_girl_rails', '~> 4.0'
   gem 'rb-inotify', require: RUBY_PLATFORM.include?('linux') && 'rb-inotify'
   gem 'rb-fsevent', require: RUBY_PLATFORM.include?('darwin') && 'rb-fsevent'
-  gem 'transpec'
+  # gem 'transpec'
   gem 'shoulda-matchers'
   gem "teaspoon-jasmine"
   gem "phantomjs"
@@ -229,7 +229,7 @@ group :production do
 end
 
 # I18n
-gem 'rails-i18n', '~> 4.0.0'
+gem 'rails-i18n'
 gem 'devise-i18n'
 gem 'i18n-tasks'
 
@@ -246,7 +246,7 @@ source 'https://rails-assets.org' do
   gem 'rails-assets-modernizr', '~> 2.0.6'
 end
 
-gem 'activerecord-nulldb-adapter', require: (ENV['RAILS_DB_ADAPTER'] == 'nulldb')
+# gem 'activerecord-nulldb-adapter', require: (ENV['RAILS_DB_ADAPTER'] == 'nulldb')
 
 gem 'google-cloud-storage', '> 1.4.0'
 gem 'net-sftp', '~> 2.1'
