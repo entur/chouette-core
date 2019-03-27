@@ -15,7 +15,7 @@ RSpec::Matchers.define :use_bigint_keys do
         expected_line = line
 
         # Primary key
-        if line =~ /create_table\s/ &&
+        if line =~ /create_table\sid:/ &&
           !(line =~ /id: \s+ (?: :bigserial | false)/x)
           expected_line = line.sub(/(create_table\s"\w+",\s)/, '\1id: :bigserial, ')
         end
