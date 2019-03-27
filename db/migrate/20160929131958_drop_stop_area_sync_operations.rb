@@ -1,4 +1,4 @@
-class DropStopAreaSyncOperations < ActiveRecord::Migration
+class DropStopAreaSyncOperations < ActiveRecord::Migration[4.2]
   def up
     drop_table :stop_area_sync_operations if table_exists?(:stop_area_sync_operations)
   end

@@ -1,4 +1,4 @@
-class ChangeComplianceControlComplianceCheckControlAttributesFormatFromHstoreToJson < ActiveRecord::Migration
+class ChangeComplianceControlComplianceCheckControlAttributesFormatFromHstoreToJson < ActiveRecord::Migration[4.2]
   def up
     change_column :compliance_controls,
       :control_attributes,

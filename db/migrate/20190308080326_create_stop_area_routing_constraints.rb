@@ -1,4 +1,4 @@
-class CreateStopAreaRoutingConstraints < ActiveRecord::Migration
+class CreateStopAreaRoutingConstraints < ActiveRecord::Migration[4.2]
   def change
     create_table :stop_area_routing_constraints do |t|
       t.integer :from_id, limit: 8

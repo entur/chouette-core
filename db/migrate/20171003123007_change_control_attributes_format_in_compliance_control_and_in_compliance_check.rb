@@ -1,4 +1,4 @@
-class ChangeControlAttributesFormatInComplianceControlAndInComplianceCheck < ActiveRecord::Migration
+class ChangeControlAttributesFormatInComplianceControlAndInComplianceCheck < ActiveRecord::Migration[4.2]
   def change
 
     execute <<-SQL

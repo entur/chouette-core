@@ -25,11 +25,12 @@ module OptionsSupport
       end
 
       if opts[:type].to_s == "boolean"
+        alias_method "#{attribute_name}_without_cast", attribute_name
         define_method "#{attribute_name}_with_cast" do
           val = send "#{attribute_name}_without_cast"
           val.is_a?(String) ? ["1", "true"].include?(val) : val
         end
-        alias_method_chain attribute_name, :cast
+        alias_method attribute_name, "#{attribute_name}_with_cast"
       end
 
       condition = ->(record){ true }

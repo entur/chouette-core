@@ -1,4 +1,4 @@
-class DisableCompanyForeignKeys < ActiveRecord::Migration
+class DisableCompanyForeignKeys < ActiveRecord::Migration[4.2]
   def change
     disable_foreign_key :vehicle_journeys, :vj_company_fkey
   end

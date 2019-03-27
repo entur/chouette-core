@@ -36,7 +36,7 @@ class StopAreaRoutingConstraintsController < ChouetteController
 
   def collection
     scope = parent.stop_area_routing_constraints
-    @q = scope.search(params[:q])
+    @q = scope.ransack(params[:q])
     @with_stop = params[:q] && params[:q][:with_stop] && Chouette::StopArea.find(params[:q][:with_stop])
     @stop_area_routing_constraints ||=
       begin

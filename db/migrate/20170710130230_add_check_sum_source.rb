@@ -1,4 +1,4 @@
-class AddCheckSumSource < ActiveRecord::Migration
+class AddCheckSumSource < ActiveRecord::Migration[4.2]
   def change
     add_column :vehicle_journey_at_stops, :checksum_source, :string
     add_column :footnotes, :checksum_source, :string

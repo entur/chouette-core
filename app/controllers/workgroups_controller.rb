@@ -58,7 +58,7 @@ class WorkgroupsController < ChouetteController
   def collection
     @workgroups ||= begin
       scope = current_organisation.workgroups
-      @q = scope.search(params[:q])
+      @q = scope.ransack(params[:q])
 
       workgroups = @q.result(:distinct => true)
 

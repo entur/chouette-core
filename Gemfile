@@ -9,10 +9,12 @@ gem 'bundler', '~> 2.0'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '5.2.2.1'
-gem 'rack-protection', '~> 1.5.5'
+gem 'rack-protection'
+
+gem 'sinatra', '~> 2.0.0.beta2'
 
 # Use SCSS for stylesheets
-gem 'sass-rails'
+gem 'sassc-rails'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '~> 2.7.2'
 # Use CoffeeScript for .js.coffee assets and views
@@ -86,7 +88,8 @@ gem 'pundit'
 # Map, Geolocalization
 gem 'map_layers', '0.0.4'
 gem 'rgeo'
-gem 'georuby-ext'
+# gem 'georuby-ext'
+gem 'geokit'
 gem 'georuby', '2.3.0' # Fix version for georuby-ext because api has changed
 gem 'ffi', '> 1.9.24'
 gem 'mimemagic'
@@ -99,7 +102,7 @@ gem 'slim-rails'
 gem 'formtastic'
 gem 'RedCloth', '~> 4.3.0'
 gem 'simple_form'
-gem 'font-awesome-sass', '~> 4.7'
+gem 'font-awesome-sassc'
 gem 'will_paginate-bootstrap'
 gem 'gretel'
 gem 'country_select'
@@ -195,6 +198,7 @@ group :test do
   gem 'htmlbeautifier'
   gem 'timecop'
   gem 'rspec-snapshot'
+  gem 'rails-controller-testing'
 end
 
 group :test, :development do

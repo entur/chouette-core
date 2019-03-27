@@ -3,6 +3,6 @@ class Import::Message < ApplicationModel
 
   include IevInterfaces::Message
 
-  belongs_to :import, class_name: Import::Base
-  belongs_to :resource, class_name: Import::Resource
+  belongs_to :import, class_name: 'Import::Base'
+  belongs_to :resource, class_name: 'Import::Resource'
 end

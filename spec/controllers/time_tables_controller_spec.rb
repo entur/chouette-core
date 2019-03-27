@@ -4,7 +4,7 @@ RSpec.describe TimeTablesController, :type => :controller do
   login_user
 
   describe 'POST create' do
-    let(:request){ post :create, referential_id: referential.id, time_table: time_table_params }
+    let(:request){ post :create, params: { referential_id: referential.id, time_table: time_table_params }}
     let(:time_table_params){{comment: "test"}}
 
     it "should create a timetable" do
@@ -24,7 +24,7 @@ RSpec.describe TimeTablesController, :type => :controller do
 
         expect(tt.comment).to eq "test"
         expect(tt.calendar).to eq calendar
-        
+
         expect(get_dates(tt.dates, in_out: true)).to match_array(calendar.dates)
         expect(get_dates(tt.dates, in_out: false)).to match_array(calendar.excluded_dates)
         %i(monday tuesday wednesday thursday friday saturday sunday).each do |d|

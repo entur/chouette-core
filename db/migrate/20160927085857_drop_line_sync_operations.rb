@@ -1,4 +1,4 @@
-class DropLineSyncOperations < ActiveRecord::Migration
+class DropLineSyncOperations < ActiveRecord::Migration[4.2]
   def up
     drop_table :line_sync_operations if table_exists?(:line_sync_operations)
   end

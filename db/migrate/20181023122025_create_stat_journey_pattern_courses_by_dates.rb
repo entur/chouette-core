@@ -1,4 +1,4 @@
-class CreateStatJourneyPatternCoursesByDates < ActiveRecord::Migration
+class CreateStatJourneyPatternCoursesByDates < ActiveRecord::Migration[4.2]
   def change
     create_table :stat_journey_pattern_courses_by_dates do |t|
       t.integer :journey_pattern_id, index: { name: 'journey_pattern_id' }, limit: 8

@@ -1,4 +1,4 @@
-class CreateNotificationRules < ActiveRecord::Migration
+class CreateNotificationRules < ActiveRecord::Migration[4.2]
   def change
     if Apartment::Tenant.current == "public"
       create_table :notification_rules do |t|

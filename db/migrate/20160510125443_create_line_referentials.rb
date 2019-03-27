@@ -1,4 +1,4 @@
-class CreateLineReferentials < ActiveRecord::Migration
+class CreateLineReferentials < ActiveRecord::Migration[4.2]
   def change
     create_table :line_referentials do |t|
       t.string :name

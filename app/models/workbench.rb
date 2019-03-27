@@ -1,5 +1,17 @@
+module LockedReferentialToAggregateWithLog
+  def locked_referential_to_aggregate
+    super.tap do |ref|
+      if locked_referential_to_aggregate_id.present? && !ref.present?
+        Rails.logger.warn "Locked Referential for Workbench##{id} has been deleted"
+      end
+    end
+  end
+end
+
 class Workbench < ApplicationModel
   DEFAULT_WORKBENCH_NAME = "Gestion de l'offre"
+
+  prepend LockedReferentialToAggregateWithLog
 
   include ObjectidFormatterSupport
   belongs_to :organisation
@@ -15,9 +27,9 @@ class Workbench < ApplicationModel
   has_many :networks, through: :line_referential
   has_many :companies, through: :line_referential
   has_many :group_of_lines, through: :line_referential
-  has_many :imports, class_name: Import::Base, dependent: :destroy
-  has_many :exports, class_name: Export::Base, dependent: :destroy
-  has_many :workbench_imports, class_name: Import::Workbench, dependent: :destroy
+  has_many :imports, class_name: 'Import::Base', dependent: :destroy
+  has_many :exports, class_name: 'Export::Base', dependent: :destroy
+  has_many :workbench_imports, class_name: 'Import::Workbench', dependent: :destroy
   has_many :compliance_check_sets, dependent: :destroy
   has_many :merges, dependent: :destroy
   has_many :api_keys
@@ -48,15 +60,6 @@ class Workbench < ApplicationModel
       I18n.t('workbenches.errors.locked_referential_to_aggregate.must_belong_to_output')
     )
   end
-
-  def locked_referential_to_aggregate_with_log
-    locked_referential_to_aggregate_without_log.tap do |ref|
-      if locked_referential_to_aggregate_id.present? && !ref.present?
-        Rails.logger.warn "Locked Referential for Workbench##{id} has been deleted"
-      end
-    end
-  end
-  alias_method_chain :locked_referential_to_aggregate, :log
 
   def self.normalize_prefix input
     input ||= ""

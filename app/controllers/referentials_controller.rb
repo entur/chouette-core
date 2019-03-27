@@ -122,7 +122,7 @@ class ReferentialsController < ChouetteController
   end
 
   def lines_collection
-    @q = resource.lines.includes(:company, :network).search(params[:q])
+    @q = resource.lines.includes(:company, :network).ransack(params[:q])
 
     if sort_column && sort_direction
       @reflines ||=

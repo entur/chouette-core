@@ -7,12 +7,12 @@ RSpec.describe ImportResourcesController, :type => :controller do
   let(:import_resource)    { create :import_resource, import: import }
 
   describe "GET index" do
-    let(:request){ get :index, workbench_id: workbench.id, import_id: import.id }
+    let(:request){ get :index, params: { workbench_id: workbench.id, import_id: import.id }}
     it_behaves_like 'checks current_organisation'
   end
 
   describe "GET show" do
-    let(:request){ get :show, workbench_id: workbench.id, import_id: import.id, id: import_resource.id }
+    let(:request){ get :show, params: { workbench_id: workbench.id, import_id: import.id, id: import_resource.id }}
     it_behaves_like 'checks current_organisation'
   end
 end

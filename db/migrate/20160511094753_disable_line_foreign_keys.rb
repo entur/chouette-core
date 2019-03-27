@@ -1,4 +1,4 @@
-class DisableLineForeignKeys < ActiveRecord::Migration
+class DisableLineForeignKeys < ActiveRecord::Migration[4.2]
   def change
     disable_foreign_key :lines, :line_company_fkey
     disable_foreign_key :lines, :line_ptnetwork_fkey

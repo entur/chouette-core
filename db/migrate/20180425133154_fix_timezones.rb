@@ -1,4 +1,4 @@
-class FixTimezones < ActiveRecord::Migration
+class FixTimezones < ActiveRecord::Migration[4.2]
   def convert tz
     return unless tz.present?
     return tz unless ActiveSupport::TimeZone[tz].present?

@@ -5,7 +5,7 @@ class Devise::CasSessionsController < Devise::SessionsController
     unloadable
   end
 
-  skip_before_filter :verify_authenticity_token, only: [:single_sign_out]
+  skip_before_action :verify_authenticity_token, only: [:single_sign_out]
 
   def new
     if memcache_checker.session_store_memcache? && !memcache_checker.alive?
@@ -121,7 +121,7 @@ class Devise::CasSessionsController < Devise::SessionsController
     if Rails.application.config.chouette_authentication_settings.try(:[], :cas_service_url)
       return Rails.application.config.chouette_authentication_settings[:cas_service_url]
     end
-    
+
     ::Devise.cas_service_url(request.url.dup, devise_mapping)
   end
 

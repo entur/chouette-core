@@ -21,7 +21,7 @@ RSpec.describe VehicleJourneysCollectionsController, :type => :controller do
 
     context "when the referential is in pending state" do
       before(:each){ referential.pending! }
-      let!(:request){ put :update, referential_id: referential.id, line_id: line.id, route_id: route.id, format: :json}
+      let!(:request){ put :update, params: { referential_id: referential.id, line_id: line.id, route_id: route.id, format: :json }}
 
       it "should deny updates" do
         expect(response).to have_http_status 403
@@ -30,7 +30,7 @@ RSpec.describe VehicleJourneysCollectionsController, :type => :controller do
 
     context "when the referential is in archived state" do
       before(:each){ referential.archived! }
-      let!(:request){ put :update, referential_id: referential.id, line_id: line.id, route_id: route.id, format: :json}
+      let!(:request){ put :update, params: { referential_id: referential.id, line_id: line.id, route_id: route.id, format: :json }}
 
       it "should deny updates" do
         expect(response).to have_http_status 403

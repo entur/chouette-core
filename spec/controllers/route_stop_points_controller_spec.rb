@@ -11,7 +11,7 @@ RSpec.describe RouteStopPointsController, type: :controller do
     before(:each) { get :index, referential_id: referential.id, line_id: line.id, route_id: route.id, format: :json }
 
     it 'returns HTTP success' do
-      expect(response).to be_success
+      expect(response).to be_successful
     end
 
     it 'returns a JSON of stop areas' do

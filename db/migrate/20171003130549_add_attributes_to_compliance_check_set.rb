@@ -1,4 +1,4 @@
-class AddAttributesToComplianceCheckSet < ActiveRecord::Migration
+class AddAttributesToComplianceCheckSet < ActiveRecord::Migration[4.2]
   def change
     add_column :compliance_check_sets, :current_step_id, :string
     add_column :compliance_check_sets, :string, :string

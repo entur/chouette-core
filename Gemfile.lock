@@ -84,6 +84,10 @@ GEM
       globalid (>= 0.3.6)
     activemodel (5.2.2.1)
       activesupport (= 5.2.2.1)
+    activemodel-serializers-xml (1.0.2)
+      activemodel (> 5.x)
+      activesupport (> 5.x)
+      builder (~> 3.1)
     activerecord (5.2.2.1)
       activemodel (= 5.2.2.1)
       activesupport (= 5.2.2.1)
@@ -100,8 +104,8 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    acts-as-taggable-on (4.0.0)
-      activerecord (>= 4.0)
+    acts-as-taggable-on (6.0.0)
+      activerecord (~> 5.0)
     acts_as_list (0.9.11)
       activerecord (>= 3.0)
     acts_as_tree (2.1.0)
@@ -168,7 +172,7 @@ GEM
       execjs
     coffee-script-source (1.12.2)
     concurrent-ruby (1.1.5)
-    connection_pool (2.2.1)
+    connection_pool (2.2.2)
     countries (2.1.3)
       i18n_data (~> 0.8.0)
       money (~> 6.9)
@@ -203,8 +207,7 @@ GEM
     cucumber-tag_expressions (1.1.1)
     cucumber-wire (0.0.1)
     daemons (1.2.4)
-    database_cleaner (1.5.3)
-    dbf (4.0.1)
+    database_cleaner (1.7.0)
     dbshell-rails (0.0.2)
     debug_inspector (0.0.2)
     declarative (0.0.10)
@@ -249,13 +252,12 @@ GEM
     diff-lcs (1.3)
     digest-crc (0.4.1)
     docile (1.1.5)
-    dr-ffi-proj4 (0.0.3)
-      ffi (>= 1.0.0)
-    draper (2.1.0)
-      actionpack (>= 3.0)
-      activemodel (>= 3.0)
-      activesupport (>= 3.0)
-      request_store (~> 1.0)
+    draper (3.1.0)
+      actionpack (>= 5.0)
+      activemodel (>= 5.0)
+      activemodel-serializers-xml (>= 1.0)
+      activesupport (>= 5.0)
+      request_store (>= 1.0)
     easy_translate (0.5.0)
       json
       thread
@@ -282,25 +284,14 @@ GEM
       faraday (>= 0.7.4, < 1.0)
     ffaker (2.1.0)
     ffi (1.10.0)
-    ffi-geos (2.0.0)
-      ffi (>= 1.0.0)
     flag-icons-rails (2.5.0)
       sass (~> 3.2)
-    font-awesome-sass (4.7.0)
+    font-awesome-sassc (4.7.1)
       sass (>= 3.2)
     formtastic (3.1.5)
       actionpack (>= 3.2.13)
-    geokit (1.6.7)
-      multi_json (>= 1.3.2)
+    geokit (1.13.1)
     georuby (2.3.0)
-    georuby-ext (0.0.5)
-      activesupport (>= 3.2.6)
-      dbf
-      dr-ffi-proj4 (>= 0.0.3)
-      ffi-geos (>= 0.1.1)
-      geokit (= 1.6.7)
-      georuby (>= 1.9.8)
-      rgeo (>= 0.3.20)
     get_process_mem (0.2.3)
     gherkin (5.1.0)
     globalid (0.4.2)
@@ -413,6 +404,7 @@ GEM
     multi_test (0.1.2)
     multi_xml (0.6.0)
     multipart-post (2.0.0)
+    mustermann (1.0.3)
     net-scp (2.0.0)
       net-ssh (>= 2.6.5, < 6.0.0)
     net-sftp (2.1.2)
@@ -436,8 +428,6 @@ GEM
       capybara (>= 2.1, < 4)
       cliver (~> 0.3.1)
       websocket-driver (>= 0.2.0)
-    polyamorous (1.3.1)
-      activerecord (>= 3.0)
     polylines (0.3.0)
     pry (0.10.4)
       coderay (~> 1.1.0)
@@ -457,7 +447,7 @@ GEM
     rack (2.0.6)
     rack-livereload (0.3.16)
       rack
-    rack-protection (1.5.5)
+    rack-protection (2.0.5)
       rack
     rack-proxy (0.6.3)
       rack
@@ -487,6 +477,10 @@ GEM
     rails-assets-respond (1.4.2)
     rails-assets-tagmanager (3.0.1)
       rails-assets-jquery (>= 1.0.0)
+    rails-controller-testing (1.0.4)
+      actionpack (>= 5.0.1.x)
+      actionview (>= 5.0.1.x)
+      activesupport (>= 5.0.1.x)
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
@@ -511,17 +505,16 @@ GEM
     rainbow (2.2.2)
       rake
     rake (12.3.2)
-    ransack (1.8.3)
-      actionpack (>= 3.0)
-      activerecord (>= 3.0)
-      activesupport (>= 3.0)
+    ransack (2.1.1)
+      actionpack (>= 5.0)
+      activerecord (>= 5.0)
+      activesupport (>= 5.0)
       i18n
-      polyamorous (~> 1.3)
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
     rdoc (4.3.0)
-    redis (3.3.3)
+    redis (4.1.0)
     redis-actionpack (5.0.2)
       actionpack (>= 4.0, < 6)
       redis-rack (>= 1, < 3)
@@ -543,7 +536,8 @@ GEM
       declarative (< 0.1.0)
       declarative-option (< 0.2.0)
       uber (< 0.2.0)
-    request_store (1.3.2)
+    request_store (1.4.1)
+      rack (>= 1.4)
     responders (2.4.1)
       actionpack (>= 4.2.0, < 6.0)
       railties (>= 4.2.0, < 6.0)
@@ -590,12 +584,15 @@ GEM
     sass-listen (4.0.0)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
-    sass-rails (5.0.7)
-      railties (>= 4.0.0, < 6)
-      sass (~> 3.1)
-      sprockets (>= 2.8, < 4.0)
-      sprockets-rails (>= 2.0, < 4.0)
-      tilt (>= 1.1, < 3)
+    sassc (2.0.1)
+      ffi (~> 1.9)
+      rake
+    sassc-rails (2.1.0)
+      railties (>= 4.0.0)
+      sassc (>= 2.0)
+      sprockets (> 3.0)
+      sprockets-rails
+      tilt
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
@@ -608,11 +605,11 @@ GEM
     sequel (4.47.0)
     shoulda-matchers (3.1.1)
       activesupport (>= 4.0.0)
-    sidekiq (4.2.10)
-      concurrent-ruby (~> 1.0)
-      connection_pool (~> 2.2, >= 2.2.0)
+    sidekiq (5.2.5)
+      connection_pool (~> 2.2, >= 2.2.2)
+      rack (>= 1.5.0)
       rack-protection (>= 1.5.0)
-      redis (~> 3.2, >= 3.2.1)
+      redis (>= 3.3.5, < 5)
     sidekiq-limit_fetch (3.4.0)
       sidekiq (>= 4)
     signet (0.11.0)
@@ -630,8 +627,11 @@ GEM
     simplecov-html (0.10.0)
     simplecov-rcov (0.2.3)
       simplecov (>= 0.4.1)
-    sinatra (1.0)
-      rack (>= 1.0)
+    sinatra (2.0.5)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.5)
+      tilt (~> 2.0)
     sixarm_ruby_unaccent (1.2.0)
     slim (3.0.7)
       temple (~> 0.7.6)
@@ -736,6 +736,7 @@ DEPENDENCIES
   database_cleaner
   dbshell-rails
   deep_cloneable
+  delayed_job
   delayed_job_active_record
   delayed_job_heartbeat_plugin
   delayed_job_web
@@ -756,10 +757,10 @@ DEPENDENCIES
   ffaker (~> 2.1.0)
   ffi (> 1.9.24)
   flag-icons-rails
-  font-awesome-sass (~> 4.7)
+  font-awesome-sassc
   formtastic
+  geokit
   georuby (= 2.3.0)
-  georuby-ext
   google-analytics-rails
   google-cloud-storage (> 1.4.0)
   gretel
@@ -794,7 +795,7 @@ DEPENDENCIES
   pundit
   rabl
   rack-livereload
-  rack-protection (~> 1.5.5)
+  rack-protection
   rails (= 5.2.2.1)
   rails-assets-bootstrap-sass-official (~> 3.3.0)!
   rails-assets-footable (~> 2.0.3)!
@@ -802,6 +803,7 @@ DEPENDENCIES
   rails-assets-modernizr (~> 2.0.6)!
   rails-assets-respond!
   rails-assets-tagmanager (~> 3.0.1.0)!
+  rails-controller-testing
   rails-erd
   rails-i18n
   rails-observers
@@ -818,7 +820,7 @@ DEPENDENCIES
   rspec-rails
   rspec-snapshot
   rubyzip (~> 1.2.2)
-  sass-rails
+  sassc-rails
   sawyer (~> 0.8.1)
   sdoc
   seedbank
@@ -830,6 +832,7 @@ DEPENDENCIES
   simple_form
   simplecov
   simplecov-rcov
+  sinatra (~> 2.0.0.beta2)
   slim-rails
   spring
   spring-commands-rspec

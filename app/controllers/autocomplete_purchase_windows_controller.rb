@@ -7,6 +7,6 @@ class AutocompletePurchaseWindowsController < ChouetteController
 
   protected
   def collection
-    @purchase_windows = referential.purchase_windows.search(params[:q]).result.paginate(page: params[:page])
+    @purchase_windows = referential.purchase_windows.ransack(params[:q]).result.paginate(page: params[:page])
   end
 end

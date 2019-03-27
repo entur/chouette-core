@@ -1,4 +1,4 @@
-class CreateOfferWorkbenches < ActiveRecord::Migration
+class CreateOfferWorkbenches < ActiveRecord::Migration[4.2]
   def change
     create_table :offer_workbenches do |t|
       t.string :name

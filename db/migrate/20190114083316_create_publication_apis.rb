@@ -1,4 +1,4 @@
-class CreatePublicationApis < ActiveRecord::Migration
+class CreatePublicationApis < ActiveRecord::Migration[4.2]
   def change
     create_table :publication_apis do |t|
       t.string :name

@@ -1,4 +1,4 @@
-class CreateStopAreaReferentialSyncMessages < ActiveRecord::Migration
+class CreateStopAreaReferentialSyncMessages < ActiveRecord::Migration[4.2]
   def change
     create_table :stop_area_referential_sync_messages do |t|
       t.integer :criticity

@@ -1,5 +1,5 @@
-class Ransack::Nodes::Grouping
-  def method_missing_with_objectid name, *args
+module RansackNodesGroupingWithObjectId
+  def method_missing name, *args
     if name =~ /short_id/ && args == []
       cleaned_name = name.to_s.gsub /^short_id_or_/, ''
       cleaned_name = cleaned_name.gsub /_or_short_id/, ''
@@ -7,8 +7,10 @@ class Ransack::Nodes::Grouping
         return self.send(cleaned_name)
       end
     end
-    method_missing_without_objectid name, *args
+    super name, *args
   end
+end
 
-  alias_method_chain :method_missing, :objectid
+class Ransack::Nodes::Grouping
+  prepend RansackNodesGroupingWithObjectId
 end

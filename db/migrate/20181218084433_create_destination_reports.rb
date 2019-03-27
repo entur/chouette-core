@@ -1,4 +1,4 @@
-class CreateDestinationReports < ActiveRecord::Migration
+class CreateDestinationReports < ActiveRecord::Migration[4.2]
   def change
     create_table :destination_reports do |t|
       t.belongs_to :destination, index: true, limit: 8

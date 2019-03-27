@@ -51,8 +51,8 @@ module Chouette
           self.latitude = nil
           self.longitude = nil
         else
-          self.latitude = BigDecimal.new(@coordinates.split(",").first)
-          self.longitude = BigDecimal.new(@coordinates.split(",").last)
+          self.latitude = BigDecimal(@coordinates.split(",").first)
+          self.longitude = BigDecimal(@coordinates.split(",").last)
         end
         @coordinates = nil
       end

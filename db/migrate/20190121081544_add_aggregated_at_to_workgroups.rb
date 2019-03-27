@@ -1,4 +1,4 @@
-class AddAggregatedAtToWorkgroups < ActiveRecord::Migration
+class AddAggregatedAtToWorkgroups < ActiveRecord::Migration[4.2]
   def change
     add_column :workgroups, :aggregated_at, :datetime
     Workgroup.find_each do |w|

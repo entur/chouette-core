@@ -71,7 +71,7 @@ class AccessLinksController < ChouetteController
   alias_method :access_link, :resource
 
   def collection
-    @q = parent.access_links.search(params[:q])
+    @q = parent.access_links.ransack(params[:q])
     @access_links ||=
       begin
         access_links = @q.result(:distinct => true).order(:name)

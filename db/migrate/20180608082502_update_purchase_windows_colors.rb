@@ -1,4 +1,4 @@
-class UpdatePurchaseWindowsColors < ActiveRecord::Migration
+class UpdatePurchaseWindowsColors < ActiveRecord::Migration[4.2]
   def up
      Chouette::PurchaseWindow.where("color LIKE '#%'").update_all('color = right(color, -1)')
      Chouette::PurchaseWindow.where.not(color: nil).each &:update_checksum!

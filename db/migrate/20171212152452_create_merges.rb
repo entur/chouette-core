@@ -1,4 +1,4 @@
-class CreateMerges < ActiveRecord::Migration
+class CreateMerges < ActiveRecord::Migration[4.2]
   def change
     create_table :merges do |t|
       t.bigint :workbench_id, index: true, foreign_key: true

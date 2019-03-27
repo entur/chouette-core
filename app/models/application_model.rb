@@ -22,13 +22,13 @@ class ApplicationModel < ::ActiveRecord::Base
       rel = reflections[rel_name.to_s]
       raise "missing relation #{rel_name} on #{self.name}" unless rel
 
-      belongs_to "#{rel_name}_light".to_sym, ->{ light }, class_name: rel.klass, foreign_key: rel.foreign_key
+      belongs_to "#{rel_name}_light".to_sym, ->{ light }, class_name: rel.klass.name, foreign_key: rel.foreign_key
 
+      alias_method "#{rel_name}_light_without_cache", "#{rel_name}_light"
       define_method "#{rel_name}_light_with_cache" do
         association(rel_name).loaded? ? send(rel_name) : send("#{rel_name}_light_without_cache")
       end
-
-      alias_method_chain "#{rel_name}_light", :cache
+      alias_method "#{rel_name}_light", "#{rel_name}_light_with_cache"
     end
   end
 end
