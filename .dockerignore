@@ -23,3 +23,6 @@
 /vendor/bundle/*
 /.sass
 /.sass-cache
+
+# Cache directory for CI
+/cache

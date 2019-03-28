@@ -57,3 +57,6 @@ config/development_toolbar.rb
 .sass-cache
 
 config/environments/production.rb
+
+# Cache directory for CI
+/cache
