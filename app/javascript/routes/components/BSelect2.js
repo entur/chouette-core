@@ -90,7 +90,7 @@ class BSelect2 extends Component{
         options={{
           placeholder: I18n.t("routes.edit.select2.placeholder"),
           allowClear: true,
-          language: 'fr', /* Doesn't seem to work... :( */
+          language: require('../../helpers/select2/language'),
           theme: 'bootstrap',
           width: '100%',
           ajax: {

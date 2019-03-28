@@ -27,7 +27,7 @@ export default class BSelect4 extends Component {
           theme: 'bootstrap',
           width: '100%',
           placeholder: this.props.placeholder,
-          language: require('./language'),
+          language: require('../.././../../helpers/select2/language'),
           ajax: {
             url: origin + path + this.props.chunkURL,
             dataType: 'json',

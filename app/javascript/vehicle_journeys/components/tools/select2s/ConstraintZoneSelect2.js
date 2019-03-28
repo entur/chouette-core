@@ -22,7 +22,7 @@ export default class BSelect4 extends Component {
           theme: 'bootstrap',
           width: '100%',
           placeholder: this.props.placeholder,
-          language: require('./language'),
+          language: require('../.././../../helpers/select2/language'),
           minimumInputLength: 1,
           escapeMarkup: function (markup) { return markup; },
           templateResult: formatRepo

@@ -27,7 +27,7 @@ export default class BSelect4b extends Component {
           theme: 'bootstrap',
           placeholder: I18n.t('vehicle_journeys.vehicle_journeys_matrix.filters.id'),
           width: '100%',
-          language: require('./language'),
+          language: require('../.././../../helpers/select2/language'),
           ajax: {
             url: origin + path + '/vehicle_journeys.json',
             dataType: 'json',

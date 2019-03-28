@@ -30,7 +30,7 @@ export default class BSelect4 extends Component {
           theme: 'bootstrap',
           width: '100%',
           placeholder: I18n.t('vehicle_journeys.vehicle_journeys_matrix.affect_company'),
-          language: require('./language'),
+          language: require('../.././../../helpers/select2/language'),
           ajax: {
             url: path + '.json?line_id=' + line,
             dataType: 'json',
