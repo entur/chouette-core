@@ -89,6 +89,15 @@ RSpec.describe Import::Neptune do
       expect{ import.send(:import_lines) }.to_not change{ workbench.line_referential.lines.count }
       expect(line.reload.attributes.except('updated_at')).to eq attrs
     end
+
+    it "should set company and network" do
+      import.send(:import_companies)
+      import.send(:import_networks)
+      import.send(:import_lines)
+      line = workbench.line_referential.lines.last
+      expect(line.company).to be_present
+      expect(line.network).to be_present
+    end
   end
 
   describe "#import_stop_areas" do
@@ -99,6 +108,8 @@ RSpec.describe Import::Neptune do
       stop_area = Chouette::StopArea.find_by registration_number: 'NAVSTEX:StopArea:gen6'
       expect(stop_area.latitude).to be_present
       expect(stop_area.longitude).to be_present
+      expect(stop_area.fare_code).to be_present
+      expect(stop_area.nearest_topic_name).to be_present
     end
 
     it 'should update existing stop_areas' do
@@ -208,12 +219,20 @@ RSpec.describe Import::Neptune do
     end
 
     it 'should create new time_tables' do
-      expect{ import.send(:import_time_tables) }.to change{ Chouette::TimeTable.count }.by 2
+      expect{ import.send(:import_time_tables) }.to change{ Chouette::TimeTable.count }.by 3
     end
 
     it 'should update existing time_tables' do
       import.send(:import_time_tables)
       expect{ import.send(:import_time_tables) }.to change{ Chouette::TimeTable.count }.by 0
+    end
+
+    it 'should set checksums' do
+      import.send(:import_time_tables)
+      expect(Chouette::TimeTablePeriod).to exist
+      Chouette::TimeTable.find_each do |tt|
+        expect(tt.checksum_source).to eq tt.current_checksum_source
+      end
     end
   end
 
