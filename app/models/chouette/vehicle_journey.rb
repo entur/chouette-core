@@ -22,7 +22,7 @@ module Chouette
     belongs_to :company_light, -> {select(:id, :objectid, :line_referential_id)}, class_name: "Chouette::Company", foreign_key: :company_id
     belongs_to :route
     belongs_to :journey_pattern
-    belongs_to :journey_pattern_only_objectid, -> {select("journey_patterns.objectid")}, class_name: "Chouette::JourneyPattern", foreign_key: :journey_pattern_id
+    belongs_to :journey_pattern_only_objectid, -> {select("journey_patterns.id, journey_patterns.objectid")}, class_name: "Chouette::JourneyPattern", foreign_key: :journey_pattern_id
     has_many :stop_areas, through: :journey_pattern
 
     delegate :line, to: :route
@@ -30,6 +30,7 @@ module Chouette
     has_and_belongs_to_many :footnotes, :class_name => 'Chouette::Footnote'
     has_and_belongs_to_many :purchase_windows, :class_name => 'Chouette::PurchaseWindow'
     has_array_of :ignored_routing_contraint_zones, class_name: 'Chouette::RoutingConstraintZone'
+    has_array_of :ignored_stop_area_routing_constraints, class_name: 'StopAreaRoutingConstraint'
 
     validates_presence_of :route
     validates_presence_of :journey_pattern
@@ -185,6 +186,9 @@ module Chouette
         if ignored_routing_contraint_zone_ids.present? && ignored_routing_contraint_zones.present?
           attrs << ignored_routing_contraint_zones.map(&:checksum).sort
         end
+        if ignored_stop_area_routing_constraint_ids.present? && ignored_stop_area_routing_constraints.present?
+          attrs << ignored_stop_area_routing_constraints.map(&:checksum).sort
+        end
       end
     end
 
@@ -207,10 +211,10 @@ module Chouette
       purchase_windows.map{|p| p.date_ranges.map &:max}.flatten.max
     end
 
-    def calculate_vehicle_journey_at_stop_day_offset
+    def calculate_vehicle_journey_at_stop_day_offset(force_reset=false)
       Chouette::VehicleJourneyAtStopsDayOffset.new(
         vehicle_journey_at_stops.sort_by{ |vjas| vjas.stop_point.position }
-      ).update
+      ).update(force_reset)
     end
 
     scope :without_any_time_table, -> { joins('LEFT JOIN "time_tables_vehicle_journeys" ON "time_tables_vehicle_journeys"."vehicle_journey_id" = "vehicle_journeys"."id" LEFT JOIN "time_tables" ON "time_tables"."id" = "time_tables_vehicle_journeys"."time_table_id"').where(:time_tables => { :id => nil}) }
@@ -256,6 +260,8 @@ module Chouette
             el[field.to_sym] = Time.parse("2000-01-01 #{time}:00 #{tz&.formatted_offset || "UTC"}")
           end
         end
+        params[:arrival_day_offset] = 0
+        params[:departure_day_offset] = 0
         stop = create_or_find_vjas_from_state(vjas)
         stop.update_attributes(params)
         vjas.delete('errors')
@@ -343,7 +349,8 @@ module Chouette
         'published_journey_name',
         'journey_pattern_id',
         'company_id',
-        'ignored_routing_contraint_zone_ids'
+        'ignored_routing_contraint_zone_ids',
+        'ignored_stop_area_routing_constraint_ids'
       ).to_hash
 
       if item['journey_pattern']

@@ -3,6 +3,6 @@
 .page_content
   .container-fluid
     - if has_feature?('application_days_on_calendars')
-      = render 'form_advanced'
+      = render 'form_advanced', redirect_url: workgroup_calendar_path(@workgroup, @calendar)
     - else
       = render 'form_simple'

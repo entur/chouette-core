@@ -78,6 +78,69 @@ describe ReferentialsController, :type => :controller do
   end
 
   describe "POST #create" do
+    let(:from_current_offer) { '0' }
+    let(:urgent) { '0' }
+    let(:metadatas_attributes){
+      [
+        {
+          lines: [referential.line_referential.lines.last.id],
+          periods_attributes: {
+            '0' => {
+              "begin"=>"2016-09-19",
+              "end" => "2016-10-19",
+            }
+          }
+        }
+      ]
+    }
+
+    before do
+      create :line, line_referential: referential.line_referential
+    end
+
+    context 'when creating a new referential' do
+      let(:request){
+        post :create,
+        workbench_id: workbench.id,
+        referential: {
+          name: 'new one',
+          stop_area_referential: referential.stop_area_referential,
+          line_referential: referential.line_referential,
+          objectid_format: referential.objectid_format,
+          workbench_id: referential.workbench_id,
+          from_current_offer: from_current_offer,
+          urgent: urgent,
+          metadatas_attributes: metadatas_attributes
+        }
+      }
+
+      it "creates the new referential" do
+        expect{request}.to change{Referential.count}.by 1
+        expect(Referential.last.name).to eq "new one"
+        expect(Referential.last.state).to eq :active
+        expect(Referential.last.created_from).to be_nil
+      end
+
+      context "urgent" do
+        let(:urgent) { '1' }
+
+        it "does not mark the referential as urgent" do
+          request
+          expect(Referential.last.contains_urgent_offer?).to be_falsy
+        end
+      end
+
+      with_permission 'referentials.flag_urgent' do
+        context "urgent" do
+          let(:urgent) { '1' }
+
+          it "marks the referential as urgent" do
+            request
+            expect(Referential.last.contains_urgent_offer?).to be_truthy
+          end
+        end
+      end
+    end
     context "when duplicating" do
       let(:request){
         post :create,
@@ -88,7 +151,10 @@ describe ReferentialsController, :type => :controller do
           stop_area_referential: referential.stop_area_referential,
           line_referential: referential.line_referential,
           objectid_format: referential.objectid_format,
-          workbench_id: referential.workbench_id
+          workbench_id: referential.workbench_id,
+          from_current_offer: from_current_offer,
+          urgent: urgent,
+          metadatas_attributes: metadatas_attributes
         }
       }
 
@@ -98,11 +164,49 @@ describe ReferentialsController, :type => :controller do
         expect(Referential.last.state).to eq :pending
       end
 
+      it "should not clone the current offer" do
+        @create_from_current_offer = false
+        allow_any_instance_of(Referential).to receive(:create_from_current_offer){ @create_from_current_offer = true }
+        request
+        expect(@create_from_current_offer).to be_falsy
+      end
+
       it "displays a flash message" do
         request
         expect(controller).to set_flash[:notice].to(
           I18n.t('notice.referentials.duplicate')
         )
+      end
+
+      context "from_current_offer" do
+        let(:from_current_offer) { '1' }
+
+        it "should clone the current offer" do
+          @create_from_current_offer = false
+          allow_any_instance_of(Referential).to receive(:create_from_current_offer){ @create_from_current_offer = true }
+          request
+          expect(@create_from_current_offer).to be_truthy
+        end
+      end
+
+      context "urgent" do
+        let(:urgent) { '1' }
+
+        it "does not mark the referential as urgent" do
+          request
+          expect(Referential.last.contains_urgent_offer?).to be_falsy
+        end
+      end
+
+      with_permission 'referentials.flag_urgent' do
+        context "urgent" do
+          let(:urgent) { '1' }
+
+          it "marks the referential as urgent" do
+            request
+            expect(Referential.last.contains_urgent_offer?).to be_truthy
+          end
+        end
       end
     end
   end

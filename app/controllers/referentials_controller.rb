@@ -10,6 +10,10 @@ class ReferentialsController < ChouetteController
   before_action :check_cloning_source_is_accessible, only: %i(new create)
   before_action :check_lines_outside_of_functional_scope, only: :show
 
+  def index
+    redirect_to @workbench
+  end
+
   def new
     new! do
       build_referential
@@ -157,7 +161,6 @@ class ReferentialsController < ChouetteController
 
     @referential.data_format = current_organisation.data_format
     @referential.workbench_id ||= params[:workbench_id]
-
     if @referential.in_workbench?
       @referential.init_metadatas default_date_range: Range.new(Date.today, Date.today.advance(months: 1))
     end
@@ -174,7 +177,7 @@ class ReferentialsController < ChouetteController
   end
 
   def referential_params
-    params.require(:referential).permit(
+    referential_params = params.require(:referential).permit(
       :id,
       :name,
       :organisation_id,
@@ -183,8 +186,12 @@ class ReferentialsController < ChouetteController
       :created_from_id,
       :workbench_id,
       :from_current_offer,
+      :urgent,
       metadatas_attributes: [:id, :first_period_begin, :first_period_end, periods_attributes: [:begin, :end, :id, :_destroy], :lines => []]
     )
+    referential_params[:from_current_offer] = referential_params[:from_current_offer] == '1'
+    referential_params[:urgent] = policy(Referential.new(organisation: current_organisation)).flag_urgent? && referential_params[:urgent] == '1'
+    referential_params
   end
 
   def check_cloning_source_is_accessible

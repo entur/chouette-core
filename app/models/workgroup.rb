@@ -98,6 +98,14 @@ class Workgroup < ApplicationModel
     update aggregated_at: Time.now
   end
 
+  def aggregate_urgent_data!
+    target_referentials = aggregatable_referentials.select do |r|
+      aggregated_at.blank? || (r.flagged_urgent_at.present? && r.flagged_urgent_at > aggregated_at)
+    end
+
+    aggregates.create!(referentials: target_referentials, creator: 'webservice', notification_target: nil) if target_referentials.present?
+  end
+
   def nightly_aggregate!
     return unless nightly_aggregate_timeframe?
 
@@ -110,7 +118,7 @@ class Workgroup < ApplicationModel
       return
     end
 
-    aggregates.create!(referentials: target_referentials, creator: 'CRON', notification_target: nightly_aggregate_notification_target, type: 'NightlyAggregate')
+    nightly_aggregates.create!(referentials: target_referentials, creator: 'CRON', notification_target: nightly_aggregate_notification_target)
     update(nightly_aggregated_at: Time.current)
   end
 
@@ -182,6 +190,42 @@ class Workgroup < ApplicationModel
 
   def initialize_output
     self.output ||= ReferentialSuite.create
+  end
+
+  def self.default_export_types
+    %w[Export::Gtfs Export::NetexFull]
+  end
+
+  def self.create_with_organisation organisation, params={}
+    name = params[:name] || "#{Workgroup.ts} #{organisation.name}"
+
+    Workgroup.transaction do
+      workgroup = Workgroup.create!(name: name) do |workgroup|
+        workgroup.owner = organisation
+        workgroup.export_types = Workgroup.default_export_types
+
+        workgroup.line_referential ||= LineReferential.create!(name: LineReferential.ts) do |referential|
+          referential.add_member organisation, owner: true
+          referential.objectid_format = :netex
+          referential.sync_interval = 1 # XXX is this really useful ?
+        end
+
+        workgroup.stop_area_referential ||= StopAreaReferential.create!(name: StopAreaReferential.ts) do |referential|
+          referential.add_member organisation, owner: true
+          referential.objectid_format = :netex
+        end
+      end
+
+      organisation.workbenches.create!(name: Workbench.ts) do |w|
+        w.line_referential      = workgroup.line_referential
+        w.stop_area_referential = workgroup.stop_area_referential
+        w.workgroup             = workgroup
+        w.objectid_format       = 'netex'
+        w.prefix = organisation.code
+      end
+
+      workgroup
+    end
   end
 
 end

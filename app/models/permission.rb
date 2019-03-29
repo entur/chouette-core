@@ -4,34 +4,38 @@ class Permission
       (extended + referentials + user_permissions).uniq
     end
 
+    def workgroup_permissions
+      destructive_permissions_for %w[workgroups]
+    end
+
     private
 
     def all_resources
       %w[
         access_points
         aggregates
-        connection_links
+        api_keys
         calendars
+        compliance_check_sets
+        compliance_control_blocks
+        compliance_control_sets
+        compliance_controls
+        connection_links
+        exports
         footnotes
         imports
-        exports
-        merges
         journey_patterns
+        merges
+        publication_api_keys
+        publication_apis
+        publication_setups
         referentials
         routes
         routing_constraint_zones
+        stop_area_routing_constraints
         time_tables
         vehicle_journeys
-        api_keys
-        compliance_controls
-        compliance_control_sets
-        compliance_control_blocks
-        compliance_check_sets
         workbenches
-        workgroups
-        publication_setups
-        publication_apis
-        publication_api_keys
       ]
     end
 
@@ -69,6 +73,8 @@ class Permission
       permissions << "merges.rollback"
       permissions << "aggregates.rollback"
       permissions << "api_keys.index"
+      permissions << "workgroups.update"
+      permissions << "referentials.flag_urgent"
     end
 
     def referentials
@@ -126,8 +132,8 @@ class Permission
       end
 
       def update_users_permissions
-        User.where.not(profile: DEFAULT_PROFILE).find_each do |user|
-          user.update profile: user.profile
+        Profile.each do |profile|
+          User.where(profile: profile).update_all permissions: Permission::Profile.permissions_for(profile)
         end
       end
 

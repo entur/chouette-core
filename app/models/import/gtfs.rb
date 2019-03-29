@@ -3,10 +3,6 @@ class Import::Gtfs < Import::Base
 
   after_commit :update_main_resource_status, on:  [:create, :update]
 
-  def launch_worker
-    GtfsImportWorker.perform_async_or_fail(self)
-  end
-
   def self.accepts_file?(file)
     Zip::File.open(file) do |zip_file|
       zip_file.glob('agency.txt').size == 1
@@ -20,10 +16,12 @@ class Import::Gtfs < Import::Base
     registration_numbers = source.routes.map(&:id)
     line_ids = line_referential.lines.where(registration_number: registration_numbers).pluck(:id)
 
-    start_dates, end_dates = source.calendars.map { |c| [c.start_date, c.end_date] }.transpose
+    start_dates = []
+    end_dates = []
 
-    start_dates ||= []
-    end_dates ||= []
+    if source.entries.include?('calendar.txt')
+      start_dates, end_dates = source.calendars.map { |c| [c.start_date, c.end_date] }.transpose
+    end
 
     included_dates = []
     if source.entries.include?('calendar_dates.txt')
@@ -54,7 +52,7 @@ class Import::Gtfs < Import::Base
     prepare_referential
     referential.pending!
 
-    import_resources :calendars, :calendar_dates
+    import_resources :calendars, :calendar_dates unless check_calendar_files_missing_and_create_message
     import_resources :trips, :stop_times
   end
 
@@ -71,7 +69,7 @@ class Import::Gtfs < Import::Base
   end
 
   def import_stops
-    sorted_stops = source.stops.sort_by { |s| s.parent_station ? 1 : 0 }
+    sorted_stops = source.stops.sort_by { |s| s.parent_station.present? ? 1 : 0 }
     create_resource(:stops).each(sorted_stops, slice: 100, transaction: true) do |stop, resource|
       stop_area = stop_area_referential.stop_areas.find_or_initialize_by(registration_number: stop.id)
 
@@ -148,7 +146,6 @@ class Import::Gtfs < Import::Base
     to_be_saved = []
     create_resource(:stop_times).each(
       source.stop_times.group_by(&:trip_id),
-      slice: 10,
       transaction: true,
       memory_profile: -> { "Import stop times from #{rows_count}" }
     ) do |row, resource|
@@ -197,8 +194,8 @@ class Import::Gtfs < Import::Base
 
         raise InvalidTripTimesError unless consistent_stop_times(stop_times)
 
-        stop_points = stop_times.map do |stop_time|
-          [stop_time, import_stop_time(stop_time, route, resource)]
+        stop_points = stop_times.each_with_index.map do |stop_time, i|
+          [stop_time, import_stop_time(stop_time, route, resource, i==0)]
         end
         to_be_saved.each do |model|
           save_model model, resource: resource
@@ -265,15 +262,15 @@ class Import::Gtfs < Import::Base
     true
   end
 
-  def import_stop_time(stop_time, route, resource)
+  def import_stop_time(stop_time, route, resource, first)
     unless_parent_model_in_error(Chouette::StopArea, stop_time.stop_id, resource) do
 
-      if stop_time.stop_sequence.to_i == 1 # first stop has stop_sequence == 1
+      if first
         departure_time = GTFS::Time.parse(stop_time.departure_time)
         raise InvalidTimeError.new(stop_time.departure_time) unless departure_time.present?
         arrival_time = GTFS::Time.parse(stop_time.arrival_time)
         raise InvalidTimeError.new(stop_time.arrival_time) unless arrival_time.present?
-        raise InvalidTripNonZeroFirstOffsetError unless departure_time.day_offset(@default_time_zone).zero? && arrival_time.day_offset(@default_time_zone).zero?
+        raise InvalidTripNonZeroFirstOffsetError unless departure_time.day_offset.zero? && arrival_time.day_offset.zero?
       end
 
       stop_area = stop_area_referential.stop_areas.find_by(registration_number: stop_time.stop_id)
@@ -294,13 +291,13 @@ class Import::Gtfs < Import::Base
     raise InvalidTimeError.new(stop_time.arrival_time) unless arrival_time.present?
 
     if @previous_stop_sequence.nil? || stop_time.stop_sequence.to_i <= @previous_stop_sequence
-      @vehicle_journey_at_stop_first_offset = departure_time.day_offset(@default_time_zone)
+      @vehicle_journey_at_stop_first_offset = departure_time.day_offset
     end
 
     vehicle_journey_at_stop.departure_time = departure_time.time(@default_time_zone)
     vehicle_journey_at_stop.arrival_time = arrival_time.time(@default_time_zone)
-    vehicle_journey_at_stop.departure_day_offset = departure_time.day_offset(@default_time_zone) - @vehicle_journey_at_stop_first_offset
-    vehicle_journey_at_stop.arrival_day_offset = arrival_time.day_offset(@default_time_zone) - @vehicle_journey_at_stop_first_offset
+    vehicle_journey_at_stop.departure_day_offset = departure_time.day_offset - @vehicle_journey_at_stop_first_offset
+    vehicle_journey_at_stop.arrival_day_offset = arrival_time.day_offset - @vehicle_journey_at_stop_first_offset
 
     # TODO: offset
 
@@ -314,6 +311,7 @@ class Import::Gtfs < Import::Base
   end
 
   def import_calendars
+    return unless source.entries.include?('calendar.txt')
     create_resource(:calendars).each(source.calendars, slice: 500, transaction: true) do |calendar, resource|
       time_table = referential.time_tables.build comment: "Calendar #{calendar.service_id}"
       Chouette::TimeTable.all_days.each do |day|
@@ -394,6 +392,21 @@ class Import::Gtfs < Import::Base
       )
     end
     return time_zone
+  end
+
+  def check_calendar_files_missing_and_create_message
+    if source.entries.include?('calendar.txt') || source.entries.include?('calendar_dates.txt')
+      return false
+    end
+
+    create_message(
+      {
+        criticity: :error,
+        message_key: 'missing_calendar_or_calendar_dates_in_zip_file',
+      },
+      resource: resource, commit: true
+    )
+    @status = 'failed'
   end
 
   class InvalidTripNonZeroFirstOffsetError < StandardError; end

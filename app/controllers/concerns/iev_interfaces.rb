@@ -2,7 +2,7 @@ module IevInterfaces
   extend ActiveSupport::Concern
 
   included do
-    before_action only: [:index] { set_date_time_params("started_at", DateTime) }
+    before_action(only: [:index]) { set_date_time_params("started_at", DateTime) }
     before_action :ransack_status_params, only: [:index]
     before_action :parent
     respond_to :html
@@ -33,7 +33,7 @@ module IevInterfaces
         else
           @contextual_cols << TableBuilderHelper::Column.new(
             key: :workbench,
-            name: Workbench.ts.capitalize,
+            name: Organisation.ts.capitalize,
             attribute: Proc.new { |n| n.workbench.organisation.name },
             link_to: lambda do |import|
               policy(import.workbench).show? ? import.workbench : nil

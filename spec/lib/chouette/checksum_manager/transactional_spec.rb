@@ -58,10 +58,12 @@ RSpec.describe Chouette::ChecksumManager::Transactional do
       it 'should work with a destroyed object' do
         route
         Chouette::ChecksumManager.commit
+        @update_calls = Hash.new { |hash, key| hash[key] = Hash.new { |hash, key| hash[key] = 0 } }
         Chouette::ChecksumManager.start_transaction
         route.update name: "route"
         Chouette::Route.find(route.id).destroy
         expect{ Chouette::ChecksumManager.commit }.to_not raise_error
+        expect(@update_calls[Chouette::Route].size).to eq(0)
       end
 
       it 'should work with a simple save object' do
@@ -115,7 +117,7 @@ RSpec.describe Chouette::ChecksumManager::Transactional do
 
           expect(@update_calls[Chouette::VehicleJourney].size).to eq(1)
 
-          vj.vehicle_journey_at_stops.each do |vjas|
+          vj.vehicle_journey_at_stops[0..-2].each do |vjas|
             expect{ vjas.reload }.to_not change { vjas.checksum_source }
             expect{ vjas.update_checksum_without_callbacks! }.to_not change { vjas.checksum_source }
           end

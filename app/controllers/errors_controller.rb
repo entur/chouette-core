@@ -1,4 +1,11 @@
 class ErrorsController < ApplicationController
+  skip_before_action :authenticate_user!
+  layout :layout
+
+  def layout
+    user_signed_in? ? 'application' : 'devise'
+  end
+
   def not_found
     render status: 404
   end
@@ -11,4 +18,3 @@ class ErrorsController < ApplicationController
     render status: 403
   end
 end
-

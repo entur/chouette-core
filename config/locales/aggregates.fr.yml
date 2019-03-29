@@ -12,6 +12,7 @@ fr:
       show: Consulter
       create: Agréger des Jeux de Données
       rollback: 'Revenir à cette offre agrégée'
+      rollback_confirm: Etes vous sûr de vouloir revenir à cette offre aggrégée ?
     statuses:
       new: Nouveau
       pending: En attente
@@ -39,6 +40,7 @@ fr:
         available_referentials: "Jeux de données disponibles"
         selected_referentials: "Jeux de données selectionnés"
         notification_target: Destinataire(s) des notifications
+        contains_urgent_offer: Prise en compte d'une offre urgente
     errors:
       models:
         aggregate:

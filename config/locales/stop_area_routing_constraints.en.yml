@@ -1,0 +1,55 @@
+en:
+  stop_area_routing_constraints:
+    search_no_results: "No Stop Area Routing Constraint"
+    direction:
+      both_way: Both ways
+      one_way: One way
+    actions:
+      new: "Add a Stop Area Routing Constraint"
+      create: "Add a Stop Area Routing Constraint"
+      edit: "Edit Stop Area Routing Constraint"
+      update: "Edit Stop Area Routing Constraint"
+      destroy: "Supprimer"
+      destroy_confirm: "Are you sure to destroy Stop Area Routing Constraint?"
+    filters:
+      stop: Fill Stop Area...
+      direction: Fill a direction...
+    new:
+      title: "Add a Stop Area Routing Constraint"
+    create:
+      title: "Add a Stop Area Routing Constraint"
+    edit:
+      title: "Edit Stop Area Routing Constraint %{name}"
+    update:
+      title: "Edit Stop Area Routing Constraint %{name}"
+    show:
+      title: "Stop Area Routing Constraint %{name}"
+    index:
+      title: "Stop Area Routing Constraints"
+
+  activerecord:
+    models:
+      stop_area_routing_constraint:
+        zero:  "StopAreas Routing Constraint"
+        one:   "StopAreas Routing Constraint"
+        other: "StopAreas Routing Constraints"
+    attributes:
+      stop_area_routing_constraint:
+        name: "Nom"
+        both_way: Both ways
+        direction: Direction
+        from: Start stop
+        to: Destination stop
+        from_id: Start stop
+        to_id: Destination stop
+        from_name: Start stop
+        to_name: Destination stop
+    errors:
+      models:
+        stop_area_routing_constraint:
+          attributes:
+            to:
+              must_be_in_same_referential: Both stops miust belong to the same referential
+              must_be_a_different_stop: The 2 stops must be distinct
+            from:
+              must_be_in_same_referential: Both stops must belong to the same referential

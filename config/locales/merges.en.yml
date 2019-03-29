@@ -10,6 +10,7 @@ en:
       table:
         state:
           title: Worbench current output
+          urgent: Handles urgent offer
     actions:
       create: Merge data spaces
       rollback: Rollback
@@ -42,6 +43,7 @@ en:
         available_referentials: "Avalaible data spaces"
         selected_referentials: "Selected data spaces"
         notification_target: Notifications recipients
+        contains_urgent_offer: Handles urgent offer
     errors:
       models:
         merge:

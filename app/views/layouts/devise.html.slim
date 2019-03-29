@@ -16,7 +16,7 @@ html lang=I18n.locale
     = javascript_tag do
       | I18n.locale = '#{I18n.locale}'
 
-  body
+  body.devise
     nav#main_nav
       // Top menu content
       = render 'layouts/navigation/main_nav_top'

@@ -3,9 +3,13 @@ module LocalImportSupport
 
   included do |into|
     include ImportResourcesSupport
-    after_commit :launch_worker, on: :create
+    after_commit :import_async, on: :create
 
     delegate :line_referential, :stop_area_referential, to: :workbench
+  end
+
+  def import_async
+    Delayed::Job.enqueue LongRunningJob.new(self, :import), queue: :imports
   end
 
   def import
@@ -37,6 +41,12 @@ module LocalImportSupport
     main_resource&.save
     save
     notify_parent
+  end
+
+  def worker_died
+    force_failure!
+
+    Rails.logger.error "Import #{self.inspect} failed due to worker being dead"
   end
 
   def import_resources(*resources)
@@ -139,6 +149,8 @@ module LocalImportSupport
     unless model.save
       Rails.logger.error "Can't save #{model.class.name} : #{model.errors.inspect}"
 
+      # if the model cannot be saved, we still ensure we store a consistent checksum
+      model.try(:update_checksum_without_callbacks!) if model.persisted?
       model.errors.details.each do |key, messages|
         messages.each do |message|
           message.each do |criticity, error|

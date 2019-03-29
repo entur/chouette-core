@@ -38,7 +38,7 @@
               attribute: Proc.new { |n| '<i class="fa fa-download" aria-hidden="true"></i>'.html_safe }, \
               sortable: false, \
               link_to: lambda do |compliance_check_resource| \
-                workbench_compliance_check_set_compliance_check_messages_path(@parent, @compliance_check_set, format: 'csv', compliance_check_resource_id: compliance_check_resource.id  ) \
+                url_for([@parent, @compliance_check_set, :compliance_check_messages, format: 'csv', compliance_check_resource_id: compliance_check_resource.id]) \
               end \
             ) \
           ],

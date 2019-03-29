@@ -5,6 +5,8 @@ source 'https://rubygems.org'
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 git_source(:af83) { |name| "https://github.com/af83/#{name}.git" }
 
+gem 'bundler', '~> 1.17'
+
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 4.2.11'
 gem 'rack-protection', '~> 1.5.5'
@@ -73,7 +75,7 @@ gem 'codifligne', af83: 'stif-codifline-api'
 gem 'reflex', af83: 'stif-reflex-api'
 
 # Authentication
-gem 'devise', '~> 3.5.4'
+gem 'devise'
 gem 'devise_cas_authenticatable'
 gem 'devise-encryptable'
 gem 'devise_invitable'
@@ -140,9 +142,12 @@ gem 'rmagick'
 
 gem 'sidekiq', require: ['sidekiq', 'sidekiq/web']
 gem 'sidekiq-limit_fetch'
+gem 'delayed_job_active_record'
+gem 'delayed_job_web'
+gem 'delayed_job_heartbeat_plugin'
+
 gem 'whenever', github: 'af83/whenever', require: false # '~> 0.9'
 gem 'rake'
-gem 'devise-async'
 gem 'apartment', '~> 1.0.0'
 gem 'aasm'
 gem 'puma', '~> 3.10.0'
@@ -152,6 +157,7 @@ gem 'redis-rails'
 
 gem 'newrelic_rpm'
 gem 'letter_opener'
+gem 'letter_opener_web', '~> 1.0'
 
 #gem 'gtfs'
 gem 'gtfs', af83: 'gtfs'
@@ -210,7 +216,7 @@ group :test, :development do
   gem 'rb-inotify', require: RUBY_PLATFORM.include?('linux') && 'rb-inotify'
   gem 'rb-fsevent', require: RUBY_PLATFORM.include?('darwin') && 'rb-fsevent'
   gem 'transpec'
-  gem 'shoulda-matchers', '~> 3.1'
+  gem 'shoulda-matchers'
   gem "teaspoon-jasmine"
   gem "phantomjs"
   gem 'parallel_tests'

@@ -39,7 +39,7 @@ ChouetteIhm::Application.routes.draw do
       end
     end
 
-    resources :referentials, only: %w(new create)
+    resources :referentials, only: %w(new create index)
   end
 
   resources :workgroups, concerns: :iev_interfaces do
@@ -49,7 +49,12 @@ ChouetteIhm::Application.routes.draw do
       put :update_controls
       get :edit_hole_sentinel
     end
-    resources :compliance_check_sets, only: [:index, :show]
+
+    resources :compliance_check_sets, only: [:index, :show] do
+      get :executed, on: :member
+      resources :compliance_checks, only: [:show]
+      resources :compliance_check_messages, only: [:index]
+    end
     resource :output, controller: :workgroup_outputs
     resources :aggregates do
       member do
@@ -157,7 +162,6 @@ ChouetteIhm::Application.routes.draw do
 
   devise_for :users, :controllers => {
     invitations: 'users/invitations',
-    registrations: 'devise/sessions',
     passwords: 'users/passwords'
   }
 
@@ -179,9 +183,11 @@ ChouetteIhm::Application.routes.draw do
 
   if SmartEnv.boolean "BYPASS_AUTH_FOR_SIDEKIQ"
     mount Sidekiq::Web => '/sidekiq'
+    match "/delayed_job" => DelayedJobWeb, :anchor => false, :via => [:get, :post]
   else
     authenticate :user, lambda { |u| u.can_monitor_sidekiq? } do
       mount Sidekiq::Web => '/sidekiq'
+      match "/delayed_job" => DelayedJobWeb, :anchor => false, :via => [:get, :post]
     end
   end
 
@@ -246,6 +252,7 @@ ChouetteIhm::Application.routes.draw do
     resources :stop_area_providers do
       get :autocomplete, on: :collection
     end
+    resources :stop_area_routing_constraints
     resources :stop_areas do
       put :deactivate, on: :member
       put :activate, on: :member
@@ -272,6 +279,7 @@ ChouetteIhm::Application.routes.draw do
     end
   end
 
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if %i[letter_opener_web letter_opener].include?(Rails.application.config.action_mailer.delivery_method)
 
   root :to => "dashboards#show"
 

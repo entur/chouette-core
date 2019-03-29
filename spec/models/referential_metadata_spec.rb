@@ -41,19 +41,6 @@ RSpec.describe ReferentialMetadata, :type => :model do
     it "should have the right referential_source" do
       expect(new_referential_metadata.referential_source).to eq(referential_metadata.referential)
     end
-
-    context "with a functional scope" do
-      let(:organisation){ create :organisation, sso_attributes: {"functional_scope" => [referential_metadata.referential.lines.first.objectid]} }
-      let(:new_referential_metadata) { ReferentialMetadata.new_from(referential_metadata, referential.workbench) }
-      before do
-        referential.workbench.update organisation: organisation
-        allow(Workgroup).to receive(:workbench_scopes_class).and_return(Stif::WorkbenchScopes)
-      end
-
-      it "should scope the lines" do
-        expect(new_referential_metadata.line_ids).to eq [referential_metadata.referential.lines.first.id]
-      end
-    end
   end
 
   describe "Period" do

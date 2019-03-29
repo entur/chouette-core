@@ -4,7 +4,7 @@ module Chouette
       @at_stops = at_stops
     end
 
-    def calculate!
+    def calculate!(force_reset=false)
       offset = 0
       @at_stops.select{|s| s.arrival_time.present? && s.departure_time.present? }.inject(nil) do |prior_stop, stop|
         if prior_stop.nil?
@@ -21,6 +21,10 @@ module Chouette
           offset += 1
         end
 
+        unless force_reset
+          offset = [stop.arrival_day_offset, offset].max
+        end
+
         stop.arrival_day_offset = offset
 
         # Compare '23:00' with '00:05' for example
@@ -28,6 +32,9 @@ module Chouette
           offset += 1
         end
 
+        unless force_reset
+          offset = [stop.departure_day_offset, offset].max
+        end
         stop.departure_day_offset = offset
 
         stop
@@ -41,8 +48,8 @@ module Chouette
       end
     end
 
-    def update
-      calculate!
+    def update(force_reset=false)
+      calculate!(force_reset)
       save
     end
   end

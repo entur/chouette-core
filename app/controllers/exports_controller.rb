@@ -5,6 +5,7 @@ class ExportsController < ChouetteController
   skip_before_action :authenticate_user!, only: [:upload]
   skip_before_action :verify_authenticity_token, only: [:upload]
   defaults resource_class: Export::Base, collection_name: 'exports', instance_name: 'export'
+  before_action :load_referentials, only: %i[new create]
 
   def upload
     if params[:token] == resource.token_upload
@@ -14,13 +15,6 @@ class ExportsController < ChouetteController
     else
       user_not_authorized
     end
-  end
-
-  def new
-    referentials = parent.referentials.exportable.pluck(:id)
-    referentials += parent.workgroup.output.referentials.pluck(:id)
-    @referentials = Referential.where(id: referentials).order("created_at desc")
-    new!
   end
 
   private
@@ -72,5 +66,11 @@ class ExportsController < ChouetteController
         workbench: @workbench
       }
     )
+  end
+
+  def load_referentials
+    referentials = parent.referentials.exportable.pluck(:id)
+    referentials += parent.workgroup.output.referentials.pluck(:id)
+    @referentials = Referential.where(id: referentials).order("created_at desc")
   end
 end

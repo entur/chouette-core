@@ -15,7 +15,7 @@ class ReferentialAudit
         Chouette::RoutingConstraintZone.select(:id, :checksum_source, :stop_point_ids),
         Chouette::TimeTable.select(:id, :checksum_source, :int_day_types).includes(:dates, :periods),
         Chouette::VehicleJourneyAtStop.select(:id, :checksum_source, :departure_time, :arrival_time, :departure_day_offset, :arrival_day_offset),
-        Chouette::VehicleJourney.select(:id, :checksum_source, :custom_field_values, :published_journey_name, :published_journey_identifier, :ignored_routing_contraint_zone_ids, :company_id).includes(:company_light, :footnotes, :vehicle_journey_at_stops, :purchase_windows)
+        Chouette::VehicleJourney.select(:id, :checksum_source, :custom_field_values, :published_journey_name, :published_journey_identifier, :ignored_routing_contraint_zone_ids, :ignored_stop_area_routing_constraint_ids, :company_id).includes(:company_light, :footnotes, :vehicle_journey_at_stops, :purchase_windows)
       ]
       models.each do |model|
         lookup = Proc.new {
@@ -25,8 +25,8 @@ class ReferentialAudit
           end
         }
         model.klass.cache do
-          if model.klass.respond_to?(:in_workgroup)
-            model.klass.in_workgroup(@referential.workgroup, &lookup)
+          if model.klass.respond_to?(:within_workgroup)
+            model.klass.within_workgroup(@referential.workgroup, &lookup)
           else
             lookup.call
           end

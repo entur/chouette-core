@@ -15,6 +15,8 @@ norme Neptune (NFP 99 506)"
         introduction_item1: "plusieurs formats (Neptune, GTFS, CSV, prochainement Netex)"
         introduction_item2: "plusieurs fonds cartographiques, notamment IGN, OSM et Google."
         unauthorized: "Vous ne pouvez pas vous connecter car vous n'avez pas les permissions pour accéder à Chouette"
+        no_account: "Vous n'avez pas de compte ?"
+        sign_up: "S'inscrire"
     confirmations:
       new:
         title: Renvoyer le mail de confirmation
@@ -22,6 +24,8 @@ norme Neptune (NFP 99 506)"
       new:
         title: "Inscrivez vous"
         commit: "S'inscrire"
+        already_an_account: "Vous avez déjà un compte ?"
+        sign_in: "Se connecter"
       edit:
         title: "Votre Profil"
         commit: Editer

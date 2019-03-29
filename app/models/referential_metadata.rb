@@ -27,6 +27,10 @@ class ReferentialMetadata < ApplicationModel
   end
   private :adapted_periods
 
+  def urgent?
+    flagged_urgent_at.present?
+  end
+  
   class Period
     include ActiveAttr::Model
     include ActiveAttr::MultiParameterAttributes
