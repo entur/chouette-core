@@ -34,13 +34,6 @@ class Workgroup < ApplicationModel
   @@workbench_scopes_class = WorkbenchScopes::All
   mattr_accessor :workbench_scopes_class
 
-  extend Enumerize
-  enumerize :nightly_aggregate_notification_target, in: %w[none workgroup], default: :none
-
-  def self.nightly_aggregate_notification_target_options
-    nightly_aggregate_notification_target.values.map { |k| [k && "operation_support.notification_targets.#{k}".t, k] }
-  end
-
   def custom_fields_definitions
     Hash[*custom_fields.map{|cf| [cf.code, cf]}.flatten]
   end
