@@ -38,6 +38,7 @@ class Api::V1::DatasController < ActionController::Base
   end
 
   def check_auth_token
+    return if @publication_api.public?
     key = nil
     authenticate_with_http_token do |token|
       key = @publication_api.api_keys.find_by token: token
