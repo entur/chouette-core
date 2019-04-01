@@ -19,8 +19,8 @@ en:
       no_associated_timetables: No associated timetables
       no_associated_purchase_windows: No associated purchase windows
       no_associated_footnotes: No associated footnotes
-      no_excluded_constraint_zones: No exluded constraint zone
-      no_excluded_stop_area_constraint: No exluded stop area constraints
+      no_excluded_constraint_zones: No excluded constraint zone
+      no_excluded_stop_area_constraint: No excluded stop area constraints
       duplicate:
         one: Clone %{count} vehicle journey
         other: Clone %{count} vehicle journeys
