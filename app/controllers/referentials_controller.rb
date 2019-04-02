@@ -107,6 +107,10 @@ class ReferentialsController < ChouetteController
     redirect_to :back
   end
 
+  def select_clean_up_settings
+    @clean_up = CleanUp.new(referential: @referential)
+  end
+
   protected
 
   alias_method :referential, :resource

@@ -92,6 +92,7 @@
       .modal-body
         .container-fluid
           .row
+            label.control-label = t('titles.clean_up.date_type')
             .col-lg-8.col-ld-offset-2.col-md-8.col-md-offset-2.col-sm-8.col-sm-offset-2.col-xs-12
               = f.input :date_type, as: :radio_buttons, label: false
 
@@ -101,6 +102,16 @@
               = f.input :begin_date, as: :date, label: false, wrapper_html: { class: 'date smart_date' }
 
               = f.input :end_date, as: :date, label: t('titles.clean_up.end_date'), wrapper_html: { class: 'date cleanup_end_date_wrapper smart_date', id: "end_date" }
+            
+            .col-lg-5.col-md-5.col-sm-5.col-xs-12
+              = f.simple_fields_for :method_type do |p|
+                - CleanUp.method_type.values.each do |method|
+                  = p.input method.to_sym,
+                    checked_value: true,
+                    unchecked_value: false,
+                    wrapper_html: { style: 'width: auto' },
+                    input_html: { type: 'checkbox', style: "width: 100%" }
+                  label.control-label. =  t("enumerize.clean_up.method_type.#{method}")
 
       .modal-footer
         button.btn.btn-link type='button' data-dismiss='modal' #{t('cancel')}

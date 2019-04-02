@@ -4,7 +4,14 @@ class CleanUp < ApplicationModel
   belongs_to :referential
   has_one :clean_up_result
 
-  enumerize :date_type, in: %i(between before after)
+  enumerize :date_type, in: %i(outside between before after)
+  enumerize :method_type, in: %i(
+    destroy_journey_patterns_without_vehicle_journey
+    destroy_vehicle_journeys_without_purchase_window
+    destroy_routes_without_journey_pattern
+    destroy_unassociated_timetables
+    destroy_unassociated_purchase_windows
+  )
 
   # validates_presence_of :date_type, message: :presence
   validates_presence_of :begin_date, message: :presence, if: :date_type
@@ -68,6 +75,12 @@ class CleanUp < ApplicationModel
     methods.each { |method| send(method) }
   end
 
+  def destroy_time_tables_outside
+    ref_period = referential.metadatas_period
+    time_tables = Chouette::TimeTable.where('end_date < ? AND start_date > ?', ref_period.min, ref_period.max)
+    self.destroy_time_tables(time_tables)
+  end
+
   def destroy_time_tables_between
     time_tables = Chouette::TimeTable.where('end_date < ? AND start_date > ?', self.end_date, self.begin_date)
     self.destroy_time_tables(time_tables)
@@ -119,12 +132,28 @@ class CleanUp < ApplicationModel
     Chouette::Route.where(['line_id not in (?)', line_ids]).find_each &:clean!
   end
 
+  def destroy_routes_without_journey_pattern
+    Chouette::Route.without_any_journey_pattern.destroy_all
+  end
+
   def destroy_vehicle_journeys
     Chouette::VehicleJourney.where("id not in (select distinct vehicle_journey_id from time_tables_vehicle_journeys)").destroy_all
   end
 
+  def destroy_vehicle_journey_without_time_table
+    Chouette::VehicleJourney.without_any_time_table.destroy_all
+  end
+
+  def destroy_vehicle_journeys_without_purchase_window
+    Chouette::VehicleJourney.without_any_purchase_window.destroy_all
+  end
+
   def destroy_journey_patterns
     Chouette::JourneyPattern.where("id not in (select distinct journey_pattern_id from vehicle_journeys)").destroy_all
+  end
+
+  def destroy_journey_patterns_without_vehicle_journey
+    Chouette::JourneyPattern.without_any_vehicle_journey.destroy_all
   end
 
   def destroy_routes
@@ -135,9 +164,17 @@ class CleanUp < ApplicationModel
     Chouette::Footnote.not_associated.destroy_all
   end
 
-  def destroy_unassociated_calendars
+  def destroy_unassociated_timetables
     Chouette::TimeTable.not_associated.destroy_all
+  end
+
+  def destroy_unassociated_purchase_windows
     Chouette::PurchaseWindow.not_associated.destroy_all
+  end
+
+  def destroy_unassociated_calendars
+    destroy_unassociated_timetables
+    destroy_unassociated_purchase_windows
   end
 
   def destroy_empty
@@ -182,10 +219,6 @@ class CleanUp < ApplicationModel
     else
       time_table.dates.where(date: day).take.update_attribute(:in_out, false)
     end
-  end
-
-  def destroy_vehicle_journey_without_time_table
-    Chouette::VehicleJourney.without_any_time_table.destroy_all
   end
 
   def destroy_time_tables(time_tables)

@@ -6,7 +6,7 @@ fr:
     add: 'Ajouter'
     archive: 'Archiver'
     cancel_destroy: Annuler suppresion
-    clean_up: 'Purger'
+    clean_up: 'Nettoyer'
     clone: 'Dupliquer'
     combine: 'Combiner'
     copy: 'Copier (ctrl-c)'

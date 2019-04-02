@@ -1,0 +1,43 @@
+- breadcrumb @referential
+
+.page_content
+  .container-fluid
+    .row
+      .col-lg-8.col-lg-offset-2.col-md-8.col-md-offset-2.col-sm-10.col-sm-offset-1
+        = simple_form_for [@referential, @clean_up], html: {class: 'form-horizontal', id: 'clean_referential_form'} do |f|
+          .row
+            .col-lg-12
+              = f.input :date_type,
+                checked: :outside,
+                as: :radio_buttons,
+                label: t('titles.clean_up.date_type')
+          .row
+            .col-lg-12
+              span.begin_date = t('titles.clean_up.begin_date')
+              span.end_date.hidden = t('titles.clean_up.end_date')
+              = f.input :begin_date, as: :date, label: false, wrapper_html: { class: 'date smart_date' }
+
+              span = t('titles.clean_up.end_date')
+              = f.input :end_date, as: :date, label: false, wrapper_html: { class: 'date cleanup_end_date_wrapper smart_date', id: "end_date" }
+          
+          / .row
+          /   .col-lg-12
+          /     label = t('titles.clean_up.method_type')
+          /     .col
+          /       = f.collection_check_boxes(:methods, CleanUp.method_type.options, :last, :first) do |b|
+          /         .row style='display: block'
+          /           = b.check_box style: 'margin-right: 10px'
+          /           = b.label style: 'font-weight: normal'
+          /           br
+          .row
+            .col-lg-12
+              label = t('titles.clean_up.method_type')
+              .col
+               - CleanUp.method_type.options.each do |option|
+                div
+                  = hidden_field_tag "method_types[#{option.last}]", false, id: ""
+                  = check_box_tag "method_types[#{option.last}]", true, false, style: 'margin-right: 10px'
+                  = label :method_type, option.first, style: 'font-weight: normal'
+                  
+          = cancel_button
+          = f.button :submit, t('actions.clean_up'), class: 'btn btn-default formSubmitr', form: 'clean_referential_form'

@@ -106,9 +106,16 @@ fr:
         lda: LDA
     clean_up:
       date_type:
+        outside: En dehors des périodes définies dans le jeu de données
         between: Entre deux dates
         before: Avant une date
         after: Après une date
+      method_type:
+        destroy_vehicle_journeys_without_purchase_window: Courses sans calendriers de circulation
+        destroy_journey_patterns_without_vehicle_journey: Missions sans aucune Course
+        destroy_routes_without_journey_pattern: Itinéraires sans aucune Mission
+        destroy_unassociated_timetables: Calendriers de circulation associés à aucune Course
+        destroy_unassociated_purchase_windows: Calendriers commerciaux associés à aucune Course
     transport_mode:
       interchange: Interconnection
       unknown: Inconnu

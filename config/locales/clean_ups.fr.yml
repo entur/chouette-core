@@ -5,7 +5,7 @@ fr:
     success_jp: "%{count} mission(s) supprimée(s)"
     failure: "Echec de la purge : %{error_message}"
     actions:
-      clean_up: "Purger"
+      clean_up: "Nettoyer"
       confirm: "La purge détruit les calendriers se finissant au plus tard à la date indiquée \npuis en cascade les objets qui n'ont pas ou plus de calendrier\nConfirmer cette action SVP"
   activemodel:
     attributes:
@@ -14,13 +14,17 @@ fr:
         end_date: "Fin date limite : "
   titles:
     clean_up:
+      date_type: Supprimer ou tronquer les calendriers de circulation par date
       begin_date: "Date de début de la purge"
       end_date: "Date de fin de la purge"
+      method_type: Supprimer les données inutilisées
   formtastic:
     titles:
       clean_up:
+        date_type: Supprimer ou tronquer les calendriers de circulation par date
         begin_date: "Date de début de la purge"
         end_date: "Date de fin de la purge"
+        method_type: Supprimer les données inutilisées
   activerecord:
     models:
       clean_up:

@@ -16,6 +16,8 @@ module Chouette
 
     scope :light, ->{ select(:id, :name, :route_id, :objectid) }
 
+    scope :without_any_vehicle_journey, -> { includes(:vehicle_journeys).where(vehicle_journeys: { id: nil } ) }
+
     validates_presence_of :route
     validates_presence_of :name
 

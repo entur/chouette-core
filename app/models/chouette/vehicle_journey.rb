@@ -118,6 +118,8 @@ module Chouette
       .order("#{field} #{dir}")
     }
 
+    scope :without_any_purchase_window, -> { includes(:purchase_windows).where(purchase_windows: { id: nil }) }
+
     # We need this for the ransack object in the filters
     ransacker :purchase_window_date_gt
     ransacker :stop_area_ids
