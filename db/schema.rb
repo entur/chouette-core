@@ -858,7 +858,6 @@ ActiveRecord::Schema.define(version: 20190401073331) do
     t.datetime  "created_at"
     t.datetime  "updated_at"
     t.daterange "periodes",                        array: true
-    t.datetime  "flagged_urgent_at"
   end
 
   add_index "referential_metadata", ["line_ids"], name: "index_referential_metadata_on_line_ids", using: :gin
