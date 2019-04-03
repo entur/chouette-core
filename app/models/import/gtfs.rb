@@ -138,9 +138,9 @@ class Import::Gtfs < Import::Base
                               end
 
         # White is the default color in the gtfs spec
-        line.color = /\A[\dA-F]{6}\Z/.match(route.color).try(:string) || 'FFFFFF'
+        line.color = parse_color route.color
         # Black is the default text color in the gtfs spec
-        line.text_color = /\A[\dA-F]{6}\Z/.match(route.text_color).try(:string) || '000000'
+        line.text_color = parse_color route.text_color, default: '000000'
 
         line.url = route.url
 
@@ -532,6 +532,11 @@ SQL
       resource: resource, commit: true
     )
     @status = 'failed'
+  end
+
+  def parse_color value, options = {}
+    options = {default: 'FFFFFF'}.merge(options)
+    /\A[\dA-F]{6}\Z/.match(value).try(:string) || options[:default]
   end
 
   class InvalidTripNonZeroFirstOffsetError < StandardError; end

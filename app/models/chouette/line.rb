@@ -7,10 +7,9 @@ module Chouette
     include NetexTransportModeEnumerations
     include NetexTransportSubmodeEnumerations
 
-    # 11102
-    # include ColorSupport
-    # color_attribute
-    # color_attribute :text_color, %w(000000 9B9B9B FFFFFF)
+    include ColorSupport
+    open_color_attribute
+    open_color_attribute :text_color
 
     belongs_to :company
     belongs_to :network
@@ -36,9 +35,6 @@ module Chouette
 
     # validates_presence_of :network
     # validates_presence_of :company
-
-    validates_format_of :color, with: %r{\A[\dA-F]{6}\Z}, allow_nil: true, allow_blank: true
-    validates_format_of :text_color, with: %r{\A[\dA-F]{6}\Z}, allow_nil: true, allow_blank: true
 
     # validates_format_of :registration_number, :with => %r{\A[\d\w_\-]+\Z}, :allow_nil => true, :allow_blank => true
     validates_format_of :stable_id, :with => %r{\A[\d\w_\-]+\Z}, :allow_nil => true, :allow_blank => true

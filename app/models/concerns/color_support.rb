@@ -23,6 +23,16 @@ module ColorSupport
         Hash[*send(name).values.map{|c| [I18n.t("enumerize.#{name}.#{c}"), c]}.flatten]
       end
     end
+
+    def open_color_attribute name=:color
+      validates_format_of name, with: %r{\A[\dA-F]{6}\Z}, allow_nil: true, allow_blank: true
+
+      define_method name do
+        _color = read_attribute(name.to_sym)
+        # /\A[\dA-F]{6}\Z/.match(_color).try(:string) || options[:default]
+        _color.present? ? _color : nil
+      end
+    end
   end
 
 end
