@@ -47,6 +47,7 @@ module ChouetteIhm
     SmartEnv.add :WORKBENCH_IMPORT_DIR
     SmartEnv.add :CHOUETTE_ADDITIONAL_COMPLIANCE_CONTROLS, default: ""
     SmartEnv.add :CHOUETTE_ADDITIONAL_PUBLICATION_DESTINATIONS, default: ""
+    SmartEnv.add :MAIL_FROM, default: 'Chouette <chouette@af83.com>'
     SmartEnv.add_boolean :AUTOMATED_AUDITS_ENABLED
     SmartEnv.add_boolean :BYPASS_AUTH_FOR_SIDEKIQ
     SmartEnv.add_boolean :CHOUETTE_ROUTE_POSITION_CHECK
@@ -57,6 +58,7 @@ module ChouetteIhm
     SmartEnv.add_boolean :CHOUETTE_EMAIL_USER
     SmartEnv.add_boolean :CHOUETTE_TRANSACTIONAL_CHECKSUMS, default: true
     SmartEnv.add_boolean :ENABLE_DELAYED_JOB_REAPER, default: true
+    SmartEnv.add_boolean :ENABLE_DEVELOPMENT_TOOLBAR, default: false
     SmartEnv.add :DELAYED_JOB_REAPER_HEARTBEAT_INTERVAL_SECONDS, default: 20
     SmartEnv.add :DELAYED_JOB_REAPER_HEARTBEAT_TIMEOUT_SECONDS, default: 60
     SmartEnv.add_boolean :DELAYED_JOB_REAPER_WORKER_TERMINATION_ENABLED, default: true
@@ -75,7 +77,17 @@ module ChouetteIhm
       'FeatureChecker::NotAuthorizedError' => :unauthorized
     )
 
-    config.development_toolbar = false
+    config.development_toolbar = SmartEnv.boolean('ENABLE_DEVELOPMENT_TOOLBAR')
+    if SmartEnv.boolean('ENABLE_DEVELOPMENT_TOOLBAR')
+      config.development_toolbar = OpenStruct.new
+      config.development_toolbar.features_doc_url = nil
+      config.development_toolbar.available_features = %w()
+      config.development_toolbar.available_permissions = %w()
+      config.development_toolbar.tap do |toolbar|
+        eval File.read(Rails.root + 'config/development_toolbar.rb')
+      end
+    end
+
     config.enable_calendar_observer = true
     config.enable_subscriptions_notifications = SmartEnv.boolean('SUBSCRIPTION_NOTIFIER_ENABLED')
     config.subscriptions_notifications_recipients = []

@@ -10,7 +10,6 @@
 /public/javascripts/i18n.js
 /public/javascripts/translations.js
 
-/config/development_toolbar.rb
 /coverage/*
 /log/*
 /node_modules/*

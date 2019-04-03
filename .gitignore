@@ -53,7 +53,6 @@ coverage
 /bin/spring
 
 spec/fixtures/target_*
-config/development_toolbar.rb
 .sass-cache
 
 config/environments/production.rb
