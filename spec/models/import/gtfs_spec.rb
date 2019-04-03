@@ -284,21 +284,21 @@ RSpec.describe Import::Gtfs do
   end
 
   describe '#import_routes' do
-    let(:import) { build_import 'google-sample-feed.zip' }
+    let(:import) { build_import 'google-sample-feed-with-color.zip' }
     it 'should create a line for each route' do
       import.import_routes
 
       defined_attributes = [
         :registration_number, :name, :number, :published_name,
-        "companies.registration_number",
-        :comment, :url, :transport_mode
+        "companies.registration_number", :comment, :url,
+        :transport_mode, :color, :text_color
       ]
       expected_attributes = [
-        ["AAMV", "Airport - Amargosa Valley", "50", "Airport - Amargosa Valley", nil, nil, nil, "bus"],
-        ["CITY", "City", "40", "City", nil, nil, nil, "bus"],
-        ["STBA", "Stagecoach - Airport Shuttle", "30", "Stagecoach - Airport Shuttle", nil, nil, nil, "bus"],
-        ["BFC", "Bullfrog - Furnace Creek Resort", "20", "Bullfrog - Furnace Creek Resort", nil, nil, nil, "bus"],
-        ["AB", "Airport - Bullfrog", "10", "Airport - Bullfrog", nil, nil, nil, "bus"]
+        ["AAMV", "Airport - Amargosa Valley", "50", "Airport - Amargosa Valley", nil, nil, nil, "bus","FFFFFF","000000"],
+        ["CITY", "City", "40", "City", nil, nil, nil, "bus","FFFFFF","000000"],
+        ["STBA", "Stagecoach - Airport Shuttle", "30", "Stagecoach - Airport Shuttle", nil, nil, nil, "bus","FFFFFF","000000"],
+        ["BFC", "Bullfrog - Furnace Creek Resort", "20", "Bullfrog - Furnace Creek Resort", nil, nil, nil, "bus","000000","ABCDEF"],
+        ["AB", "Airport - Bullfrog", "10", "Airport - Bullfrog", nil, nil, nil, "bus","ABCDEF","012345"]
       ]
 
       expect(workbench.line_referential.lines.includes(:company).pluck(*defined_attributes)).to match_array(expected_attributes)

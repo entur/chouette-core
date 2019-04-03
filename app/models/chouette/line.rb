@@ -8,8 +8,8 @@ module Chouette
     include NetexTransportSubmodeEnumerations
 
     include ColorSupport
-    color_attribute
-    color_attribute :text_color, %w(000000 9B9B9B FFFFFF)
+    open_color_attribute
+    open_color_attribute :text_color
 
     belongs_to :company
     belongs_to :network
