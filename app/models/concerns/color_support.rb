@@ -29,7 +29,6 @@ module ColorSupport
 
       define_method name do
         _color = read_attribute(name.to_sym)
-        # /\A[\dA-F]{6}\Z/.match(_color).try(:string) || options[:default]
         _color.present? ? _color : nil
       end
     end
