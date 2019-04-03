@@ -77,7 +77,6 @@ module ChouetteIhm
       'FeatureChecker::NotAuthorizedError' => :unauthorized
     )
 
-    config.development_toolbar = false
     config.development_toolbar = SmartEnv.boolean('ENABLE_DEVELOPMENT_TOOLBAR')
     if SmartEnv.boolean('ENABLE_DEVELOPMENT_TOOLBAR')
       config.development_toolbar = OpenStruct.new
