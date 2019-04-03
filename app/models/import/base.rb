@@ -72,7 +72,6 @@ class Import::Base < ApplicationModel
     else
       super
     end
-
   end
 
   def purge_imports

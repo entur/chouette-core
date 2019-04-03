@@ -62,8 +62,8 @@ module LocalImportSupport
       end
     end
     @status ||= 'successful'
-    update status: @status, ended_at: Time.now
     referential&.active!
+    update status: @status, ended_at: Time.now
   rescue => e
     update status: 'failed', ended_at: Time.now
     Rails.logger.error "Error in #{file_type} import: #{e} #{e.backtrace.join('\n')}"
