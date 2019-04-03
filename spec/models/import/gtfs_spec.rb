@@ -291,14 +291,14 @@ RSpec.describe Import::Gtfs do
       defined_attributes = [
         :registration_number, :name, :number, :published_name,
         "companies.registration_number", :comment, :url,
-        :transport_mode, :color
+        :transport_mode, :color, :text_color
       ]
       expected_attributes = [
-        ["AAMV", "Airport - Amargosa Valley", "50", "Airport - Amargosa Valley", nil, nil, nil, "bus","FFFFFF"],
-        ["CITY", "City", "40", "City", nil, nil, nil, "bus","FFFFFF"],
-        ["STBA", "Stagecoach - Airport Shuttle", "30", "Stagecoach - Airport Shuttle", nil, nil, nil, "bus","FFFFFF"],
-        ["BFC", "Bullfrog - Furnace Creek Resort", "20", "Bullfrog - Furnace Creek Resort", nil, nil, nil, "bus","000000"],
-        ["AB", "Airport - Bullfrog", "10", "Airport - Bullfrog", nil, nil, nil, "bus","ABCDEF"]
+        ["AAMV", "Airport - Amargosa Valley", "50", "Airport - Amargosa Valley", nil, nil, nil, "bus","FFFFFF","000000"],
+        ["CITY", "City", "40", "City", nil, nil, nil, "bus","FFFFFF","000000"],
+        ["STBA", "Stagecoach - Airport Shuttle", "30", "Stagecoach - Airport Shuttle", nil, nil, nil, "bus","FFFFFF","000000"],
+        ["BFC", "Bullfrog - Furnace Creek Resort", "20", "Bullfrog - Furnace Creek Resort", nil, nil, nil, "bus","000000","ABCDEF"],
+        ["AB", "Airport - Bullfrog", "10", "Airport - Bullfrog", nil, nil, nil, "bus","ABCDEF","012345"]
       ]
 
       expect(workbench.line_referential.lines.includes(:company).pluck(*defined_attributes)).to match_array(expected_attributes)

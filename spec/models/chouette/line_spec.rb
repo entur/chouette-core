@@ -53,6 +53,16 @@ describe Chouette::Line, :type => :model do
     end
   end
 
+  describe '#text_color' do
+    ['012345', 'ABCDEF', '18FE23', '', nil].each do |c|
+      it { should allow_value(c).for(:color) }
+    end
+
+    ['01234', 'BCDEFG', '18FE233'].each do |c|
+      it { should_not allow_value(c).for(:color) }
+    end
+  end
+
   describe '#display_name' do
     it 'should display local_id, number, name and company name' do
       display_name = "#{subject.get_objectid.local_id} - #{subject.number} - #{subject.name} - #{subject.company.try(:name)}"
