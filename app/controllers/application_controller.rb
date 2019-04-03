@@ -15,10 +15,11 @@ class ApplicationController < ActionController::Base
   layout :layout_by_resource
 
   def set_locale
-    # I18n.locale = session[:language] || I18n.default_locale
-    # For testing different locales w/o restarting the server
-    I18n.locale = (params['lang'] || session[:language] || I18n.default_locale).to_sym
-    logger.info "locale set to #{I18n.locale.inspect}"
+    wanted_locale = (params['lang'] || session[:language] || I18n.default_locale).to_sym
+    effective_locale = I18n.available_locales.include?(wanted_locale) ? wanted_locale : I18n.default_locale
+
+    I18n.locale = effective_locale
+    logger.info "Locale set to #{I18n.locale.inspect}"
   end
 
   def pundit_user
