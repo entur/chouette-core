@@ -137,7 +137,10 @@ class Import::Gtfs < Import::Base
                                 'funicular'
                               end
 
-        # TODO: colors
+        # White is the default color in gtfs spec
+        line.color = /\A[0-9A-F]{6}\Z/.match(route.color).try(:string) || 'FFFFFF'
+
+        # TODO: text_color
 
         line.url = route.url
 
