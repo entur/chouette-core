@@ -24,6 +24,7 @@ fr:
         slug: "Nom court"
         public_url: "Url Publique"
         publications: "Publications Associées"
+        public: "API publique"
   formtastic:
     hints:
       publication_api:

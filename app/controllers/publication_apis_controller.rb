@@ -51,7 +51,7 @@ class PublicationApisController < ChouetteController
 
   def publication_api_params
     publication_api_params = params.require(:publication_api)
-    permitted_keys = [:name, :slug]
+    permitted_keys = [:name, :slug, :public]
     publication_api_params.permit(permitted_keys)
   end
 end
