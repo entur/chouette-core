@@ -17,6 +17,7 @@ fr:
         stop_points_count: Nombre d'arrêts
         route: Itinéraire associé
         route_id: Itinéraire associé
+        opposite_zone_name: "%{name} (Retour)"
     errors:
       models:
         routing_constraint_zone:
@@ -35,6 +36,8 @@ fr:
       name_or_short_id_cont:  Indiquez un nom d'ITL ou un ID...
     actions:
       destroy_confirm: Etes vous sûr de supprimer cette ITL ?
+      create_opposite_zone: Créer la Zone Retour
+      opposite_zone: Zone Retour
     new:
       title: Créer une ITL
       stop_area: Arrêt

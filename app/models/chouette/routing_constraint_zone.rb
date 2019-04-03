@@ -48,6 +48,29 @@ module Chouette
 
     has_checksum_children StopPoint
 
+    def opposite_zone
+      unless @opposite_zone_looked_up
+        if route.opposite_route.present?
+          stop_area_ids = stop_points.light.map(&:stop_area_id).uniq.sort
+
+          @opposite_zone = route.opposite_route.routing_constraint_zones.find do |candidate|
+            candidate.stop_points.light.map(&:stop_area_id).uniq.sort == stop_area_ids
+          end
+        end
+        @opposite_zone_looked_up = true
+      end
+
+      @opposite_zone
+    end
+
+    def can_create_opposite_zone?
+      return false if opposite_zone.present?
+      return false unless route.opposite_route.present?
+
+      stop_area_ids = stop_points.map(&:stop_area_id).uniq
+      (route.opposite_route.stop_points.pluck(:stop_area_id) & stop_area_ids).uniq.size == stop_area_ids.size
+    end
+
     def stop_points_belong_to_route
       return unless route
 
