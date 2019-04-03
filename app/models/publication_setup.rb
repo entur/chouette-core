@@ -1,4 +1,12 @@
+module PublicationSetupWithDefaultExportOptions
+  def export_options
+    super || {}
+  end
+end
+
 class PublicationSetup < ApplicationModel
+  prepend PublicationSetupWithDefaultExportOptions
+
   belongs_to :workgroup
   has_many :publications, dependent: :destroy
   has_many :destinations, dependent: :destroy, inverse_of: :publication_setup
@@ -24,7 +32,7 @@ class PublicationSetup < ApplicationModel
   end
 
   def new_export(extra_options={})
-    options = (export_options || {}).dup.update(extra_options)
+    options = export_options.dup.update(extra_options)
     export = export_class.new(options: options) do |export|
       export.creator = export_creator_name
     end
