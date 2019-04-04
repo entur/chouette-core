@@ -8,6 +8,8 @@ module OptionsSupport
     end
 
     def self.option name, opts={}
+      name = opts[:name] if opts[:name].present?
+
       store_accessor :options, name
 
       opts[:default_value] ||= opts.delete :default
