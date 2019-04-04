@@ -34,7 +34,7 @@ validating conformance of data wrt Neptune (French standard NFP 99 506)."
     passwords:
       new:
         title: Update password
-        commit: Receive an email with instructions about how to reset your password
+        commit: Receive an email to reset your password
       edit:
         title: Change your password
         new_password: New password

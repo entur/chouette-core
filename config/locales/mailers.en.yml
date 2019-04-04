@@ -2,10 +2,11 @@ en:
   mailers:
     info_contact: 'If you have any question, please send an email to '
     footer: 'is designed and developped by'
+
+    hello: 'Hello,'
     audit_mailer:
       audit:
         subject: "Audit automatique du %{date}"
-
     calendar_mailer:
       sent_by: "Sent by"
       created:
@@ -53,9 +54,8 @@ en:
     confirmation_mailer:
       button: Confirm the subscription
       subject: Instructions of confirmation
-      body: |
-        Hello %{email} !<br/><br/>
-        You can now confirm your subscription by clicking on the following link<br/>
+      title:  Hello %{email} !
+      body:  You can now confirm your subscription by clicking on the following link<br/>
     unlock_mailer:
       subject: Your account has been deactivated
       title: Hello %{email} !
