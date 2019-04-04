@@ -64,6 +64,7 @@ validating conformance of data wrt Neptune (French standard NFP 99 506)."
     hints:
       user:
         edit:
+          password: "Leave it blank if you don't want to change it"
           current_password: "We need your current password to confirm your changes"
     placeholders:
       user:
