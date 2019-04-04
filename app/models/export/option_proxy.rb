@@ -15,7 +15,7 @@ class Export::OptionProxy
   end
 
   def option name, opts={}
-    opts.update depends: {option: @parent_option[:name], value: @_collection_value}
-    @export.option name, opts
+    opts.update depends: {option: @parent_option[:name], value: @_collection_value}, name: name
+    @export.option "#{name}-#{@parent_option[:name]}-#{@_collection_value}", opts
   end
 end

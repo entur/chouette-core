@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 module ExportsHelper
   def export_option_input form, export, attr, option_def, type, referentials, parent_form: nil
+    attr = option_def[:name] if option_def[:name].present?
     parent_form ||= form
     if !!option_def[:depends_on_referential]
       out = ""
