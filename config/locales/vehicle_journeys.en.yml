@@ -7,7 +7,7 @@ en:
         timetable: Filter by timetable...
         constraint_zone: Select a routing constraint zone
         purchase_window: Filter by purchase window
-        stop_area_constraint: Filter by stop area constraint
+        stop_area_constraint: Select a stop area constraint
       cancel_selection: "Cancel Selection"
       cancel_destroy: "Cancel Destroy"
       fetching_error: "There has been a problem fetching the data. Please reload the page to try again."
