@@ -10,7 +10,7 @@
     - if devise_mapping.confirmable? && resource.pending_reconfirmation?
       p = "Currently waiting confirmation for: #{resource.unconfirmed_email}."
 
-    = f.input :password, autocomplete: "off", required: false
+    = f.input :password, autocomplete: "off", required: false, hint: t('simple_form.hints.user.edit.password') if resource.encrypted_password.present?
     = f.input :password_confirmation, required: false
     = f.input :current_password, required: true
 
