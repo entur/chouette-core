@@ -23,7 +23,7 @@ en:
         <p>If a workspace has troubles providing a coherent offer, you can here select a specific offer to be used
         during aggregation. This selection will remain in place upon further action from your part.</p>
     edit_hole_sentinel:
-      title: "Holes detection settings"
+      title: "Missing offer detection settings"
 
     compliance_control_sets:
       after_import: After Import
@@ -42,6 +42,8 @@ en:
         other: Workgroups
     attributes:
       workgroup:
+        sentinel_min_hole_size: Minimum length of a missing offer
+        sentinel_delay: Distance of detection
         nightly_aggregate_enabled: Daily aggregation enabled
         nightly_aggregate_time: Aggregation time
         nightly_aggregate_notification_target: Notification target(s)
@@ -55,5 +57,5 @@ en:
   formtastic:
     hints:
       workgroup:
-        sentinel_min_hole_size: (in days) Minimum length of a hole for it to be signaled.
-        sentinel_delay: (in days) A value of 0 disables the sentinel
+        sentinel_min_hole_size: (in days) Minimum length of a missing offer to be signaled.
+        sentinel_delay: (in days) A value of 0 disables the missing offer detection
