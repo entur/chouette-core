@@ -3,7 +3,7 @@ en:
     clone:
       prefix: 'Copy of'
     filters:
-      criticity: Severity
+      criticity: Criticity
       name: "Search by a control's name or code"
       subclass: Object
       subclasses:
