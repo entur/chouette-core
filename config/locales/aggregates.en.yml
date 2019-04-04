@@ -36,7 +36,7 @@ en:
         referentials: "Data sets"
         new: Aggregated dataset
         operator: User
-        available_referentials: "Avalaible data sets"
+        available_referentials: "Available data sets"
         selected_referentials: "Selected data sets"
         notification_target: Notifications recipients
         contains_urgent_offer: Handles urgent offer
