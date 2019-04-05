@@ -6,14 +6,18 @@ class PublicationApiPolicy < ApplicationPolicy
   end
 
   def create?
-    user.has_permission?('publication_apis.create')
+    workgroup_owner? && user.has_permission?('publication_apis.create')
   end
 
   def update?
-    user.has_permission?('publication_apis.update')
+    workgroup_owner? && user.has_permission?('publication_apis.update')
   end
 
   def destroy?
-    user.has_permission?('publication_apis.destroy')
+    workgroup_owner? && user.has_permission?('publication_apis.destroy')
+  end
+
+  def workgroup_owner?
+    user.belongs_to_workgroup_owner? record&.workgroup
   end
 end

@@ -6,14 +6,18 @@ class PublicationSetupPolicy < ApplicationPolicy
   end
 
   def create?
-    user.has_permission?('publication_setups.create')
+    workgroup_owner? && user.has_permission?('publication_setups.create')
   end
 
   def update?
-    user.has_permission?('publication_setups.update')
+    workgroup_owner? && user.has_permission?('publication_setups.update')
   end
 
   def destroy?
-    user.has_permission?('publication_setups.destroy')
+    workgroup_owner? && user.has_permission?('publication_setups.destroy')
+  end
+
+  def workgroup_owner?
+    user.belongs_to_workgroup_owner? record&.workgroup
   end
 end

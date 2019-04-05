@@ -122,6 +122,12 @@ class User < ApplicationModel
     confirmed_at.present? && !invited? || invitation_accepted?
   end
 
+  def belongs_to_workgroup_owner?(workgroup)
+    return false unless workgroup
+    
+    workgroup.owner == organisation
+  end
+
   def state
     %i[blocked confirmed invited].each do |s|
       return s if send("#{s}?")
