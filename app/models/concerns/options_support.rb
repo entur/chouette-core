@@ -8,14 +8,14 @@ module OptionsSupport
     end
 
     def self.option name, opts={}
-      name = opts[:name] if opts[:name].present?
-
-      store_accessor :options, name
+      # name = opts[:name] if opts[:name].present?
+      attribute_name =  opts[:name].presence || name
+      store_accessor :options, attribute_name
 
       opts[:default_value] ||= opts.delete :default
 
       if opts[:serialize]
-        define_method name do
+        define_method attribute_name do
           val = options.stringify_keys[name.to_s]
           unless val.is_a? opts[:serialize]
             val = JSON.parse(val) rescue opts[:serialize].new
@@ -25,18 +25,18 @@ module OptionsSupport
       end
 
       if opts[:type].to_s == "boolean"
-        define_method "#{name}_with_cast" do
-          val = send "#{name}_without_cast"
+        define_method "#{attribute_name}_with_cast" do
+          val = send "#{attribute_name}_without_cast"
           val.is_a?(String) ? ["1", "true"].include?(val) : val
         end
-        alias_method_chain name, :cast
+        alias_method_chain attribute_name, :cast
       end
 
       if !!opts[:required]
         if opts[:depends]
-          validates name, presence: true, if: ->(record){ record.send(opts[:depends][:option]) == opts[:depends][:value]}
+          validates attribute_name, presence: true, if: ->(record){ record.send(opts[:depends][:option])&.to_s == opts[:depends][:value].to_s }
         else
-          validates name, presence: true
+          validates attribute_name, presence: true
         end
       end
       @options ||= {}
@@ -56,12 +56,26 @@ module OptionsSupport
     end
   end
 
+  def option_def(name)
+    name = name.to_s
+    candidates = self.class.options.select do |k, v|
+      k.to_s == name || v[:name]&.to_s == name
+    end
+    candidates = Hash.new(candidates)
+    return candidates.values.last || {} if candidates.size < 2
+
+    # if we have multiple candidates, it means that we have to filter on the `depend` value
+    candidates.find do |opt|
+      opt[:depends] && send(opt[:depends][:option])&.to_s == opt[:depends][:value].to_s
+    end || {}
+  end
+
   def visible_options
-    (options || {}).select{|k, v| ! k.match(/^_/) && !self.class.options[k.to_sym][:hidden]}
+    (options || {}).select{|k, v| ! k.match(/^_/) && !option_def(k)[:hidden]}
   end
 
   def display_option_value option_name, context
-    option = self.class.options[option_name.to_sym]
+    option = option_def(option_name)
     val = self.options[option_name.to_s]
     if option[:display]
       context.instance_exec(val, &option[:display])

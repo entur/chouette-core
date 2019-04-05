@@ -38,7 +38,7 @@
               ), \
               TableBuilderHelper::Column.new( \
                 key: :options, \
-                attribute: ->(e){ pretty_print_options(e.class, e.options) } \
+                attribute: ->(e){ pretty_print_options(e) } \
               ), \
               TableBuilderHelper::Column.new( \
                 key: :started_at, \
