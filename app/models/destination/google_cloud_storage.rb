@@ -1,24 +1,26 @@
-class Destination::GoogleCloudStorage < ::Destination
-  require "google/cloud/storage"
+if ::Destination.enabled?("google_cloud_storage")
+  class Destination::GoogleCloudStorage < ::Destination
+    require "google/cloud/storage"
 
-  option :project, required: true
-  option :bucket, required: true
+    option :project, required: true
+    option :bucket, required: true
 
-  @secret_file_required = true
+    @secret_file_required = true
 
-  def do_transmit(publication, report)
-    publication.exports.each do |export|
-      upload_to_google_cloud export.file if export[:file]
+    def do_transmit(publication, report)
+      publication.exports.each do |export|
+        upload_to_google_cloud export.file if export[:file]
+      end
     end
-  end
 
-  def upload_to_google_cloud file
-    storage = Google::Cloud::Storage.new(
-      project_id: self.project,
-      credentials: local_secret_file.path
-    )
+    def upload_to_google_cloud file
+      storage = Google::Cloud::Storage.new(
+        project_id: self.project,
+        credentials: local_secret_file.path
+      )
 
-    bucket = storage.bucket self.bucket, skip_lookup: true
-    bucket.create_file local_temp_file(file), File.basename(file.path)
+      bucket = storage.bucket self.bucket, skip_lookup: true
+      bucket.create_file local_temp_file(file), File.basename(file.path)
+    end
   end
 end
