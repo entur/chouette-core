@@ -96,7 +96,9 @@ class Workgroup < ApplicationModel
       aggregated_at.blank? || (r.flagged_urgent_at.present? && r.flagged_urgent_at > aggregated_at)
     end
 
-    aggregates.create!(referentials: target_referentials, creator: 'webservice', notification_target: nil) if target_referentials.present?
+    return if target_referentials.empty?
+
+    aggregates.create!(referentials: aggregatable_referentials, creator: 'webservice', notification_target: nil)
   end
 
   def nightly_aggregate!
@@ -111,7 +113,7 @@ class Workgroup < ApplicationModel
       return
     end
 
-    nightly_aggregates.create!(referentials: target_referentials, creator: 'CRON', notification_target: nightly_aggregate_notification_target)
+    nightly_aggregates.create!(referentials: aggregatable_referentials, creator: 'CRON', notification_target: nightly_aggregate_notification_target)
     update(nightly_aggregated_at: Time.current)
   end
 
