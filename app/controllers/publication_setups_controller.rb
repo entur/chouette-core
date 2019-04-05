@@ -36,7 +36,7 @@ class PublicationSetupsController < ChouetteController
     publication_setup_params[:workgroup_id] = parent.id
     export_class = publication_setup_params[:export_type] && publication_setup_params[:export_type].safe_constantize
     if export_class
-      permitted_keys << { export_options: export_class.options.keys }
+      permitted_keys << { export_options: export_class.options.map {|k, v| v[:name].presence || k } }
     end
     permitted_destinations_attributes = [:id, :name, :type, :_destroy, :secret_file, :publication_setup_id, :publication_api_id]
     permitted_destinations_attributes += Destination.descendants.map{ |t| t.options.keys }.uniq
