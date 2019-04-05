@@ -8,6 +8,11 @@ RSpec.describe PublicationApisController, type: :controller do
   let(:workgroup){ workbench.workgroup }
   let(:publication_api_params){ { name: "Demo", slug: "demo" } }
   let(:publication_api){ create(:publication_api, workgroup: workgroup) }
+
+  before(:each){
+    workgroup.update owner: organisation
+  }
+
   with_feature "manage_publications" do
     describe "GET index" do
       let(:request){ get :index, workgroup_id: workgroup.id }
