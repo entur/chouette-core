@@ -10,6 +10,10 @@ class Export::Netex < Export::Base
     end
   end
 
+  def synchronous
+    false
+  end
+
   def self.human_name(options={})
     I18n.t("export.#{self.name.demodulize.underscore}.#{options['export_type'] || :default}")
   end
