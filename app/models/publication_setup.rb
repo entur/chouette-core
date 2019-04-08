@@ -1,4 +1,4 @@
-module PublicationSetupWithDefaultExportOptions
+  module PublicationSetupWithDefaultExportOptions
   def export_options
     super || {}
   end
@@ -14,6 +14,7 @@ class PublicationSetup < ApplicationModel
   validates :name, presence: true
   validates :workgroup, presence: true
   validates :export_type, presence: true
+  validate :export_options_are_valid
 
   accepts_nested_attributes_for :destinations, allow_destroy: true, reject_if: :all_blank
 
@@ -29,6 +30,14 @@ class PublicationSetup < ApplicationModel
 
   def export_creator_name
     "#{self.class.ts} #{name}"
+  end
+
+  def export_options_are_valid
+    dummy = new_export
+    dummy.validate
+    dummy.errors.to_h.except(:name, :referential_id).each do |k, v|
+      errors.add(k, v)
+    end
   end
 
   def new_export(extra_options={})

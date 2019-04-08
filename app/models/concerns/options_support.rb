@@ -32,13 +32,20 @@ module OptionsSupport
         alias_method_chain attribute_name, :cast
       end
 
+      condition = ->(record){ true }
+      condition = ->(record){ record.send(opts[:depends][:option])&.to_s == opts[:depends][:value].to_s } if opts[:depends]
+
       if !!opts[:required]
-        if opts[:depends]
-          validates attribute_name, presence: true, if: ->(record){ record.send(opts[:depends][:option])&.to_s == opts[:depends][:value].to_s }
-        else
-          validates attribute_name, presence: true
-        end
+        validates attribute_name, presence: true, if: condition
       end
+
+      min = opts[:min].presence
+      max = opts[:max].presence
+
+      if min || max
+        validates attribute_name, numericality: { less_than_or_equal_to: max, greater_than_or_equal_to: min }, if: condition
+      end
+
       @options ||= {}
       @options[name] = opts
 
