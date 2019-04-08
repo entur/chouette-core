@@ -2,7 +2,7 @@ en:
   notification_suspensions:
     search_no_results: "No notification suspension matching your query"
     actions:
-      index: Notification suspensions
+      index: Notifications center
       new: Add a notification suspensions
       destroy: Delete the notification suspension
       destroy_confirm: Are you sure you want to delete the notification suspension ?

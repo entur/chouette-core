@@ -40,7 +40,7 @@ fr:
       workbench:
         subtitle: Espace de travail
         edit_control_sets: Jeux de Contrôle
-        notification_rules: Désactivations de notification
+        notification_rules: Centre de notification
       workgroup:
         subtitle: Groupe de Travail
         edit_control_sets: Jeux de Contrôle
