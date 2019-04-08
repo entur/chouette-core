@@ -51,6 +51,18 @@ class Export::Base < ActiveRecord::Base
   end
   alias_method :human_type, :human_name
 
+  def notify_parent
+    return false unless finished?
+    return false if notified_parent_at
+
+    return false unless parent.present? || publication.present?
+    parent&.child_change
+    publication&.child_change
+
+    update_column :notified_parent_at, Time.now
+    true
+  end
+  
   def run
     update status: 'running', started_at: Time.now
     export

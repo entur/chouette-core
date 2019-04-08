@@ -72,7 +72,7 @@ module IevInterfaces::Task
   end
 
   def notify_parent
-    return false unless self.class.finished_statuses.include?(status)
+    return false unless finished?
 
     return false unless parent.present?
     return false if notified_parent_at
