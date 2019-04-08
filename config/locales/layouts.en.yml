@@ -40,6 +40,7 @@ en:
       workbench:
         subtitle: Workbench
         edit_control_sets: Controls settings
+        notification_rules: Notification's suspension
       workgroup:
         subtitle: Workgroup
         edit_control_sets: Controls settings
