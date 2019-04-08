@@ -124,7 +124,7 @@ RSpec.describe Publication, type: :model do
 
     context 'With a NETEX export by line' do
       let(:export_type) { 'Export::Netex' }
-      let(:export_options) { { export_type: :line } }
+      let(:export_options) { { export_type: :line, duration: 365 } }
 
       before(:each) do
         allow_any_instance_of(Export::Netex).to receive(:save!).and_wrap_original do |m, *args|
