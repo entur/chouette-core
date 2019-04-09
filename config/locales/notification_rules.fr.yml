@@ -1,21 +1,21 @@
 fr:
   notification_rules:
-    search_no_results: "Aucune règle de notification ne correspond à votre recherche"
+    search_no_results: "Aucune désactivation de notification ne correspond à votre recherche"
     actions:
-      index: Règles de notifications
-      new: Ajouter une règle de notification
-      destroy: Supprimer la règle de notification
-      destroy_confirm: Êtes-vous sûr de vouloir supprimer la règle de notification ?
+      index: Centre de notifications
+      new: Ajouter une désactivation de notification
+      destroy: Supprimer la désactivation de notification
+      destroy_confirm: Êtes-vous sûr de vouloir supprimer la désactivation de notification ?
     index:
-      title: Règles de notifications
+      title: Centre de notifications
     show:
-      title: Règle de notification
+      title: Désactivation de notification
     edit: &notification_rule_edit
-      title: Editer la règle de notification
+      title: Editer la désactivation de notification
     update:
       <<: *notification_rule_edit
     new: &notification_rule_new
-      edit: Ajouter une règle de notification
+      edit: Ajouter une désactivation de notification
     create:
       <<: *notification_rule_new
     notification_types:
@@ -24,13 +24,13 @@ fr:
       period: "Invalid period"
   activerecord:
     models:
-      organisation:
-        zero: "règle de notification"
-        one: "règle de notification"
-        other: "règles de notification"
+      notification_rule:
+        zero: "désactivation de notification"
+        one: "désactivation de notification"
+        other: "désactivations de notification"
     attributes:
       notification_rule:
-        period: Période
+        period: Période de désactivation
         notification_type: Type de notification
         line_id: Ligne
         name: "%{notification_type} du %{from} au %{to}"
