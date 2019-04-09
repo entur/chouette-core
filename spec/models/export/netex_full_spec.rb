@@ -4,15 +4,18 @@ RSpec.describe Export::NetexFull, type: [:model, :with_exportable_referential] d
   let(:synchronous){ false }
   it 'should call a worker' do
     expect(NetexFullExportWorker).to receive(:perform_async_or_fail)
-    export.run_callbacks(:commit)
+    export
   end
 
   context 'when synchronous' do
     let(:synchronous){ true }
     it 'should not call a worker' do
       expect(NetexFullExportWorker).to_not receive(:perform_async_or_fail)
-      expect(export).to receive :upload_file
-      export.run_callbacks(:commit)
+      allow_any_instance_of(Export::NetexFull).to receive(:upload_file) do |m|
+        expect(m.owner).to eq export
+      end
+
+      export
     end
 
     context 'with journeys' do
@@ -22,8 +25,10 @@ RSpec.describe Export::NetexFull, type: [:model, :with_exportable_referential] d
         expect(Chouette::Netex::Document).to receive(:new).and_call_original
         expect_any_instance_of(Chouette::Netex::Document).to receive(:build)
         expect_any_instance_of(Chouette::Netex::Document).to receive(:to_xml)
-        expect(export).to receive :upload_file
-        export.run_callbacks(:commit)
+        allow_any_instance_of(Export::NetexFull).to receive(:upload_file) do |m|
+          expect(m.owner).to eq export
+        end
+        export
       end
     end
   end

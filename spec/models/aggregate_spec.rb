@@ -60,7 +60,10 @@ RSpec.describe Aggregate, type: :model do
         status: :successful,
         referentials: 2.times.map { create_referential.tap(&:merged!) }
       }.merge(attributes)
-      create :aggregate, attributes
+      status = attributes.delete(:status)
+      aggregate = create :aggregate, attributes
+      aggregate.update status: status
+      aggregate
     end
 
     let(:previous_aggregate){ create_aggregate }

@@ -6,7 +6,7 @@ RSpec.describe RoutingConstraintZonesController, :type => :controller do
   let(:q)     { {} }
 
   describe 'GET index' do
-    let(:request){ get :index, referential_id: referential.id, line_id: route.line_id, q: q }
+    let(:request){ get :index, params: { referential_id: referential.id, line_id: route.line_id, q: q }}
 
     before(:each){ referential.update objectid_format: :netex }
 

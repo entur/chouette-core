@@ -9,7 +9,7 @@ describe "/stop_area_referentials/show", :type => :view do
 
   before :each do
     controller.request.path_parameters[:id] = stop_area_referential.id
-    allow(view).to receive(:params).and_return({action: :show})
+    allow(view).to receive(:params).and_return(ActionController::Parameters.new(action: :show))
     allow(view).to receive(:resource).and_return(stop_area_referential)
     allow(view).to receive(:resource_class).and_return(stop_area_referential.class)
     render template: "stop_area_referentials/show", layout: "layouts/application"

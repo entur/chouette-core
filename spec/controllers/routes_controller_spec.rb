@@ -60,7 +60,7 @@ RSpec.describe RoutesController, type: :controller do
       put :update, params: {
         id: route.id, line_id: route.line_id,
         referential_id: referential.id,
-        route: route.attributes.update({name: "New name"})
+        route: route.attributes.update({'name' => "New name"})
       }
     }
     before(:each) do
@@ -75,6 +75,7 @@ RSpec.describe RoutesController, type: :controller do
         expect(Chouette::Route.last.metadata.modifier_username).to eq @user.username
       end
       it "updates checksum" do
+        expect(route.reload.name).to eq "New name"
         expect(route.reload.checksum_source).to_not eq @checksum_source
       end
     end

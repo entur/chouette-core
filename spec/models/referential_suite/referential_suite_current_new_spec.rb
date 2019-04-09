@@ -44,7 +44,7 @@ RSpec.describe ReferentialSuite do
         it do
           subject.current_id = current.id
           expect_it.not_to be_valid
-          expect( subject.errors.messages[:inconsistent_new] ).to be_nil
+          expect( subject.errors.messages[:inconsistent_new] ).to be_empty
           expect( subject.errors.messages[:inconsistent_current].first ).to match(%r<#{current.name}>)
         end
       end
@@ -55,7 +55,7 @@ RSpec.describe ReferentialSuite do
           subject.current_id = current.id
           subject.new_id = new.id
           expect_it.not_to be_valid
-          expect( subject.errors.messages[:inconsistent_current] ).to be_nil
+          expect( subject.errors.messages[:inconsistent_current] ).to be_empty
           expect( subject.errors.messages[:inconsistent_new].first ).to match(%r<#{new.name}>)
         end
       end

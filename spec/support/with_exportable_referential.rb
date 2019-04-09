@@ -42,14 +42,14 @@ RSpec.shared_context 'with exportable journeys' do
       line_referential.lines.each do |line|
         # 2*2 routes with 5 stop_areas each
         factor.times do
-          stop_areas = stop_area_referential.stop_areas.order("random()").limit(5)
+          stop_areas = stop_area_referential.stop_areas.order(Arel.sql('random()')).limit(5)
           FactoryGirl.create :route, line: line, stop_areas: stop_areas, stop_points_count: 0
         end
       end
 
       referential.routes.each_with_index do |route, index|
-        route.stop_points.each do |sp|
-          sp.set_list_position 0
+        route.stop_points.each_with_index do |sp, i|
+          sp.set_list_position i
         end
 
         if index.even?

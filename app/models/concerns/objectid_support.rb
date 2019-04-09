@@ -95,10 +95,11 @@ module ObjectidSupport
     def referential_identifier
       %w[line_referential stop_area_referential].each do |name|
         if (r = self.class.reflections[name])
-          return [r.klass, { id: send(r.foreign_key) }]
+          id  = send(r.foreign_key)
+          return id  ? [r.klass, { id: id }] : nil
         end
       end
-      [Referential, { slug: referential_slug }]
+      referential_slug ? [Referential, { slug: referential_slug }] : nil
     end
 
     def before_validation_objectid
@@ -110,7 +111,8 @@ module ObjectidSupport
     end
 
     def get_objectid
-      objectid_formatter.get_objectid read_attribute(:objectid) if self.class.has_objectid_format?(*referential_identifier) && read_attribute(:objectid)
+      identifier = referential_identifier
+      objectid_formatter.get_objectid read_attribute(:objectid) if identifier.present? && self.class.has_objectid_format?(*identifier) && read_attribute(:objectid)
     end
 
     def objectid

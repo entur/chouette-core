@@ -15,7 +15,7 @@ module Chouette
     belongs_to :route, inverse_of: :stop_points
     has_many :journey_patterns, through: :route
     has_many :vehicle_journey_at_stops, dependent: :destroy
-    has_many :vehicle_journeys, -> {uniq}, through: :vehicle_journey_at_stops
+    has_many :vehicle_journeys, -> { distinct }, through: :vehicle_journey_at_stops
 
     belongs_to_array_in_many :routing_constraint_zones, class_name: "Chouette::RoutingConstraintZone", array_name: :stop_points
 

@@ -33,24 +33,24 @@ class UsersController < ChouetteController
 
   def block
     resource.lock_access!
-    redirect_to :back
+    redirect_back fallback_location: root_path
   end
 
   def unblock
     resource.unlock_access!
-    redirect_to :back
+    redirect_back fallback_location: root_path
   end
 
   def reinvite
     resource.invite_from_user! current_user
     flash[:notice] = t('users.actions.reinvite_flash')
-    redirect_to :back
+    redirect_back fallback_location: root_path
   end
 
   def reset_password
     resource.send_reset_password_instructions
     flash[:notice] = t('users.actions.reset_password_flash')
-    redirect_to :back
+    redirect_back fallback_location: root_path
   end
 
   private

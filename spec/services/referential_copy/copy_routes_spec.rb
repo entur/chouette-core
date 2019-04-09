@@ -35,7 +35,9 @@ RSpec.describe ReferentialCopy do
   context "#copy_routes" do
     let!(:route){
       referential.switch do
-        create(:route, :with_opposite, line: line_referential.lines.first)
+        route = create(:route, :with_opposite, line: line_referential.lines.first)
+        expect(route.opposite_route.reload.opposite_route).to eq route
+        route
       end
     }
 
@@ -52,8 +54,12 @@ RSpec.describe ReferentialCopy do
         expect{ referential_copy.send(:copy_routes, line_referential.lines.first.reload) }.to change{ target.switch{ Chouette::Route.count } }.by 2
         former_route = referential.switch { route.reload }
         former_opposite_route = referential.switch { route.opposite_route.reload }
+        expect(former_route).to be_present
+        expect(former_opposite_route).to be_present
         new_route = target.switch{ Chouette::Route.where(name: former_route.name).last }
+        expect(new_route).to be_present
         new_opposite_route = target.switch{ new_route.opposite_route }
+        expect(new_opposite_route).to be_present
         expect(referential_copy.send(:clean_attributes_for_copy, former_route)).to eq referential_copy.send(:clean_attributes_for_copy, new_route)
         expect(referential_copy.send(:clean_attributes_for_copy, former_opposite_route)).to eq referential_copy.send(:clean_attributes_for_copy, new_opposite_route)
       end

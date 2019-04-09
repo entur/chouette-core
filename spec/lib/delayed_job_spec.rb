@@ -20,8 +20,8 @@ RSpec.describe Delayed::Job do
   end
 
   describe '#for_organisation' do
-    let!(:job){ create(:gtfs_import, workbench: workbench).import_async }
-    let!(:other_job){ create(:gtfs_import).import_async }
+    let!(:job){ create(:gtfs_import, workbench: workbench); Delayed::Job.last }
+    let!(:other_job){ create(:gtfs_import); Delayed::Job.last }
 
     it 'should return then relevant jobs' do
       expect(job.organisation_id).to eq organisation.id
@@ -40,11 +40,18 @@ RSpec.describe Delayed::Job do
 
     context 'with jobs' do
       let!(:running_job) do
-        job = create(:gtfs_import, workbench: workbench).import_async
+        create(:gtfs_import, workbench: workbench)
+        Delayed::Job.first.delete # we delete the Workbench import job
+        job = Delayed::Job.last
         job.update locked_at: Time.now, locked_by: 'Foo'
         job
       end
-      let!(:job){ create(:gtfs_import, workbench: workbench).delay(priority: 5).import }
+      let!(:job) do
+        id = Delayed::Job.last.id
+        import = create(:gtfs_import, workbench: workbench)
+        Delayed::Job.where('id > ?', id).delete_all
+        import.delay(priority: 5).import
+      end
 
       context 'with no other organisation in the queue' do
         it 'should lock the job' do
@@ -54,7 +61,12 @@ RSpec.describe Delayed::Job do
       end
 
       context 'with another organisation in the queue' do
-        let!(:other_job){ create(:gtfs_import).delay(priority: 5).import }
+        let!(:other_job) do
+          id = Delayed::Job.last.id
+          import = create(:gtfs_import)
+          Delayed::Job.where('id > ?', id).delete_all
+          import.delay(priority: 5).import
+        end
 
         it 'should prioritize the other organisation' do
           Delayed::Backend::ActiveRecord::Job.reserve(worker)
@@ -66,7 +78,12 @@ RSpec.describe Delayed::Job do
       end
 
       context 'with another organisation in the queue but a lower priority' do
-        let!(:other_job){ create(:gtfs_import).delay(priority: 10).import }
+        let!(:other_job) do
+          id = Delayed::Job.last.id
+          import = create(:gtfs_import)
+          Delayed::Job.where('id > ?', id).delete_all
+          import.delay(priority: 10).import
+        end
 
         it 'should prioritize first job' do
           Delayed::Backend::ActiveRecord::Job.reserve(worker)

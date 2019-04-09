@@ -213,7 +213,7 @@ group :test, :development do
   gem 'pry-byebug'
   gem 'rspec-rails'
   gem 'webmock'
-  gem 'capybara', '~> 2.4.0'
+  gem 'capybara', '~> 3.15.0'
   gem 'database_cleaner'
   gem 'poltergeist'
   gem 'launchy'

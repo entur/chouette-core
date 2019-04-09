@@ -14,7 +14,7 @@ RSpec.describe PublicationSetup, type: :model do
     let(:operation) { create :aggregate, new: referential }
 
     it 'should create a Publication' do
-      expect{ publication_setup.publish(referential) }.to change{ publication_setup.publications.count }.by 1
+      expect{ publication_setup.publish(operation) }.to change{ publication_setup.publications.count }.by 1
     end
   end
 end

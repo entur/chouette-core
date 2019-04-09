@@ -37,9 +37,13 @@ RSpec.describe Merge do
       attributes = {
         workbench: workbench,
         status: :successful,
-        referentials: 2.times.map { create_referential.tap(&:merged!) }
+        referentials: 2.times.map { create_referential }
       }.merge(attributes)
-      create :merge, attributes
+      status = attributes.delete(:status)
+      m = create :merge, attributes
+      m.update status: status
+      m.referentials.each &:merged!
+      m
     end
 
     let(:previous_merge){ create_merge }
@@ -77,7 +81,21 @@ RSpec.describe Merge do
       end
 
       it "should mark other merges source referentials as not merged" do
+        previous_merge.reload.referentials.each do |r|
+          expect(r.merged_at).to_not be_nil
+          expect(r.archived_at).to_not be_nil
+        end
+        merge.reload.referentials.each do |r|
+          expect(r.merged_at).to_not be_nil
+          expect(r.archived_at).to_not be_nil
+        end
+        final_merge.reload.referentials.each do |r|
+          expect(r.merged_at).to_not be_nil
+          expect(r.archived_at).to_not be_nil
+        end
+
         merge.rollback!
+
         previous_merge.reload.referentials.each do |r|
           expect(r.merged_at).to_not be_nil
           expect(r.archived_at).to_not be_nil

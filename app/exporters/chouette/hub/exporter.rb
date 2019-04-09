@@ -197,8 +197,8 @@ class Chouette::Hub::Exporter
           end
 
           if lines_exportable?
-            stop_areas = Chouette::StopArea.joins( :stop_points => [:route => :line]).where(:lines => {:id => lines.map(&:id)}).uniq.order(:name)
-            commercial_stop_areas = Chouette::StopArea.where( :id => stop_areas.map(&:parent_id).compact.uniq).order(:name)
+            stop_areas = Chouette::StopArea.joins( :stop_points => [:route => :line]).where(:lines => {:id => lines.map(&:id)}).distinct.order(:name)
+            commercial_stop_areas = Chouette::StopArea.where( :id => stop_areas.map(&:parent_id).compact.distinct).order(:name)
           end
 
           ::Zip::File.open(zip_file_path, ::Zip::File::CREATE) do |zipfile|

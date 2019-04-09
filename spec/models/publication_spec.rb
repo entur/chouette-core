@@ -15,11 +15,8 @@ RSpec.describe Publication, type: :model do
   let(:operation) { create :aggregate, referentials: [first_referential] }
 
   before(:each) do
+    operation.update status: :successful
     allow(operation).to receive(:new){ referential }
-    allow_any_instance_of(Publication).to receive(:save!).and_wrap_original do |m, *args|
-      m.call(*args)
-      m.receiver.run_callbacks(:commit)
-    end
 
     2.times do
       referential.metadatas.create line_ids: [create(:line, line_referential: referential.line_referential).id], periodes: [Time.now..1.month.from_now]
@@ -56,13 +53,6 @@ RSpec.describe Publication, type: :model do
   end
 
   describe '#run_export' do
-    before do
-      allow_any_instance_of(Export::Gtfs).to receive(:save!).and_wrap_original do |m, *args|
-        m.call(*args)
-        m.receiver.run_callbacks(:commit)
-      end
-    end
-
     it 'should create an export' do
       expect{ publication.run_export }.to change{ Export::Gtfs.count }.by 1
       expect(GTFSExportWorker).to_not receive(:perform_async_or_fail)
@@ -125,13 +115,6 @@ RSpec.describe Publication, type: :model do
     context 'With a NETEX export by line' do
       let(:export_type) { 'Export::Netex' }
       let(:export_options) { { export_type: :line, duration: 365 } }
-
-      before(:each) do
-        allow_any_instance_of(Export::Netex).to receive(:save!).and_wrap_original do |m, *args|
-          m.call(*args)
-          m.receiver.run_callbacks(:commit)
-        end
-      end
 
       context 'when the export succeeds' do
         before(:each) do

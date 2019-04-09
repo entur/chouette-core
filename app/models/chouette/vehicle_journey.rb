@@ -88,7 +88,7 @@ module Chouette
 
     scope :ending_with, ->(id){
       if id.present?
-        pattern_ids = all.select(:journey_pattern_id).uniq.map(&:journey_pattern_id)
+        pattern_ids = all.select(:journey_pattern_id).distinct.map(&:journey_pattern_id)
         pattern_ids = Chouette::JourneyPattern.where(id: pattern_ids).to_a.select{|jp| p "ici: #{jp.stop_points.order(:position).last.stop_area_id}" ; jp.stop_points.order(:position).last.stop_area_id == id.to_i}.map &:id
         where(journey_pattern_id: pattern_ids)
       else
@@ -98,7 +98,7 @@ module Chouette
 
     scope :in_purchase_window, ->(range){
       purchase_windows = Chouette::PurchaseWindow.overlap_dates(range)
-      sql = purchase_windows.joins(:vehicle_journeys).select('vehicle_journeys.id').uniq.to_sql
+      sql = purchase_windows.joins(:vehicle_journeys).select('vehicle_journeys.id').distinct.to_sql
       where("vehicle_journeys.id IN (#{sql})")
     }
 

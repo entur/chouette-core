@@ -1,7 +1,7 @@
 module Chouette::ChecksumManager
   class Base
     def child_after_save object
-      if object.changed? || object.destroyed?
+      if object.saved_changes.present? || object.destroyed?
         parents = Chouette::ChecksumManager.checksum_parents object
         log "Request from #{object.class.name}##{object.id} checksum updates for #{parents.count} parent(s): #{Chouette::ChecksumManager.parents_to_sentence(parents)}"
         parents.each { |parent| Chouette::ChecksumManager.watch parent, from: object }

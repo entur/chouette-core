@@ -153,14 +153,14 @@ module Chouette::ChecksumManager
       if object.respond_to? has_many
         # XXX: SOME OPTIM POSSIBLE HERE
         if reflection && object.association(has_many.intern).loaded?
-          log "parents are already loaded"
+          log "#{has_many} parents are already loaded"
           parents += object.send(has_many).map{|p| SerializedObject.new(p, need_save: true)}
         else
           if reflection && !reflection.options[:through]
-            log "parent are not loaded but can be inferred from reflection"
+            log "#{has_many} parent are not loaded but can be inferred from reflection"
             parents += [reflection.klass.name].product(object.send(has_many).pluck(reflection.foreign_key).compact)
           else
-            log "parents have to be loaded"
+            log "#{has_many} parents have to be loaded"
             # the relation is not a true ActiveRecord Relation
             parents += object.send(has_many).map { |p| SerializedObject.new(p, need_save: true, load_object: true)}
           end

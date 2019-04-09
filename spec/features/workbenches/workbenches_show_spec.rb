@@ -205,9 +205,9 @@ RSpec.describe 'Workbenches', type: :feature do
 
       context 'filter by validity period' do
         def fill_validity_field date, field
-          select date.year,  :from => "q[validity_period][#{field}(1i)]"
+          select date.year.to_s,  :from => "q[validity_period][#{field}(1i)]"
           select I18n.t("date.month_names")[date.month], :from => "q[validity_period][#{field}(2i)]"
-          select date.day,   :from => "q[validity_period][#{field}(3i)]"
+          select date.day.to_s,   :from => "q[validity_period][#{field}(3i)]"
         end
 
         it 'should show results for referential in range' do

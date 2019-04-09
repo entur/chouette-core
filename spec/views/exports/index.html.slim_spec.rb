@@ -18,7 +18,7 @@ RSpec.describe '/exports/index', :type => :view do
     allow(view).to receive(:collection_path).and_return(workbench_exports_path(workbench))
     allow(view).to receive(:collection).and_return(exports)
     allow(view).to receive(:decorated_collection).and_return(exports)
-    allow(view).to receive(:params).and_return({action: :index})
+    allow(view).to receive(:params).and_return(ActionController::Parameters.new(action: :index))
     allow(view).to receive(:parent).and_return(workbench)
     controller.request.path_parameters[:workbench_id] = workbench.id
     controller.request.path_parameters[:action] = "index"

@@ -70,7 +70,7 @@ class ReferentialCopy
   def copy_time_tables
     Chouette::TimeTable.transaction do
       source.switch do
-        Chouette::TimeTable.linked_to_lines(lines).uniq.find_each do |tt|
+        Chouette::TimeTable.linked_to_lines(lines).distinct.find_each do |tt|
           attributes = clean_attributes_for_copy tt
           target.switch do
             new_tt = Chouette::TimeTable.new attributes
@@ -100,7 +100,7 @@ class ReferentialCopy
   def copy_purchase_windows
     Chouette::PurchaseWindow.transaction do
       source.switch do
-        Chouette::PurchaseWindow.linked_to_lines(lines).uniq.find_each do |pw|
+        Chouette::PurchaseWindow.linked_to_lines(lines).distinct.find_each do |pw|
           attributes = clean_attributes_for_copy pw
           target.switch do
             new_pw = Chouette::PurchaseWindow.new attributes
