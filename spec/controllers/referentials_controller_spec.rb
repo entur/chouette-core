@@ -83,7 +83,7 @@ describe ReferentialsController, :type => :controller do
     let(:metadatas_attributes){
       [
         {
-          line_ids: [referential.line_referential.lines.last.id],
+          lines: [referential.line_referential.lines.last.id],
           periods_attributes: {
             '0' => {
               "begin"=>"2016-09-19",

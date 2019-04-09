@@ -9,9 +9,9 @@ GIT
 
 GIT
   remote: https://github.com/af83/has_array_of.git
-  revision: 07b218bd0332a80b29966bcd62816cbdfac91fa3
+  revision: 4e6769708a15065c73eccb4fd97f794f34461b14
   specs:
-    has_array_of (0.0.6)
+    has_array_of (0.0.7)
       activerecord (~> 5.0)
       pg (~> 0.20.0)
       railties (>= 5.0)
@@ -446,7 +446,7 @@ GEM
       activesupport (>= 3.0.0)
     rabl (0.13.1)
       activesupport (>= 2.3.14)
-    rack (2.0.6)
+    rack (2.0.7)
     rack-livereload (0.3.16)
       rack
     rack-protection (2.0.5)
