@@ -23,7 +23,7 @@ fr:
     edit:
       title: "Editer l'utilisateur %{name}"
     show:
-      title: "Utilisateur %{name}"
+      title: "Utilisateurs"
     index:
       title: "Utilisateurs"
       name_or_email_cont: "Nom ou email"
