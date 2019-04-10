@@ -35,6 +35,24 @@ module Chouette
       @dummy = false
     end
 
+    %i[departure_time arrival_time].each do |attr|
+      define_method "#{attr}=" do |val|
+        if val
+          if val.is_a?(String)
+            tz = Time.zone
+            Time.zone = 'UTC'
+            val = Time.zone.parse val
+            Time.zone = tz
+          end
+        end
+        self[attr] = val
+      end
+
+      define_method attr do
+        self[attr]&.utc
+      end
+    end
+
     def day_offset_must_be_within_range
       if day_offset_outside_range?(arrival_day_offset)
         errors.add(
@@ -131,7 +149,7 @@ module Chouette
     private
     def local_time time, offset=nil
       return nil unless time
-      handle_midnight(time) + (offset || time_zone_offset)
+      (handle_midnight(time) + (offset || time_zone_offset)).utc
     end
 
     def format_time time

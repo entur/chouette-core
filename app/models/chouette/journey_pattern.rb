@@ -42,8 +42,10 @@ module Chouette
     def self.state_update route, state
       transaction do
         state.each do |item|
+          pp item
           item.delete('errors')
           jp = find_by(objectid: item['object_id']) || state_create_instance(route, item)
+          pp jp
           next if item['deletable'] && jp.persisted? && jp.destroy
           begin
             ::ActiveRecord::Base.transaction do
@@ -53,9 +55,11 @@ module Chouette
               jp.save!
             end
           rescue => e
+            pp e
             Rails.logger.error e
           end
           item['errors']   = jp.errors if jp.errors.any?
+          pp jp.errors if jp.errors.any?
           item['checksum'] = jp.checksum
         end
 

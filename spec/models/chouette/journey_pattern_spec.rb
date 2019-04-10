@@ -224,9 +224,10 @@ describe Chouette::JourneyPattern, :type => :model do
       jp.stop_points = jp.route.stop_points
       new_state = journey_pattern_to_state(jp)
       collection = [new_state]
+      jp.delete
       expect {
         Chouette::JourneyPattern.state_update route, collection
-      }.to change{Chouette::JourneyPattern.count}.by(1)
+      }.to change{ Chouette::JourneyPattern.count }.by(1)
     end
 
     it 'should delete journey_pattern' do

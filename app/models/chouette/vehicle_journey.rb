@@ -107,7 +107,7 @@ module Chouette
       joins(:vehicle_journey_at_stops)
       .select('id', field)
       .group(:id)
-      .order("#{field} #{dir}")
+      .order(Arel.sql("#{field} #{dir}"))
     }
 
     scope :order_by_arrival_time, -> (dir) {
@@ -115,7 +115,7 @@ module Chouette
       joins(:vehicle_journey_at_stops)
       .select('id', field)
       .group(:id)
-      .order("#{field} #{dir}")
+      .order(Arel.sql("#{field} #{dir}"))
     }
 
     scope :without_any_purchase_window, -> { joins('LEFT JOIN purchase_windows_vehicle_journeys ON purchase_windows_vehicle_journeys.vehicle_journey_id = vehicle_journeys.id LEFT JOIN purchase_windows ON purchase_windows.id = purchase_windows_vehicle_journeys.purchase_window_id').where(purchase_windows: { id: nil }) }

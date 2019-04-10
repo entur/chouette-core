@@ -504,7 +504,7 @@ describe Chouette::VehicleJourney, :type => :model do
 
     before(:each){
       referential.switch
-      referential.vehicle_journeys.push(vj1, vj2, vj3)
+      referential.vehicle_journeys.to_a.push(vj1, vj2, vj3)
     }
 
     context '#order_by_departure_time' do
@@ -709,9 +709,10 @@ describe Chouette::VehicleJourney, :type => :model do
                    :departure_time  => '2000-01-01 00:00:00 UTC')
       end
       collection << vehicle_journey_to_state(new_vj)
+
       expect {
         Chouette::VehicleJourney.state_update(route, collection)
-      }.not_to change {Chouette::VehicleJourneyAtStop.count}
+      }.not_to change { Chouette::VehicleJourneyAtStop.count }
     end
 
     it 'should update vj journey_pattern association' do
@@ -1251,7 +1252,7 @@ describe Chouette::VehicleJourney, :type => :model do
   end
 
   def offset_passing_time time, offset
-    new_time = time + offset
+    new_time = (time + offset).utc
     "2000-01-01 #{new_time.hour}:#{new_time.min}:#{new_time.sec} UTC".to_time
   end
 
