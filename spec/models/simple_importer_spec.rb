@@ -32,7 +32,7 @@ RSpec.describe SimpleImporter do
     let(:importer){ importer = SimpleImporter.new(configuration_name: :test, filepath: filepath) }
     let(:filepath){ fixtures_path 'simple_importer', filename }
     let(:filename){ "stop_area.csv" }
-    let(:stop_area_referential){ create(:stop_area_referential, objectid_format: :stif_netex) }
+    let(:stop_area_referential){ create(:stop_area_referential, objectid_format: :netex) }
 
     before(:each) do
       SimpleImporter.define :test do |config|
@@ -245,7 +245,7 @@ RSpec.describe SimpleImporter do
         SimpleImporter.define :test do |config|
           config.model = Chouette::Route
           config.separator = ";"
-          config.context = {stop_area_referential: stop_area_referential}
+          config.context = { stop_area_referential: stop_area_referential }
 
           config.before do |importer|
             mapping = {}
@@ -340,7 +340,8 @@ RSpec.describe SimpleImporter do
         journey_pattern_count = Chouette::JourneyPattern.count
         stop_areas_count = Chouette::StopArea.count
 
-        expect{importer.import(verbose: false)}.to change{Chouette::StopPoint.count}.by 10
+        expect{ importer.import(verbose: false); pp Chouette::Route.find_by(number: 1137).opposite_route_id }.to change{ Chouette::StopPoint.count }.by 10
+
         expect(importer.status).to eq "success"
         expect(Chouette::Route.count).to eq routes_count + 2
         expect(Chouette::JourneyPattern.count).to eq journey_pattern_count + 2

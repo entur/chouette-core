@@ -44,7 +44,7 @@ RSpec.describe WorkbenchImportService, type: [:request, :zip] do
       expect{ worker.perform( workbench_import.id ) }.not_to change{ workbench_import.messages.count }
       expect( workbench_import.reload.attributes.values_at(*%w{current_step total_steps}) )
         .to eq([2, 2])
-      expect( workbench_import.reload.status ).to eq('new')
+      expect( workbench_import.reload.status ).to eq('running')
     end
 
   end

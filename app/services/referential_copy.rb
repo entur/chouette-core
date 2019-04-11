@@ -82,6 +82,7 @@ class ReferentialCopy
             copy_bulk_collection tt.periods do |new_period_attributes|
               new_period_attributes[:time_table_id] = new_tt.id
             end
+            new_tt.reload.save_shortcuts
           end
         end
         target.switch do
