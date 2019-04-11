@@ -340,7 +340,7 @@ RSpec.describe SimpleImporter do
         journey_pattern_count = Chouette::JourneyPattern.count
         stop_areas_count = Chouette::StopArea.count
 
-        expect{ importer.import(verbose: false); pp Chouette::Route.find_by(number: 1137).opposite_route_id }.to change{ Chouette::StopPoint.count }.by 10
+        expect{ importer.import(verbose: false) }.to change{ Chouette::StopPoint.count }.by 10
 
         expect(importer.status).to eq "success"
         expect(Chouette::Route.count).to eq routes_count + 2
