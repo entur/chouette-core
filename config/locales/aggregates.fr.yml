@@ -4,7 +4,7 @@ fr:
     index:
       title: "Agrégations de l'offre"
     new:
-      title: "Nouvelle agrégation de l'offre"
+      title: "Nouvelle agrégation des offres"
     show:
       title: "Agrégation de l'offre %{name}"
       finalized_offer: "Offre finalisée"

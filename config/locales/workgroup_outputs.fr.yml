@@ -1,7 +1,7 @@
 fr:
   workgroup_outputs:
     show:
-      title: Agrégation de l'Offre du Groupe de Travail
+      title: Agréger des offres finalisés
       see_current_output: "Voir l'Offre actuelle"
       table_headers:
         ended_at: "Date et heure de création"
