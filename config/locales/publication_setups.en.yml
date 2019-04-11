@@ -5,7 +5,14 @@ en:
       index: Aggregated offer publications
       create: Add a Publication
       new: New Publication
+      edit: MEdit Publication
       destroy_confirm: "Are you sure you want destroy this publication setup ?"
+    show:
+      title: "Publication “%{name}”"
+    form:
+      add_destination: Add a output
+      sections:
+        export: Export settings
   activerecord:
     models:
       publication_setup:
