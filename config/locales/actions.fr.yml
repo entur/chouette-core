@@ -21,6 +21,7 @@ fr:
     erase: 'Effacer'
     filter: 'Filtrer'
     import: 'Importer'
+    export: 'Exporter'
     invite_user: 'Inviter un nouvel utilisateur'
     new: 'Créer'
     paste: 'Coller (ctrl-v)'
