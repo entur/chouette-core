@@ -1,5 +1,6 @@
 class ApplicationModel < ::ActiveRecord::Base
   include MetadataSupport
+  include ReferentialIndexSupport
 
   self.abstract_class = true
 
