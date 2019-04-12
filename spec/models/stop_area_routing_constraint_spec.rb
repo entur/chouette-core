@@ -50,7 +50,7 @@ RSpec.describe StopAreaRoutingConstraint, type: :model do
       not_ignoring.run_callbacks(:commit)
       not_ignoring.update ignored_stop_area_routing_constraint_ids: []
       not_ignoring.run_callbacks(:commit)
-      # we must look for vehicle_journeys in all referentials
+
       other_referential.switch
       subject.vehicle_journeys.each do |found|
         @found << found

@@ -12,7 +12,9 @@ module ReferentialIndexSupport
   included do
     class << self
       def belongs_to_public(rel_name, opts={})
-        rel = ReferentialIndexRelation.new(self, rel_name, opts)
+        belongs_to rel_name unless reflections[rel_name.to_s]
+
+        rel = ReferentialIndexRelation.new(self, rel_name, :ascending, opts)
         referential_index_relations[rel.cache_key] = rel
 
         ReferentialIndexSupport.register_target_relation rel
@@ -27,7 +29,7 @@ module ReferentialIndexSupport
       end
 
       def has_many_scattered(rel_name, opts={})
-        rel = ReferentialIndexRelation.new(self, rel_name, opts)
+        rel = ReferentialIndexRelation.new(self, rel_name, :descending, opts)
 
         raise MissingReciproqueRelation.new("Missing reciproque relation for #{self.name}##{rel_name} on #{target_class.name}") unless rel.reciproque.present?
         referential_index_relations[rel.cache_key] = rel
@@ -48,9 +50,10 @@ module ReferentialIndexSupport
   end
 
   class ReferentialIndexRelation
-    def initialize(parent_class, rel_name, opts={})
+    def initialize(parent_class, rel_name, direction, opts={})
       @parent_class = parent_class
       @rel_name = rel_name
+      @direction = direction
       @opts = opts
     end
 
@@ -60,6 +63,18 @@ module ReferentialIndexSupport
 
     def klass
       @parent_class
+    end
+
+    def ascending
+      @direction == :ascending ? self : reciproque
+    end
+
+    def target_klass
+      @target_class ||= begin
+        target_class_name = name.to_s.singularize.classify
+        target_class = target_class_name.safe_constantize
+        target_class || "Chouette::#{target_class_name}".constantize
+      end
     end
 
     def reciproque
@@ -79,6 +94,11 @@ module ReferentialIndexSupport
       @multiple = name.to_s.pluralize == name.to_s
     end
 
+    def index_collection
+      coll = @opts[:index_collection]
+      coll && coll.call()
+    end
+
     def collection(source)
       method = @opts[:collection_name] || name
       if multiple?
@@ -92,7 +112,7 @@ module ReferentialIndexSupport
   class ReferentialIndexRelationProxy
     def initialize(parent, rel_name)
       @parent = parent
-      rel = ReferentialIndexRelation.new(parent.class, rel_name)
+      rel = ReferentialIndexRelation.new(parent.class, rel_name, :descending)
       @relation = parent.class.referential_index_relations[rel.cache_key]
     end
 
@@ -103,14 +123,6 @@ module ReferentialIndexSupport
         end
       end
     end
-
-    # def map
-    #   [].tap do |out|
-    #     each do |item|
-    #       out << yield(item)
-    #     end
-    #   end
-    # end
 
     def all
       out = []

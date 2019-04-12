@@ -25,7 +25,9 @@ module Chouette
     belongs_to :journey_pattern_only_objectid, -> {select("journey_patterns.id, journey_patterns.objectid")}, class_name: "Chouette::JourneyPattern", foreign_key: :journey_pattern_id
     has_many :stop_areas, through: :journey_pattern
 
-    belongs_to_public :stop_area_routing_constraints, collection_name: :ignored_stop_area_routing_constraints
+    belongs_to_public :stop_area_routing_constraints,
+      collection_name: :ignored_stop_area_routing_constraints,
+      index_collection: -> { Chouette::VehicleJourney.where.not('ignored_stop_area_routing_constraint_ids = ARRAY[]::integer[]') }
 
     delegate :line, to: :route
 
