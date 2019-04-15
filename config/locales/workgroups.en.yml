@@ -6,7 +6,7 @@ en:
       edit_aggregate: Setup Aggregation
       edit_hole_sentinel: Setup Offer analysis
     edit_controls: &edit_controls
-      title: "Workgroups Compliance Check Set Settings"
+      title: "Workgroup Validation Settings"
     edit:
       <<: *edit_controls
     index:
@@ -33,7 +33,7 @@ en:
       after_merge: After Merge
       after_merge_by_workgroup: After Merge (Group)
       automatic_by_workgroup: Automatic
-      after_aggregate: After Aggregate
+      after_aggregate: After Aggregation
       manual: Manual
   activerecord:
     models:
