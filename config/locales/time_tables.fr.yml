@@ -43,7 +43,7 @@ fr:
         dates_overlaps: "Une période ne peut chevaucher une date dans un calendrier"
       confirm_modal:
         title: "Confirmation"
-        message: "Vous vous apprêtez à changer de page. Voulez-vous valider vos modifications avant cela ?"
+        message: "Vous vous apprêtez à changer de mois. Voulez-vous valider vos modifications avant cela ?"
       metas:
         name: Nom
         calendar: Modèle de calendrier associée
