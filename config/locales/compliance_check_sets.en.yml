@@ -44,7 +44,7 @@ en:
         creation_date: Created at
         associated_object: Associated object
         assigned_to: Assigned to
-        compliance_control_set: Compliance control set
+        compliance_control_set: Executed control set
         name: Name
         context: Context
         context_i18n: Context
