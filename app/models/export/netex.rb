@@ -6,7 +6,7 @@ class Export::Netex < Export::Base
     end
     val.line do
       option :duration, type: :integer, default_value: 365, hidden: true, required: true, min: 1, max: 365
-      option :line_code, collection: ->(referential){referential.lines.map{|l| [l.display_name, l.id]}}, depends_on_referential: true
+      option :line_code, collection: ->(referential){referential.lines.active.map{|l| [l.display_name, l.id]}}, depends_on_referential: true
     end
   end
 
