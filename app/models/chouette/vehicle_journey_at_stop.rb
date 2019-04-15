@@ -37,20 +37,28 @@ module Chouette
 
     %i[departure_time arrival_time].each do |attr|
       define_method "#{attr}=" do |val|
-        if val
-          if val.is_a?(String)
-            tz = Time.zone
-            Time.zone = 'UTC'
-            val = Time.zone.parse val
-            Time.zone = tz
-          end
-        end
-        self[attr] = val
+        self[attr] = convert_string_time_to_utc_time(val)
       end
 
       define_method attr do
         self[attr]&.utc
       end
+
+      # departure_local_time=
+      # arrival_local_time=
+      define_method "#{attr.to_s.split('_').join('_local_')}=" do |local_time|
+        self.send "#{attr}=", format_time(local_time(convert_string_time_to_utc_time(local_time), -time_zone_offset))
+      end
+    end
+
+    def convert_string_time_to_utc_time(val)
+      if val && val.is_a?(String)
+        tz = Time.zone
+        Time.zone = 'UTC'
+        val = Time.zone.parse val
+        Time.zone = tz
+      end
+      val
     end
 
     def day_offset_must_be_within_range
@@ -112,15 +120,6 @@ module Chouette
     def arrival_local_time offset=nil
       local_time arrival_time, offset
     end
-
-    def departure_local_time= local_time
-      self.departure_time = format_time local_time(local_time.to_time, -time_zone_offset)
-    end
-
-    def arrival_local_time= local_time
-      self.arrival_time = format_time local_time(local_time.to_time, -time_zone_offset)
-    end
-
     def departure_local
       format_time departure_local_time
     end
