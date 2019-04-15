@@ -10,7 +10,7 @@ en:
     show:
       title: "Publication “%{name}”"
     form:
-      add_destination: Add a output
+      add_destination: Add an output
       sections:
         export: Export settings
   activerecord:
