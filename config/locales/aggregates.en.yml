@@ -9,7 +9,8 @@ en:
       title: "Aggregated offer %{name}"
       finalized_offer: "Merged offer"
     actions:
-      create: Aggregate Workgroup offer
+      show: See
+      create: Aggregate data sets
       rollback: Rollback
       rollback_confirm: Are you sure to rollback to this aggregated offer ?
     statuses:
