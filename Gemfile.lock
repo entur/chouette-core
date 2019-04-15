@@ -292,6 +292,9 @@ GEM
       sass (>= 3.2)
     formtastic (3.1.5)
       actionpack (>= 3.2.13)
+    fuubar (2.3.2)
+      rspec-core (~> 3.0)
+      ruby-progressbar (~> 1.4)
     geokit (1.13.1)
     georuby (2.3.0)
     get_process_mem (0.2.3)
@@ -578,6 +581,7 @@ GEM
     rspec-support (3.5.0)
     ruby-filemagic (0.7.2)
     ruby-graphviz (1.2.3)
+    ruby-progressbar (1.10.0)
     rubycas-client (2.3.9)
       activesupport
     rubyzip (1.2.2)
@@ -761,6 +765,7 @@ DEPENDENCIES
   flag-icons-rails
   font-awesome-sassc
   formtastic
+  fuubar
   geokit
   georuby (= 2.3.0)
   google-analytics-rails

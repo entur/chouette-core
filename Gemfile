@@ -199,6 +199,7 @@ group :test do
   gem 'timecop'
   gem 'rspec-snapshot'
   gem 'rails-controller-testing'
+  gem 'fuubar'
 end
 
 group :test, :development do
