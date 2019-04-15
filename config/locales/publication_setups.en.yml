@@ -5,7 +5,7 @@ en:
       index: Aggregated offer publications
       create: Add a Publication
       new: New Publication
-      edit: MEdit Publication
+      edit: Edit Publication
       destroy_confirm: "Are you sure you want destroy this publication setup ?"
     show:
       title: "Publication “%{name}”"
