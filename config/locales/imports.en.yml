@@ -22,7 +22,7 @@ en:
     create:
       title: "Generate a new import"
     show:
-      title: "Import %{name}"
+      title: "%{name}"
       report: "Report"
       imported_file: "Original file"
       compliance_check: "Validation report"

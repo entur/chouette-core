@@ -41,7 +41,7 @@ fr:
           normal: Descente autorisée
           forbidden: Descente interdite
     show:
-      title: "Itinéraire %{name}"
+      title: "%{name}"
       stop_points: "Liste des arrêts de l'itinéraire"
       stop_areas:
         title: "Liste des arrêts"

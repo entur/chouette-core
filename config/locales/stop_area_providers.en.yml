@@ -8,9 +8,11 @@ en:
     new:
       title: "Add a stop area provider"
     show:
-      title: "Stop area provider \"%{name}\""
+      title: "%{name}"
     edit:
-      title: "Stop area provider \"%{name}\""
+      title: "Edit %{name}"
+    update:
+      title: "Edit %{name}"
   activerecord:
     models:
       stop_area_provider:

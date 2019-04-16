@@ -11,7 +11,7 @@ en:
     edit:
       title: "Update network %{name}"
     show:
-      title: "Network"
+      title: "%{name}"
     index:
       title: "Networks"
       name: "Search by name..."

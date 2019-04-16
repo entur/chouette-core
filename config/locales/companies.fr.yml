@@ -12,7 +12,7 @@ fr:
     edit:
       title: "Editer le transporteur %{name}"
     show:
-      title: "Transporteur %{name}"
+      title: "%{name}"
     index:
       title: "Transporteurs"
       name: "Recherche par nom..."

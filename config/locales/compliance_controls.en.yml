@@ -24,7 +24,7 @@ en:
       incoherent_control_sets: "Impossible to assign a control to a set (id: %{direct_set_name}) differing from the one of its group (id: %{indirect_set_name})"
       mandatory_control_type: "A control type must be selected"
     show:
-      title: "Compliance control"
+      title: "%{name}"
       metadatas:
         compliance_control_block: "Control block informations"
     new:

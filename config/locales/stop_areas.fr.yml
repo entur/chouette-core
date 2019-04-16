@@ -69,7 +69,7 @@ fr:
     update:
       title: "Editer l'arrêt %{name}"
     show:
-      title: "Arrêt %{name}"
+      title: "%{name}"
       geographic_data: "Données géographiques"
       no_geographic_data: "Aucune"
       itl_managment: "Gestion des liens de l'ITL"

@@ -43,9 +43,9 @@ fr:
       stop_area: Arrêt
       city: Commune
     edit:
-      title: "Editer l'ITL : %{name}"
+      title: "Editer %{name}"
     show:
-      title: "Zone de contrainte %{name}"
+      title: "%{name}"
       route_stop_points: Arrêts de l'itinéraire
       stop_points: Arrêts inclus dans l'ITL
     index:

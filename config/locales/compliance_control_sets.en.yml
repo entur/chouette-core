@@ -13,9 +13,9 @@ en:
     new:
       title: New control set
     show:
-      title: Consult control set %{name}
+      title: "%{name}"
     edit:
-      title: Edit control set %{name}
+      title: Edit %{name}
     actions:
       new: Add
       edit: Edit

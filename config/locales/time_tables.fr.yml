@@ -29,7 +29,7 @@ fr:
     duplicate:
       title: "Dupliquer un calendrier"
     edit:
-      title: "Editer le calendrier %{time_table}"
+      title: "Editer %{time_table}"
       day_types: Journées d'application
       periods: Périodes
       exceptions: Exceptions
@@ -66,7 +66,7 @@ fr:
         begin: Début de période
         end: Fin de période
     show:
-      title: Calendrier %{name}
+      title: "%{name}"
       dates: "Dates d'application"
       periods: "Périodes d'application"
       from: "du"

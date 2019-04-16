@@ -43,9 +43,9 @@ en:
       stop_area: Stop Area
       city: City
     edit:
-      title: "Update routing constraint zone %{name}"
+      title: "Update %{name}"
     show:
-      title: "Routing constraint zone %{name}"
+      title: "%{name}"
       route_stop_points: Route stop points
       stop_points: Stop points included in the RCZ
     index:

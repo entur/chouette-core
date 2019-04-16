@@ -44,9 +44,9 @@ en:
     new:
       title: Add a new purchase window
     edit:
-      title: Update purchase window %{name}
+      title: Update %{name}
     show:
-      title: purchase window %{name}
+      title: "{name}"
   simple_form:
     labels:
       purchase_window:
