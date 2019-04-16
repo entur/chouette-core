@@ -3,6 +3,7 @@
 .page_content
   .container-fluid
     .row
+
       .col-lg-8.col-lg-offset-2.col-md-8.col-md-offset-2.col-sm-10.col-sm-offset-1
         = simple_form_for [@referential, @clean_up], html: {id: 'clean_referential_form'} do |f|
           fieldset
@@ -15,6 +16,10 @@
                   label: false
 
             hr
+              - if @clean_up&.errors&.present?
+                .col-md-12
+                  .alert.alert-danger
+                    = @clean_up&.errors&.full_messages&.join('<br />')
               .col-md-3.between.outside
                 label= t('titles.clean_up.begin_date')
               .col-md-3.after.before.hidden
@@ -26,15 +31,15 @@
 
           fieldset
             legend= t('titles.clean_up.method_type')
-            - CleanUp.method_type.options.each do |option|
+            - CleanUp.method_types.options.each do |option|
               .col-md-6
                 .form-group
-                  = label :method_type, option.last, option.first, class: 'col-md-10 control-label switchable_checkbox optional'
+                  = label :method_types, option.last, option.first, class: 'col-md-10 control-label switchable_checkbox optional'
                   .col-md-2
                     .onoffswitch
-                      = hidden_field_tag "method_type[#{option.last}]", false, id: ""
-                      = check_box_tag "method_type[#{option.last}]", true, false, class: 'onoffswitch-checkbox'
-                      = label :method_type, option.last, option.first, class: 'onoffswitch-label' do
+                      = hidden_field_tag "method_types[#{option.last}]", false, id: ""
+                      = check_box_tag "method_types[#{option.last}]", true, false, class: 'onoffswitch-checkbox'
+                      = label :method_types, option.last, option.first, class: 'onoffswitch-label' do
                         span.onoffswitch-inner on=I18n.t("simple_form.yes") off=I18n.t("simple_form.no")
                         span.onoffswitch-switch
 

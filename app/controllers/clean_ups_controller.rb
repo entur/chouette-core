@@ -6,21 +6,19 @@ class CleanUpsController < ChouetteController
   defaults :resource_class => CleanUp
 
   def create
-    binding.pry
-    # @clean_up = CleanUp.new(clean_up_params, methods: get_methods)
-    # @clean_up.referential = @referential
-    # if @clean_up.valid?
-    #   @clean_up.save
-    # else
-    #   flash[:alert] = @clean_up.errors.full_messages.join("<br/>")
-    # end
-    # redirect_to referential_path(@referential)
+    @clean_up = CleanUp.new(clean_up_params)
+    @clean_up.referential = referential
+    if @clean_up.save
+      redirect_to referential_path(@referential)
+    else
+      render 'referentials/select_clean_up_settings'
+    end
   end
 
   def get_methods
-   method_params.reduce([]) do |arr, met|
-    met[1] == 'true' ? arr << met[0].to_sym : arr
-   end
+    method_params.keys.select do |k|
+      method_params[k] == 'true'
+    end
   end
 
   def method_params
@@ -34,6 +32,10 @@ class CleanUpsController < ChouetteController
   end
 
   def clean_up_params
-    params.require(:clean_up).permit(:date_type, :begin_date, :end_date)
+    params.require(:clean_up).permit(:date_type, :begin_date, :end_date).update(method_types: get_methods)
+  end
+
+  def begin_of_association_chain
+    nil
   end
 end

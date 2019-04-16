@@ -5,17 +5,17 @@ class CleanUp < ApplicationModel
   has_one :clean_up_result
 
   enumerize :date_type, in: %i(outside between before after)
-  enumerize :method_type, in: %i(
+  enumerize :method_types, in: %i(
     destroy_journey_patterns_without_vehicle_journey
     destroy_vehicle_journeys_without_purchase_window
     destroy_routes_without_journey_pattern
     destroy_unassociated_timetables
     destroy_unassociated_purchase_windows
-  )
+  ), multiple: true
 
   # validates_presence_of :date_type, message: :presence
   validates_presence_of :begin_date, message: :presence, if: :date_type
-  validates_presence_of :end_date, message: :presence, if: Proc.new {|cu| cu.date_type == 'between'}
+  validates_presence_of :end_date, message: :presence, if: Proc.new {|cu| cu.needs_both_dates? }
   validate :end_date_must_be_greater_that_begin_date
   after_commit :perform_cleanup, :on => :create
 
@@ -26,9 +26,13 @@ class CleanUp < ApplicationModel
   attr_accessor :methods, :original_state
 
   def end_date_must_be_greater_that_begin_date
-    if self.end_date && self.date_type == 'between' && self.begin_date >= self.end_date
+    if self.end_date && needs_both_dates? && self.begin_date >= self.end_date
       errors.add(:base, I18n.t('activerecord.errors.models.clean_up.invalid_period'))
     end
+  end
+
+  def needs_both_dates?
+    date_type == 'between'  || date_type == 'outside'
   end
 
   def perform_cleanup

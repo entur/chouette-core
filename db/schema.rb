@@ -138,6 +138,7 @@ ActiveRecord::Schema.define(version: 20190411123202) do
     t.datetime "updated_at"
     t.date     "end_date"
     t.string   "date_type"
+    t.string   "method_types",             array: true
   end
 
   add_index "clean_ups", ["referential_id"], name: "index_clean_ups_on_referential_id", using: :btree

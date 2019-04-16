@@ -110,7 +110,7 @@ fr:
         between: Entre deux dates
         before: Avant une date
         after: Après une date
-      method_type:
+      method_types:
         destroy_vehicle_journeys_without_purchase_window: Courses sans calendriers de circulation
         destroy_journey_patterns_without_vehicle_journey: Missions sans aucune Course
         destroy_routes_without_journey_pattern: Itinéraires sans aucune Mission
