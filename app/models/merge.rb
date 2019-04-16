@@ -128,7 +128,6 @@ class Merge < ApplicationModel
     new.slug = "output_#{workbench.id}_#{created_at.to_i}"
     new.name = I18n.t("merges.referential_name", date: I18n.l(created_at, format: :short_with_time))
 
-
     unless new.valid?
       Rails.logger.error "Merge ##{id}: New referential isn't valid : #{new.errors.inspect}"
     end
@@ -140,6 +139,8 @@ class Merge < ApplicationModel
       raise
     end
 
+    new.metadatas.reload
+    new.flag_not_urgent!
     new.pending!
 
     output.update new: new
@@ -693,6 +694,7 @@ class Merge < ApplicationModel
 
     def merge_one(metadata)
       metadata.line_ids.each do |line_id|
+
         line_metadatas = merged_line_metadatas(line_id)
 
         metadata.periodes.each do |period|
