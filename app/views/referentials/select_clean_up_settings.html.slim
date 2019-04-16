@@ -4,40 +4,39 @@
   .container-fluid
     .row
       .col-lg-8.col-lg-offset-2.col-md-8.col-md-offset-2.col-sm-10.col-sm-offset-1
-        = simple_form_for [@referential, @clean_up], html: {class: 'form-horizontal', id: 'clean_referential_form'} do |f|
-          .row
+        = simple_form_for [@referential, @clean_up], html: {id: 'clean_referential_form'} do |f|
+          fieldset
+            legend= t('titles.clean_up.date_type')
             .col-lg-12
-              = f.input :date_type,
-                checked: :outside,
-                as: :radio_buttons,
-                label: t('titles.clean_up.date_type')
-          .row
-            .col-lg-12
-              span.begin_date = t('titles.clean_up.begin_date')
-              span.end_date.hidden = t('titles.clean_up.end_date')
-              = f.input :begin_date, as: :date, label: false, wrapper_html: { class: 'date smart_date' }
+              .col-lg-12
+                = f.input :date_type,
+                  checked: :outside,
+                  as: :radio_buttons,
+                  label: false
 
-              span = t('titles.clean_up.end_date')
-              = f.input :end_date, as: :date, label: false, wrapper_html: { class: 'date cleanup_end_date_wrapper smart_date', id: "end_date" }
-          
-          / .row
-          /   .col-lg-12
-          /     label = t('titles.clean_up.method_type')
-          /     .col
-          /       = f.collection_check_boxes(:methods, CleanUp.method_type.options, :last, :first) do |b|
-          /         .row style='display: block'
-          /           = b.check_box style: 'margin-right: 10px'
-          /           = b.label style: 'font-weight: normal'
-          /           br
-          .row
-            .col-lg-12
-              label = t('titles.clean_up.method_type')
-              .col
-               - CleanUp.method_type.options.each do |option|
-                div
-                  = hidden_field_tag "method_types[#{option.last}]", false, id: ""
-                  = check_box_tag "method_types[#{option.last}]", true, false, style: 'margin-right: 10px'
-                  = label :method_type, option.first, style: 'font-weight: normal'
-                  
+            hr
+              .col-md-3.between.outside
+                label= t('titles.clean_up.begin_date')
+              .col-md-3.after.before.hidden
+                label= t('titles.clean_up.end_date')
+              = f.input :begin_date, as: :date, label: false, wrapper_html: { class: 'date smart_date col-md-9' }
+              .col-md-3.between.outside
+                label= t('titles.clean_up.end_date')
+              = f.input :end_date, as: :date, label: false, wrapper_html: { class: 'date cleanup_end_date_wrapper smart_date col-md-9', id: "end_date" }
+
+          fieldset
+            legend= t('titles.clean_up.method_type')
+            - CleanUp.method_type.options.each do |option|
+              .col-md-6
+                .form-group
+                  = label :method_type, option.last, option.first, class: 'col-md-10 control-label switchable_checkbox optional'
+                  .col-md-2
+                    .onoffswitch
+                      = hidden_field_tag "method_type[#{option.last}]", false, id: ""
+                      = check_box_tag "method_type[#{option.last}]", true, false, class: 'onoffswitch-checkbox'
+                      = label :method_type, option.last, option.first, class: 'onoffswitch-label' do
+                        span.onoffswitch-inner on=I18n.t("simple_form.yes") off=I18n.t("simple_form.no")
+                        span.onoffswitch-switch
+
           = cancel_button
           = f.button :submit, t('actions.clean_up'), class: 'btn btn-default formSubmitr', form: 'clean_referential_form'
