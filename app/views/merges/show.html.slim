@@ -58,12 +58,9 @@ ruby:
             [ \
               TableBuilderHelper::Column.new( \
                 name: @merge.class.tmf(:new), \
-                attribute: 'name', \
-                sortable: false, \
-                link_to: lambda do |item| \
-                  referential_path(item) \
-                end \
+                attribute: lambda do |item| \
+                  link_to(decorate_referential_name(item), referential_path(item)) \
+                end, \
+                sortable: false \
               ), *after_controls \
             ], cls: 'table'
-
-      

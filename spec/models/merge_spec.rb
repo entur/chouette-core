@@ -145,6 +145,39 @@ RSpec.describe Merge do
       end
     end
 
+    context 'with previously urgent output', truncation: true do
+      let(:merge) { Merge.create(workbench: workbench, referentials: [referential]) }
+      let(:output) do
+        output = create :workbench_referential, workbench: workbench
+        metadata = create(:referential_metadata, lines: [line_referential.lines.first], referential: output)
+        workbench.output.update current: output.reload
+        metadata.update flagged_urgent_at: 1.hour.ago
+        expect(output.reload.contains_urgent_offer?).to be_truthy
+        output
+      end
+
+      after(:each) do
+        Apartment::Tenant.drop(output.slug)
+        Apartment::Tenant.drop(referential.slug)
+      end
+
+      it "should remove the urgent flag" do
+        referential.metadatas.destroy_all
+        create(:referential_metadata, lines: [line_referential.lines.last], referential: referential)
+
+        expect(output.contains_urgent_offer?).to be_truthy
+        merge.update created_at: Time.now
+        merge.prepare_new
+        
+        merge.referentials.each do |referential|
+          merge.merge_referential_metadata(referential)
+        end
+
+        new_referential = workbench.output.new
+        expect(new_referential.contains_urgent_offer?).to be_falsy
+      end
+    end
+
     context "with no current output" do
       let(:merge){Merge.create(workbench: workbench, referentials: [referential, referential]) }
 
