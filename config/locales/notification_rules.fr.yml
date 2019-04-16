@@ -31,6 +31,8 @@ fr:
     attributes:
       notification_rule:
         period: Période de désactivation
+        period_start: Début de désactivation
+        period_end: Fin de désactivation
         notification_type: Type de notification
-        line_id: Ligne
+        line_id: Ligne associée
         name: "%{notification_type} du %{from} au %{to}"
