@@ -3,11 +3,11 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Select2 from 'react-select2-wrapper'
 import actions from '../../../actions'
+import language from '../../../../helpers/select2/language'
 
 // get JSON full path
 var origin = window.location.origin
 var path = window.location.pathname.split('/', 3).join('/')
-
 
 export default class BSelect4 extends Component {
   constructor(props) {
@@ -23,11 +23,11 @@ export default class BSelect4 extends Component {
         multiple={false}
         ref='timetable_id'
         options={{
+          language,
           allowClear: false,
           theme: 'bootstrap',
           width: '100%',
           placeholder: this.props.placeholder,
-          language: require('./language'),
           ajax: {
             url: origin + path + this.props.chunkURL,
             dataType: 'json',
