@@ -5,12 +5,6 @@ class CleanUpsController < ChouetteController
 
   defaults :resource_class => CleanUp
 
-  def new
-    build_resource
-    @clean_up.begin_date = @referential.metadatas_period&.min
-    @clean_up.end_date = @referential.metadatas_period&.max
-  end
-
   def create
     create! do |success, _failure|
       success.html do

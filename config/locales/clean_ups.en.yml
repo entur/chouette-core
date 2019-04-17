@@ -13,16 +13,15 @@ en:
       clean_up:
         begin_date: "Begin date : "
         end_date: "End date : "
-  titles:
+  titles: &titles
     clean_up:
       begin_date: "Begin date of clean up"
       end_date: "End date of clean up"
 
   formtastic:
     titles:
-      clean_up:
-        begin_date: "Begin date of clean up"
-        end_date: "End date of clean up"
+      <<: *titles
+
   activerecord:
     models:
       clean_up:
