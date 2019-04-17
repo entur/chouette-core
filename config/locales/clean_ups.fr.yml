@@ -7,6 +7,7 @@ fr:
     actions:
       clean_up: "Nettoyer"
       confirm: "La purge détruit les calendriers se finissant au plus tard à la date indiquée \npuis en cascade les objets qui n'ont pas ou plus de calendrier\nConfirmer cette action SVP"
+      new: Nettoyage du Jeu de Données
   activemodel:
     attributes:
       clean_up:

@@ -1,17 +1,21 @@
 class CleanUpsController < ChouetteController
   include ReferentialSupport
-  respond_to :html, :only => [:create]
+
   belongs_to :referential
 
   defaults :resource_class => CleanUp
 
+  def new
+    build_resource
+    @clean_up.begin_date = @referential.metadatas_period&.min
+    @clean_up.end_date = @referential.metadatas_period&.max
+  end
+
   def create
-    @clean_up = CleanUp.new(clean_up_params)
-    @clean_up.referential = referential
-    if @clean_up.save
-      redirect_to referential_path(@referential)
-    else
-      render 'referentials/select_clean_up_settings'
+    create! do |success, _failure|
+      success.html do
+        redirect_to @referential
+      end
     end
   end
 

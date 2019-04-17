@@ -11,23 +11,23 @@
             .col-lg-12
               .col-lg-12
                 = f.input :date_type,
-                  checked: :outside,
+                  checked: @clean_up.date_type || :outside,
                   as: :radio_buttons,
                   label: false
 
-            hr
-              - if @clean_up&.errors&.present?
-                .col-md-12
-                  .alert.alert-danger
-                    = @clean_up&.errors&.full_messages&.join('<br />')
-              .col-md-3.between.outside
-                label= t('titles.clean_up.begin_date')
-              .col-md-3.after.before.hidden
-                label= t('titles.clean_up.end_date')
-              = f.input :begin_date, as: :date, label: false, wrapper_html: { class: 'date smart_date col-md-9' }
-              .col-md-3.between.outside
-                label= t('titles.clean_up.end_date')
-              = f.input :end_date, as: :date, label: false, wrapper_html: { class: 'date cleanup_end_date_wrapper smart_date col-md-9', id: "end_date" }
+            hr.between.after.before.hidden
+            - if @clean_up&.errors&.present?
+              .col-md-12
+                .alert.alert-danger
+                  = @clean_up&.errors&.full_messages&.join('<br />')
+            .col-md-3.after.between.hidden
+              label= t('titles.clean_up.begin_date')
+            .col-md-3.before.hidden
+              label= t('titles.clean_up.end_date')
+            = f.input :begin_date, as: :date, label: false, wrapper_html: { class: 'date smart_date col-md-9 hidden between before after' }
+            .col-md-3.between.hidden
+              label= t('titles.clean_up.end_date')
+            = f.input :end_date, as: :date, label: false, wrapper_html: { class: 'date cleanup_end_date_wrapper smart_date col-md-9 hidden between', id: "end_date" }
 
           fieldset
             legend= t('titles.clean_up.method_type')
@@ -38,7 +38,7 @@
                   .col-md-2
                     .onoffswitch
                       = hidden_field_tag "method_types[#{option.last}]", false, id: ""
-                      = check_box_tag "method_types[#{option.last}]", true, false, class: 'onoffswitch-checkbox'
+                      = check_box_tag "method_types[#{option.last}]", true, @clean_up.method_types.include?(option.last), class: 'onoffswitch-checkbox'
                       = label :method_types, option.last, option.first, class: 'onoffswitch-label' do
                         span.onoffswitch-inner on=I18n.t("simple_form.yes") off=I18n.t("simple_form.no")
                         span.onoffswitch-switch

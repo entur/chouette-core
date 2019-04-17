@@ -7,6 +7,7 @@ en:
     actions:
       clean_up: "Clean up"
       confirm: "Clean up will destroy time tables which ended on requested date\nand next recursively all object without any time table\nPlease confirm this action"
+      new: Clean up this data set
   activemodel:
     attributes:
       clean_up:

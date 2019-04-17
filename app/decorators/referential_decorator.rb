@@ -44,7 +44,7 @@ class ReferentialDecorator < AF83::Decorator
 
     instance_decorator.action_link policy: :edit, secondary: :show, on: :show do |l|
       l.content t('actions.clean_up')
-      l.href { h.select_clean_up_settings_referential_path(object.id) }
+      l.href { h.new_referential_clean_up_path(object.id) }
     end
 
     instance_decorator.destroy_action_link  do |l|

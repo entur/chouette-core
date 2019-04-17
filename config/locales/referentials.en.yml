@@ -45,7 +45,6 @@ en:
       destroy: "Destroy this data set"
       edit: "Edit this data set"
       clone: "Clone this data set"
-      select_clean_up_settings: CLean up this data set
     errors:
       inconsistent_organisation: "Organisation of asscociated workbench is (%{indirect_name}), while directly associated organisation is (%{direct_name}), they need to be equal"
       validity_period: "Invalid validity periode"

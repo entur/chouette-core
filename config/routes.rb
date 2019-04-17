@@ -88,7 +88,6 @@ ChouetteIhm::Application.routes.draw do
       put :unarchive
       get :select_compliance_control_set
       post :validate
-      get :select_clean_up_settings
       put :clean
     end
 
