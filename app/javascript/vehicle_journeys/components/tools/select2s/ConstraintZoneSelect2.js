@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Select2 from 'react-select2-wrapper'
 import actions from '../../../actions'
+import language from '../../../../helpers/select2/language'
 
 export default class BSelect4 extends Component {
   constructor(props) {
@@ -18,11 +19,11 @@ export default class BSelect4 extends Component {
         multiple={false}
         ref='constraint_zone_id'
         options={{
+          language,
           allowClear: false,
           theme: 'bootstrap',
           width: '100%',
           placeholder: this.props.placeholder,
-          language: require('../.././../../helpers/select2/language'),
           minimumInputLength: 1,
           escapeMarkup: function (markup) { return markup; },
           templateResult: formatRepo

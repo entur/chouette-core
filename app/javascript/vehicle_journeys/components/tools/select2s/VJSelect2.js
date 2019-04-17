@@ -3,11 +3,11 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Select2 from 'react-select2-wrapper'
 import actions from '../../../actions'
+import language from '../../../../helpers/select2/language'
 
 // get JSON full path
 let origin = window.location.origin
 let path = window.location.pathname.split('/', 7).join('/')
-
 
 export default class BSelect4b extends Component {
   constructor(props) {
@@ -23,11 +23,11 @@ export default class BSelect4b extends Component {
         multiple={false}
         ref='vehicle_journey_objectid'
         options={{
+          language,
           allowClear: false,
           theme: 'bootstrap',
           placeholder: I18n.t('vehicle_journeys.vehicle_journeys_matrix.filters.id'),
           width: '100%',
-          language: require('../.././../../helpers/select2/language'),
           ajax: {
             url: origin + path + '/vehicle_journeys.json',
             dataType: 'json',

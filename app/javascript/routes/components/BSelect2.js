@@ -2,6 +2,7 @@ import _ from'lodash'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Select2 from 'react-select2-wrapper'
+import language from '../../helpers/select2/language'
 
 
 // get JSON full path
@@ -88,9 +89,9 @@ class BSelect2 extends Component{
         onSelect={ this.props.onSelect }
         ref='newSelect'
         options={{
+          language,
           placeholder: I18n.t("routes.edit.select2.placeholder"),
           allowClear: true,
-          language: require('../../helpers/select2/language'),
           theme: 'bootstrap',
           width: '100%',
           ajax: {
