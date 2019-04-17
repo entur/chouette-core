@@ -19,24 +19,18 @@ class CleanUpsController < ChouetteController
     end
   end
 
-  def get_methods
-    method_params.keys.select do |k|
-      method_params[k] == 'true'
+  def get_data_cleanups
+    data_cleanups_params.keys.select do |k|
+      data_cleanups_params[k] == 'true'
     end
   end
 
-  def method_params
-     params.require(:method_types).permit(
-       :destroy_journey_patterns_without_vehicle_journey,
-       :destroy_vehicle_journeys_without_purchase_window,
-       :destroy_routes_without_journey_pattern,
-       :destroy_unassociated_timetables,
-       :destroy_unassociated_purchase_windows
-     )
+  def data_cleanups_params
+     params.require(:data_cleanups).permit(CleanUp.data_cleanups.values)
   end
 
   def clean_up_params
-    params.require(:clean_up).permit(:date_type, :begin_date, :end_date).update(method_types: get_methods)
+    params.require(:clean_up).permit(:date_type, :begin_date, :end_date).update(data_cleanups: get_data_cleanups)
   end
 
   def begin_of_association_chain

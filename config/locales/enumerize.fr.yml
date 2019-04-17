@@ -110,12 +110,12 @@ fr:
         between: Entre deux dates
         before: Avant une date
         after: Après une date
-      method_types:
-        destroy_vehicle_journeys_without_purchase_window: Courses sans calendriers de circulation
-        destroy_journey_patterns_without_vehicle_journey: Missions sans aucune Course
-        destroy_routes_without_journey_pattern: Itinéraires sans aucune Mission
-        destroy_unassociated_timetables: Calendriers de circulation associés à aucune Course
-        destroy_unassociated_purchase_windows: Calendriers commerciaux associés à aucune Course
+      data_cleanups:
+        clean_vehicle_journeys_without_purchase_window: Courses sans calendriers de circulation
+        clean_journey_patterns_without_vehicle_journey: Missions sans aucune Course
+        clean_routes_without_journey_pattern: Itinéraires sans aucune Mission
+        clean_unassociated_timetables: Calendriers de circulation associés à aucune Course
+        clean_unassociated_purchase_windows: Calendriers commerciaux associés à aucune Course
     transport_mode:
       interchange: Interconnection
       unknown: Inconnu

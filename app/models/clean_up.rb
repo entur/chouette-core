@@ -1,16 +1,19 @@
 class CleanUp < ApplicationModel
   extend Enumerize
+  include CleanUpMethods
   include AASM
   belongs_to :referential
   has_one :clean_up_result
 
   enumerize :date_type, in: %i(outside between before after)
-  enumerize :method_types, in: %i(
-    destroy_journey_patterns_without_vehicle_journey
-    destroy_vehicle_journeys_without_purchase_window
-    destroy_routes_without_journey_pattern
-    destroy_unassociated_timetables
-    destroy_unassociated_purchase_windows
+
+  # WARNING: the order here is meaningful
+  enumerize :data_cleanups, in: %i(
+    clean_vehicle_journeys_without_time_table
+    clean_journey_patterns_without_vehicle_journey
+    clean_routes_without_journey_pattern
+    clean_unassociated_timetables
+    clean_unassociated_purchase_windows
   ), multiple: true
 
   # validates_presence_of :date_type, message: :presence
@@ -45,27 +48,9 @@ class CleanUp < ApplicationModel
   def clean
     referential.switch
     referential.pending_while do
-      {}.tap do |result|
-        if date_type.present?
-          processed = send("destroy_time_tables_#{self.date_type}")
-          if processed
-            result['time_table']      = processed[:time_tables].try(:count)
-            result['vehicle_journey'] = processed[:vehicle_journeys].try(:count)
-          end
-          result['time_table_date']   = send("destroy_time_tables_dates_#{self.date_type}").try(:count)
-          result['time_table_period'] = send("destroy_time_tables_periods_#{self.date_type}").try(:count)
-          self.overlapping_periods.each do |period|
-            exclude_dates_in_overlapping_period(period)
-          end
-        end
-
-        destroy_routes_outside_referential
-        # Disabled for the moment. See #5372
-        # destroy_time_tables_outside_referential
-
-        # Run caller-specified cleanup methods
-        run_methods
-      end
+      clean_timetables_and_children
+      clean_routes_outside_referential
+      run_methods
     end
 
     if original_state.present? && referential.respond_to?("#{original_state}!")
@@ -74,118 +59,8 @@ class CleanUp < ApplicationModel
   end
 
   def run_methods
-    return if methods.nil?
-
-    methods.each { |method| send(method) }
-  end
-
-  def destroy_time_tables_outside
-    ref_period = referential.metadatas_period
-    time_tables = Chouette::TimeTable.where('end_date < ? AND start_date > ?', ref_period.min, ref_period.max)
-    self.destroy_time_tables(time_tables)
-  end
-
-  def destroy_time_tables_between
-    time_tables = Chouette::TimeTable.where('end_date < ? AND start_date > ?', self.end_date, self.begin_date)
-    self.destroy_time_tables(time_tables)
-  end
-
-  def destroy_time_tables_before
-    time_tables = Chouette::TimeTable.where('end_date < ?', self.begin_date)
-    self.destroy_time_tables(time_tables)
-  end
-
-  def destroy_time_tables_after
-    time_tables = Chouette::TimeTable.where('start_date > ?', self.begin_date)
-    self.destroy_time_tables(time_tables)
-  end
-
-  def destroy_time_tables_dates_before
-    Chouette::TimeTableDate.in_dates.where('date < ?', self.begin_date).destroy_all
-  end
-
-  def destroy_time_tables_dates_after
-    Chouette::TimeTableDate.in_dates.where('date > ?', self.begin_date).destroy_all
-  end
-
-  def destroy_time_tables_dates_between
-    Chouette::TimeTableDate.in_dates.where('date > ? AND date < ?', self.begin_date, self.end_date).destroy_all
-  end
-
-  def destroy_time_tables_periods_before
-    Chouette::TimeTablePeriod.where('period_end < ?', self.begin_date).destroy_all
-  end
-
-  def destroy_time_tables_periods_after
-    Chouette::TimeTablePeriod.where('period_start > ?', self.begin_date).destroy_all
-  end
-
-  def destroy_time_tables_periods_between
-    Chouette::TimeTablePeriod.where('period_start > ? AND period_end < ?', self.begin_date, self.end_date).destroy_all
-  end
-
-  def destroy_time_tables_outside_referential
-    # For the moment, only timetable outside of metadatas min/max dates are removed
-    metadatas_period = referential.metadatas_period
-    time_tables = Chouette::TimeTable.where('end_date < ? or start_date > ?', metadatas_period.min, metadatas_period.max)
-    destroy_time_tables(time_tables)
-  end
-
-  def destroy_routes_outside_referential
-    line_ids = referential.metadatas.pluck(:line_ids).flatten.uniq
-    Chouette::Route.where(['line_id not in (?)', line_ids]).find_each &:clean!
-  end
-
-  def destroy_routes_without_journey_pattern
-    Chouette::Route.without_any_journey_pattern.destroy_all
-  end
-
-  def destroy_vehicle_journeys
-    Chouette::VehicleJourney.where("id not in (select distinct vehicle_journey_id from time_tables_vehicle_journeys)").destroy_all
-  end
-
-  def destroy_vehicle_journey_without_time_table
-    Chouette::VehicleJourney.without_any_time_table.destroy_all
-  end
-
-  def destroy_vehicle_journeys_without_purchase_window
-    Chouette::VehicleJourney.without_any_purchase_window.destroy_all
-  end
-
-  def destroy_journey_patterns
-    Chouette::JourneyPattern.where("id not in (select distinct journey_pattern_id from vehicle_journeys)").destroy_all
-  end
-
-  def destroy_journey_patterns_without_vehicle_journey
-    Chouette::JourneyPattern.without_any_vehicle_journey.destroy_all
-  end
-
-  def destroy_routes
-    Chouette::Route.where("id not in (select distinct route_id from journey_patterns)").find_each &:clean!
-  end
-
-  def destroy_unassociated_footnotes
-    Chouette::Footnote.not_associated.destroy_all
-  end
-
-  def destroy_unassociated_timetables
-    Chouette::TimeTable.not_associated.destroy_all
-  end
-
-  def destroy_unassociated_purchase_windows
-    Chouette::PurchaseWindow.not_associated.destroy_all
-  end
-
-  def destroy_unassociated_calendars
-    destroy_unassociated_timetables
-    destroy_unassociated_purchase_windows
-  end
-
-  def destroy_empty
-    destroy_vehicle_journeys
-    destroy_journey_patterns
-    destroy_routes
-    destroy_unassociated_footnotes
+    (methods || []).each { |method| send(method) }
+    data_cleanups.each { |method| send(method) }
   end
 
   def overlapping_periods
@@ -223,19 +98,6 @@ class CleanUp < ApplicationModel
     else
       time_table.dates.where(date: day).take.update_attribute(:in_out, false)
     end
-  end
-
-  def destroy_time_tables(time_tables)
-    results = { :time_tables => [], :vehicle_journeys => [] }
-    # Delete vehicle_journey time_table association
-    time_tables.each do |time_table|
-      time_table.vehicle_journeys.each do |vj|
-        vj.time_tables.delete(time_table)
-        results[:vehicle_journeys] << vj.destroy if vj.time_tables.empty?
-      end
-    end
-    results[:time_tables] = time_tables.destroy_all
-    results
   end
 
   aasm column: :status do

@@ -100,6 +100,10 @@ module Chouette
     scope :with_at_least_three_stop_points, -> { joins(:stop_points).group('routes.id').having("COUNT(stop_points.id) >= 3") }
     scope :without_any_journey_pattern, -> { includes(:journey_patterns).where(journey_patterns: { id: nil }) }
 
+    def self.clean!
+      find_each &:clean!
+    end
+
     def clean!
       vehicle_journeys.find_each do |vj|
         vj.vehicle_journey_at_stops.delete_all

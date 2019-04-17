@@ -123,6 +123,20 @@ module Chouette
       SQL
     end
 
+    # THIS WILL NEED SOME LATER OPTIM
+    def self.clean!
+      # Delete vehicle_journey time_table association
+      find_each do |time_table|
+        time_table.vehicle_journeys.each do |vj|
+          # Warning: vj.time_tables will use the current scope, we need the unscoped
+          vj.time_tables.unscoped.delete(time_table)
+          vj.destroy if vj.time_tables.unscoped.empty?
+        end
+      end
+
+      destroy_all
+    end
+
     def continuous_dates
       in_days = self.dates.where(in_out: true).sort_by(&:date)
       chunk = {}

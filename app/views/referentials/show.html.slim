@@ -83,37 +83,3 @@
 
 
       = referential_overview resource
-
-  / Modal(s)
-  //= modalbox 'purgeModal' do
-  //  = simple_form_for [@referential, CleanUp.new] do |f|
-  //    .modal-header
-  //      h4.modal-title #{t('simple_form.labels.clean_up.title')}
-  //    .modal-body
-  //      .container-fluid
-  //        .row
-  //          label.control-label = t('titles.clean_up.date_type')
-  //          .col-lg-8.col-ld-offset-2.col-md-8.col-md-offset-2.col-sm-8.col-sm-offset-2.col-xs-12
-  //            = f.input :date_type, as: :radio_buttons, label: false
-//
-  //          .col-lg-8.col-ld-offset-2.col-md-8.col-md-offset-2.col-sm-8.col-sm-offset-2.col-xs-12
-  //            label.control-label.begin_date = t('titles.clean_up.begin_date')
-  //            label.control-label.end_date.hidden = t('titles.clean_up.end_date')
-  //            = f.input :begin_date, as: :date, label: false, wrapper_html: { class: 'date smart_date' }
-//
-  //            = f.input :end_date, as: :date, label: t('titles.clean_up.end_date'), wrapper_html: { class: 'date cleanup_end_date_wrapper smart_date', id: "end_date" }
-//
-  //          .col-lg-5.col-md-5.col-sm-5.col-xs-12
-  //            = f.simple_fields_for :method_types do |p|
-  //              - CleanUp.method_types.values.each do |method|
-  //                = p.input method.to_sym,
-  //                  checked_value: true,
-  //                  unchecked_value: false,
-  //                  wrapper_html: { style: 'width: auto' },
-  //                  input_html: { type: 'checkbox', style: "width: 100%" }
-  //                label.control-label. =  t("enumerize.clean_up.method_type.#{method}")
-//
-  //    .modal-footer
-  //      button.btn.btn-link type='button' data-dismiss='modal' #{t('cancel')}
-  //      - unless policy(@referential).referential_read_only?
-  //        = f.button :submit, t('actions.clean_up') , class: 'btn btn-primary'

@@ -31,15 +31,15 @@
 
           fieldset
             legend= t('titles.clean_up.method_type')
-            - CleanUp.method_types.options.each do |option|
+            - CleanUp.data_cleanups.options.each do |option|
               .col-md-6
                 .form-group
-                  = label :method_types, option.last, option.first, class: 'col-md-10 control-label switchable_checkbox optional'
+                  = label :data_cleanups, option.last, option.first, class: 'col-md-10 control-label switchable_checkbox optional'
                   .col-md-2
                     .onoffswitch
-                      = hidden_field_tag "method_types[#{option.last}]", false, id: ""
-                      = check_box_tag "method_types[#{option.last}]", true, @clean_up.method_types.include?(option.last), class: 'onoffswitch-checkbox'
-                      = label :method_types, option.last, option.first, class: 'onoffswitch-label' do
+                      = hidden_field_tag "data_cleanups[#{option.last}]", false, id: ""
+                      = check_box_tag "data_cleanups[#{option.last}]", true, @clean_up.data_cleanups.include?(option.last), class: 'onoffswitch-checkbox'
+                      = label :data_cleanups, option.last, option.first, class: 'onoffswitch-label' do
                         span.onoffswitch-inner on=I18n.t("simple_form.yes") off=I18n.t("simple_form.no")
                         span.onoffswitch-switch
 

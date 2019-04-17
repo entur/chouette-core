@@ -1,5 +1,7 @@
 class AddMethodTypesToCleanups < ActiveRecord::Migration
   def change
-    add_column :clean_ups, :method_types, :string, array: true
+    on_public_schema_only do
+      add_column :clean_ups, :data_cleanups, :string, array: true
+    end
   end
 end
