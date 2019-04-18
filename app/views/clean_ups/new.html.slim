@@ -24,10 +24,10 @@
               label= t('titles.clean_up.begin_date')
             .col-md-3.before.hidden
               label= t('titles.clean_up.end_date')
-            = f.input :begin_date, as: :date, label: false, wrapper_html: { class: 'date smart_date col-md-9 hidden between before after' }
+            = f.input :begin_date, as: :date, label: false, wrapper_html: { class: 'date smart_date col-md-9 hidden between before after' }, start_year: @referential.metadatas_period&.min&.year, end_year: @referential.metadatas_period&.max&.year
             .col-md-3.between.hidden
               label= t('titles.clean_up.end_date')
-            = f.input :end_date, as: :date, label: false, wrapper_html: { class: 'date cleanup_end_date_wrapper smart_date col-md-9 hidden between', id: "end_date" }
+            = f.input :end_date, as: :date, label: false, wrapper_html: { class: 'date cleanup_end_date_wrapper smart_date col-md-9 hidden between', id: "end_date" }, start_year: @referential.metadatas_period&.min&.year, end_year: @referential.metadatas_period&.max&.year
 
           fieldset
             legend= t('titles.clean_up.method_type')
