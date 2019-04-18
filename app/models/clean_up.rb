@@ -56,10 +56,12 @@ class CleanUp < ApplicationModel
       run_methods
     end
 
-    if original_state.present? && referential.respond_to?("#{original_state}!")
-      referential.send("#{original_state}!") && referential.save!
+    Chouette::Benchmark.log('reset_referential_state') do
+      if original_state.present? && referential.respond_to?("#{original_state}!")
+        referential.send("#{original_state}!")
+      end
     end
-    Stat::JourneyPatternCoursesByDate.compute_for_referential(referential)
+    referential.update_stats!
   end
 
   def run_methods

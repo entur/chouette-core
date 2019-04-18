@@ -105,16 +105,16 @@ module Chouette
     end
 
     def clean!
-      vehicle_journeys.find_each do |vj|
-        vj.vehicle_journey_at_stops.delete_all
+      ::ActiveRecord::Base.transaction do
+        Chouette::VehicleJourneyAtStop.joins(vehicle_journey: :route).where(routes: {id: self.id}).delete_all
+        clean_join_tables!
+        vehicle_journeys.delete_all
+        journey_patterns.delete_all
+        stop_points.delete_all
+        routing_constraint_zones.delete_all
+        Chouette::Route.where(opposite_route_id: self.id).update_all(opposite_route_id: nil)
+        self.delete
       end
-      clean_join_tables!
-      vehicle_journeys.delete_all
-      journey_patterns.delete_all
-      stop_points.delete_all
-      routing_constraint_zones.delete_all
-      Chouette::Route.where(opposite_route_id: self.id).update_all(opposite_route_id: nil)
-      self.delete
     end
 
     def clean_join_tables!

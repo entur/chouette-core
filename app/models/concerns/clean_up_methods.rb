@@ -2,39 +2,51 @@ module CleanUpMethods
   # EXTRA CLEANINGS, SELECTED FROM THE UI
 
   def clean_vehicle_journeys_without_time_table
-    Chouette::VehicleJourney.without_any_time_table.clean!
+    Chouette::Benchmark.log 'clean_vehicle_journeys_without_time_table' do
+      Chouette::VehicleJourney.without_any_time_table.clean!
+    end
   end
 
   def clean_journey_patterns_without_vehicle_journey
-    Chouette::JourneyPattern.without_any_vehicle_journey.clean!
+    Chouette::Benchmark.log 'clean_journey_patterns_without_vehicle_journey' do
+      Chouette::JourneyPattern.without_any_vehicle_journey.clean!
+    end
   end
 
   def clean_routes_without_journey_pattern
-    Chouette::Route.without_any_journey_pattern.clean!
+    Chouette::Benchmark.log 'clean_routes_without_journey_pattern' do
+      Chouette::Route.without_any_journey_pattern.clean!
+    end
   end
 
   def clean_unassociated_timetables
-    Chouette::TimeTable.not_associated.clean!
+    Chouette::Benchmark.log 'clean_unassociated_timetables' do
+      Chouette::TimeTable.not_associated.clean!
+    end
   end
 
   def clean_unassociated_purchase_windows
-    Chouette::PurchaseWindow.not_associated.clean!
+    Chouette::Benchmark.log 'clean_unassociated_purchase_windows' do
+      Chouette::PurchaseWindow.not_associated.clean!
+    end
   end
 
   # DEFAULT CLEANINGS
 
   def clean_timetables_and_children
-    return unless date_type.present?
+    Chouette::Benchmark.log('clean_timetables_and_children') do
+      ActiveRecord::Base.cache do
+        return unless date_type.present?
 
-    clean_time_tables
-    clean_time_table_dates
-    clean_time_table_periods
+        Chouette::Benchmark.log('clean_time_tables'){ clean_time_tables }
+        Chouette::Benchmark.log('clean_time_table_dates'){ clean_time_table_dates }
+        Chouette::Benchmark.log('clean_time_table_periods'){ clean_time_table_periods }
 
-    Chouette::TimeTable.includes(:dates, :periods).find_each &:save_shortcuts
-
-    # self.overlapping_periods.each do |period|
-    #   exclude_dates_in_overlapping_period(period)
-    # end
+        Chouette::Benchmark.log('update_shortcuts') do
+          Chouette::TimeTable.includes(:dates, :periods).find_each &:save_shortcuts
+        end
+      end
+    end
   end
 
   def clean_time_tables
@@ -136,8 +148,10 @@ module CleanUpMethods
   end
 
   def clean_routes_outside_referential
-    line_ids = referential.metadatas.pluck(:line_ids).flatten.uniq
-    Chouette::Route.where(['line_id not in (?)', line_ids]).clean!
+    Chouette::Benchmark.log 'clean_routes_outside_referential' do
+      line_ids = referential.metadatas.pluck(:line_ids).flatten.uniq
+      Chouette::Route.where(['line_id not in (?)', line_ids]).clean!
+    end
   end
 
   # CLEANUPS THAT CAN BE TRIGGERED PROGRAMATICALLY
