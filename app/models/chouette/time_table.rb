@@ -126,12 +126,11 @@ module Chouette
     # THIS WILL NEED SOME LATER OPTIM
     def self.clean!
       # Delete vehicle_journey time_table association
-      ids = pluck(:id)
-      vj_ids = Chouette::VehicleJourney.joins(:time_tables).where(time_tables: {id: ids}).pluck(:id)
-      Chouette::TimeTablesVehicleJourney.where(time_table_id: ids).delete_all
-      Chouette::VehicleJourney.without_any_time_table.where(id: vj_ids).destroy_all
-  
-      destroy_all
+      ::ActiveRecord::Base.transaction do
+        Chouette::TimeTablesVehicleJourney.where(time_table_id: pluck(:id)).delete_all
+
+        destroy_all
+      end
     end
 
     def continuous_dates
