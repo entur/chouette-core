@@ -127,9 +127,12 @@ module Chouette
     def self.clean!
       # Delete vehicle_journey time_table association
       ::ActiveRecord::Base.transaction do
-        Chouette::TimeTablesVehicleJourney.where(time_table_id: pluck(:id)).delete_all
+        time_table_ids = pluck(:id)
+        Chouette::TimeTablesVehicleJourney.where(time_table_id: time_table_ids).delete_all
+        Chouette::TimeTableDate.joins(:time_table).where(time_tables: {id: time_table_ids}).delete_all
+        Chouette::TimeTablePeriod.joins(:time_table).where(time_tables: {id: time_table_ids}).delete_all
 
-        destroy_all
+        delete_all
       end
     end
 

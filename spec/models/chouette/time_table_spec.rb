@@ -15,6 +15,7 @@ describe Chouette::TimeTable, :type => :model do
   describe '#clean!' do
     let!(:vehicle_journey){ create :vehicle_journey }
     let!(:other_vehicle_journey){ create :vehicle_journey }
+    let!(:other_time_table){ create :time_table }
 
     before(:each) do
       vehicle_journey.update time_tables: [time_table]
@@ -22,16 +23,21 @@ describe Chouette::TimeTable, :type => :model do
     end
 
     it 'should clean all related assets' do
-      dates = time_table.dates
-      expect(dates).to be_present
-      periods = time_table.periods
-      expect(periods).to be_present
+      expect(dates = time_table.dates).to be_present
+      expect(periods = time_table.periods).to be_present
+      expect(other_time_table.dates).to be_present
+      expect(other_time_table.periods).to be_present
 
       Chouette::TimeTable.where(id: [time_table.id, create(:time_table).id]).clean!
 
       expect(Chouette::TimeTable.where(id: time_table.id)).to be_empty
       expect(Chouette::TimeTableDate.where(id: dates.map(&:id))).to be_empty
       expect(Chouette::TimeTablePeriod.where(id: periods.map(&:id))).to be_empty
+
+      expect{ other_time_table.reload }.to_not raise_error
+      expect(other_time_table.dates).to be_present
+      expect(other_time_table.periods).to be_present
+
       expect(vehicle_journey.reload.time_tables.size).to eq 0
       expect(other_vehicle_journey.reload.time_tables.size).to eq 1
     end
