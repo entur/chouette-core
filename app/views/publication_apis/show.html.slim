@@ -10,6 +10,8 @@
         - metadatas.update( PublicationApi.tmf(:slug) => @publication_api.slug )
         - metadatas.update( PublicationApi.tmf(:public_url) => @publication_api.public_url )
         - metadatas.update( PublicationApi.tmf(:public) => (@publication_api.public? ? t('true') : t('false')) )
+        - metadatas.update( PublicationApi.tmf(:created_at) => l(@publication_api.created_at, format: :short_with_time))
+        - metadatas.update( PublicationApi.tmf(:updated_at) => l(@publication_api.updated_at, format: :short_with_time))
         = definition_list t('metadatas'), metadatas
 
       .col-lg-6.col-md-6.col-sm-12.col-xs-12
