@@ -30,9 +30,11 @@ module CleanUpMethods
     clean_time_table_dates
     clean_time_table_periods
 
-    self.overlapping_periods.each do |period|
-      exclude_dates_in_overlapping_period(period)
-    end
+    Chouette::TimeTable.includes(:dates, :periods).find_each &:save_shortcuts
+
+    # self.overlapping_periods.each do |period|
+    #   exclude_dates_in_overlapping_period(period)
+    # end
   end
 
   def clean_time_tables
@@ -76,10 +78,61 @@ module CleanUpMethods
     when :outside
       periods.where('period_end < ? OR period_start > ?', self.begin_date, self.end_date)
     when :between
-      periods.where('period_start > ? AND period_end < ?', self.begin_date, self.end_date)
+      periods.where('period_start >= ? AND period_end <= ?', self.begin_date, self.end_date)
     end
 
     periods.clean!
+    truncate_time_table_periods
+  end
+
+  def truncate_time_table_periods
+    periods = Chouette::TimeTablePeriod
+
+    truncated_periods = []
+    case date_type.to_sym
+    when :before
+      periods.where('period_start < ? AND period_end >= ?', self.begin_date, self.begin_date).find_each do |period|
+        period.period_start = self.begin_date
+        truncated_periods << period
+      end
+    when :after
+      periods.where('period_start <= ? AND period_end > ?', self.begin_date, self.begin_date).find_each do |period|
+        period.period_end = self.begin_date
+        truncated_periods << period
+      end
+    when :outside
+      periods.where('period_start < ? AND period_end >= ?', self.begin_date, self.begin_date).find_each do |period|
+        period.period_start = self.begin_date
+        truncated_periods << period
+      end
+      periods.where('period_start <= ? AND period_end > ?', self.end_date, self.end_date).find_each do |period|
+        period.period_end = self.end_date
+        truncated_periods << period
+      end
+    when :between
+      periods.where('period_start < ? AND period_end > ?', self.begin_date, self.end_date).find_each do |period|
+        truncated_periods << period.time_table.periods.build(period_start: period.period_start, period_end: self.begin_date - 1)
+        truncated_periods << period.time_table.periods.build(period_start: self.end_date + 1, period_end: period.period_end)
+        period.delete
+      end
+      periods.where('period_start < ? AND period_end >= ?', self.begin_date, self.begin_date).find_each do |period|
+        period.period_end = self.begin_date - 1
+        truncated_periods << period
+      end
+      periods.where('period_start <= ? AND period_end > ?', self.end_date, self.end_date).find_each do |period|
+        period.period_start = self.end_date + 1
+        truncated_periods << period
+      end
+    end
+
+    truncated_periods.each do |period|
+      if period.single_day?
+        period.time_table.dates.create(date: period.period_start, in_out: true)
+        period.delete if period.persisted?
+      else
+        period.save!
+      end
+    end
   end
 
   def clean_routes_outside_referential
