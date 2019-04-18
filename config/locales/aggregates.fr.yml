@@ -26,6 +26,10 @@ fr:
         zero:  "Agrégations d'offre"
         one:   "Agrégation de l'offre"
         other: "Agrégations d'offre"
+      nightly_aggregate:
+        zero:  "Agrégations d'offre automatiques"
+        one:   "Agrégation de l'offre automatique"
+        other: "Agrégations d'offre automatiques"
     attributes:
       aggregate:
         created_at: "Créé le"
