@@ -25,6 +25,9 @@ fr:
         public_url: "Url Publique"
         publications: "Publications Associées"
         public: "API publique"
+        created_at: Créée le
+        updated_at: Mise à jour le
+
   formtastic:
     hints:
       publication_api:
