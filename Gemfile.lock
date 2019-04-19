@@ -726,7 +726,6 @@ DEPENDENCIES
   better_errors
   binding_of_caller
   bulk_insert
-  bundler (~> 2.0)
   bundler-audit
   calendar_helper (= 0.2.5)
   capistrano
