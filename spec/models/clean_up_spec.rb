@@ -82,13 +82,6 @@ RSpec.describe CleanUp, :type => :model do
 
           expect(vj.reload.time_tables.map(&:id)).to_not include(time_table.id)
         end
-
-        it 'should also destroy associated vehicle_journey if it does not belong to any other time_table' do
-          vj = create(:vehicle_journey, time_tables: [time_table])
-          expect{ cleaner.clean_time_tables }.to change {
-            Chouette::VehicleJourney.count
-          }.by(-1)
-        end
       end
 
       context 'between' do
