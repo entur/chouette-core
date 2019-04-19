@@ -8,6 +8,7 @@ FROM ruby:2.6-slim
 ENV RAILS_ENV test
 ENV KEEP_DATABASE_CONFIG true
 ENV IGNORE_YARN_INSTALL true
+ENV BUNDLER_VERSION 2.0.1
 
 ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
 
@@ -21,7 +22,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl gnupg ca-c
     curl -sS https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
     echo "deb https://deb.nodesource.com/node_6.x stretch main" > /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && apt-get install -y --no-install-recommends locales yarn nodejs && \
-    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen && \
+    gem install bundler:$BUNDLER_VERSION
 
 ENV DEV_PACKAGES="build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core"
 ENV RUN_PACKAGES="libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6"
