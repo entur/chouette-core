@@ -34,8 +34,8 @@ module Stat
       journey_patterns = route.journey_patterns
       if journey_patterns.exists?
         journey_patterns.select(:id, :route_id).find_each do |journey_pattern|
-          benchmark self, :populate_for_journey_pattern, journey_pattern, referential: referential
-          benchmark self, :fill_blanks_for_journey_pattern, journey_pattern, referential: referential
+          populate_for_journey_pattern journey_pattern, referential: referential
+          fill_blanks_for_journey_pattern journey_pattern, referential: referential
         end
       else
         fill_blanks_for_empty_route route, referential: referential
