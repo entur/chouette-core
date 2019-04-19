@@ -10,7 +10,9 @@ RSpec.describe ObjectidSupport do
     end
 
     it 'should fill __pending_id__' do
-      expect(object.objectid.include?('__pending_id__')).to be_truthy
+      not_persisted = build(:time_table, objectid: nil)
+      not_persisted.validate
+      expect(not_persisted.objectid.include?('__pending_id__')).to be_truthy
     end
 
     context "#get_objectid" do
