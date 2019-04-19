@@ -298,6 +298,13 @@ describe Chouette::VehicleJourney, :type => :model do
         end
         let(:custom_field){ create :custom_field, field_type: :attachment, code: :energy, name: :energy, resource_type: "VehicleJourney" }
 
+        after(:each) do
+          to_be_deleted = Chouette::VehicleJourney.__callbacks[:commit].select {|call| call.instance_variable_get('@key') =~ /custom_field/ }
+          to_be_deleted.each do |callback|
+            Chouette::VehicleJourney.__callbacks[:commit].delete callback
+          end
+        end
+        
         it_behaves_like 'it works with both checksums modes',
                        "should change the checksum",
                        -> {
