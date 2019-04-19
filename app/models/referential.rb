@@ -577,45 +577,6 @@ class Referential < ApplicationModel
     true
   end
 
-  # def upper_corner
-  #   envelope.upper_corner
-  # end
-  #
-  # def upper_corner=(upper_corner)
-  #   if String === upper_corner
-  #     upper_corner = (upper_corner.blank? ? nil : GeoRuby::SimpleFeatures::Point::from_lat_lng(Geokit::LatLng.normalize(upper_corner), 4326))
-  #   end
-  #
-  #   envelope.tap do |envelope|
-  #     envelope.upper_corner = upper_corner
-  #     self.bounds = envelope.to_polygon.as_ewkt
-  #   end
-  # end
-  #
-  # def lower_corner
-  #   envelope.lower_corner
-  # end
-  #
-  # def lower_corner=(lower_corner)
-  #   if String === lower_corner
-  #     lower_corner = (lower_corner.blank? ? nil : GeoRuby::SimpleFeatures::Point::from_lat_lng(Geokit::LatLng.normalize(lower_corner), 4326))
-  #   end
-  #
-  #   envelope.tap do |envelope|
-  #     envelope.lower_corner = lower_corner
-  #     self.bounds = envelope.to_polygon.as_ewkt
-  #   end
-  # end
-  #
-  # def default_bounds
-  #   GeoRuby::SimpleFeatures::Envelope.from_coordinates( [ [-5.2, 42.25], [8.23, 51.1] ] ).to_polygon.as_ewkt
-  # end
-  #
-  # def envelope
-  #   bounds = read_attribute(:bounds)
-  #   GeoRuby::SimpleFeatures::Geometry.from_ewkt(bounds.present? ? bounds : default_bounds ).envelope
-  # end
-
   # Archive
   def archived?
     archived_at != nil

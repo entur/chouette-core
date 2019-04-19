@@ -123,7 +123,6 @@ gem 'will_paginate'
 gem 'ransack'
 #gem "squeel", github: 'activerecord-hackery/squeel'
 gem 'active_attr'
-# gem 'active_model-errors_details'
 
 gem 'sequel'
 
@@ -161,9 +160,7 @@ gem 'newrelic_rpm'
 gem 'letter_opener'
 gem 'letter_opener_web', '~> 1.0'
 
-#gem 'gtfs'
 gem 'gtfs', af83: 'gtfs'
-
 
 group :development do
   gem 'capistrano'
@@ -172,7 +169,6 @@ group :development do
   gem 'rails-erd'
   # MetaRequest is incompatible with rgeo-activerecord
   # gem 'meta_request'
-  # gem 'quiet_assets'
   gem 'license_finder'
   gem 'bundler-audit'
   gem 'spring-commands-rspec'
@@ -219,7 +215,6 @@ group :test, :development do
   gem 'factory_girl_rails', '~> 4.0'
   gem 'rb-inotify', require: RUBY_PLATFORM.include?('linux') && 'rb-inotify'
   gem 'rb-fsevent', require: RUBY_PLATFORM.include?('darwin') && 'rb-fsevent'
-  # gem 'transpec'
   gem 'shoulda-matchers'
   gem "teaspoon-jasmine"
   gem "phantomjs"
@@ -249,7 +244,7 @@ source 'https://rails-assets.org' do
   gem 'rails-assets-modernizr', '~> 2.0.6'
 end
 
-# gem 'activerecord-nulldb-adapter', require: (ENV['RAILS_DB_ADAPTER'] == 'nulldb')
+gem 'activerecord-nulldb-adapter', require: (ENV['RAILS_DB_ADAPTER'] == 'nulldb')
 
 gem 'google-cloud-storage', '> 1.4.0'
 gem 'net-sftp', '~> 2.1'

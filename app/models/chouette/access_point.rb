@@ -86,7 +86,6 @@ module Chouette
       stop_area.geometry or stop_area.default_position
     end
 
-
     def access_point_type
       access_type && Chouette::AccessPointType.new(access_type.underscore)
     end

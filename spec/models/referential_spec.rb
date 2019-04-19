@@ -302,8 +302,6 @@ describe Referential, :type => :model do
 
     it "should create a schema named as the slug" do
       referential = FactoryGirl.create :referential
-      # XXX what is the rails 5 equivalent for ActiveRecord::Migrator.get_all_versions ?
-      # expect(referential.migration_count).to be ActiveRecord::Migrator.get_all_versions.count
       expect(referential.migration_count).to be > 300
     end
 
