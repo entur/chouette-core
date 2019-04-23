@@ -4,7 +4,7 @@ class Publication < ActiveRecord::Base
   enumerize :status, in: %w[new pending successful failed running successful_with_warnings], default: :new
 
   belongs_to :publication_setup
-  has_many :exports, class_name: 'Export::Base'
+  has_many :exports, class_name: 'Export::Base', dependent: :destroy
   belongs_to :parent, polymorphic: true
   has_many :reports, class_name: 'DestinationReport', dependent: :destroy
 
