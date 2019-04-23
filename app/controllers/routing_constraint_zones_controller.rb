@@ -65,6 +65,20 @@ class RoutingConstraintZonesController < ChouetteController
     end
   end
 
+  def build_resource
+    super.tap do |rcz|
+      if params[:opposite_zone_id]
+        opposite_zone = @line.routing_constraint_zones.find(params[:opposite_zone_id])
+        rcz.route = opposite_zone.route.opposite_route
+        rcz.name = Chouette::RoutingConstraintZone.tmf('opposite_zone_name', name: opposite_zone.name)
+        rcz.stop_points = []
+        opposite_zone.stop_points.light.each do |stop_point|
+          rcz.stop_points << rcz.route.stop_points.light.find{|sp| stop_point.stop_area_id == sp.stop_area_id }
+        end
+      end
+    end
+  end
+
   private
   def sort_column
     (
