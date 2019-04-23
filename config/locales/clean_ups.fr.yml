@@ -5,39 +5,40 @@ fr:
     success_jp: "%{count} mission(s) supprimée(s)"
     failure: "Echec de la purge : %{error_message}"
     actions:
-      clean_up: "Purger"
-      confirm: "La purge détruit les calendriers se finissant au plus tard à la date indiquée \npuis en cascade les objets qui n'ont pas ou plus de calendrier\nConfirmer cette action SVP"
+      clean_up: "Nettoyer"
+      confirm: "Le nettoyage détruit les calendriers se finissant au plus tard à la date indiquée \npuis en cascade les objets qui n'ont pas ou plus de calendrier\nConfirmer cette action SVP"
+      new: Nettoyage du Jeu de Données
   activemodel:
     attributes:
       clean_up:
         begin_date: "Début date limite : "
         end_date: "Fin date limite : "
-  titles:
+  titles: &titles
     clean_up:
-      begin_date: "Date de début de la purge"
-      end_date: "Date de fin de la purge"
+      date_type: Supprimer ou tronquer les calendriers de circulation par date
+      begin_date: "Date de début du nettoyage"
+      end_date: "Date de fin du nettoyage"
+      method_type: Supprimer les données inutilisées
   formtastic:
     titles:
-      clean_up:
-        begin_date: "Date de début de la purge"
-        end_date: "Date de fin de la purge"
+      <<: *titles
   activerecord:
     models:
       clean_up:
-        one: Purge
-        other: Purges
+        one: Nettoyage
+        other: Nettoyages
     errors:
       models:
         clean_up:
           invalid_period: "Période invalide : La date de fin doit être strictement supérieure à la date de début"
           attributes:
             date_type:
-              presence: "Une purge doit avoir un type de renseigné"
+              presence: "Un nettoyage doit avoir un type de renseigné"
             begin_date:
-              presence: "Une purge doit avoir une date de début"
+              presence: "Un nettoyage doit avoir une date de début"
             end_date:
-              presence: "Une purge doit avoir une date de fin"
+              presence: "Un nettoyage doit avoir une date de fin"
   simple_form:
     labels:
       clean_up:
-        title: "Purger le JDD"
+        title: "Nettoyer le JDD"

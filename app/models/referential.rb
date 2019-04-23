@@ -30,6 +30,7 @@ class Referential < ApplicationModel
   has_one :user
   has_many :import_resources, class_name: 'Import::Resource', dependent: :destroy
   has_many :compliance_check_sets, dependent: :nullify
+  has_many :clean_ups, dependent: :destroy
 
   belongs_to :organisation
   validates_presence_of :organisation
@@ -690,6 +691,11 @@ class Referential < ApplicationModel
   end
 
   def pending_while
+    if pending?
+      yield
+      return
+    end
+
     vals = attributes.slice(*%w(ready archived_at failed_at))
     pending!
     begin
@@ -697,6 +703,10 @@ class Referential < ApplicationModel
     ensure
       update vals
     end
+  end
+
+  def update_stats!
+    Stat::JourneyPatternCoursesByDate.compute_for_referential(self)
   end
 
   private

@@ -1,0 +1,47 @@
+- breadcrumb @referential
+
+.page_content
+  .container-fluid
+    .row
+
+      .col-lg-8.col-lg-offset-2.col-md-8.col-md-offset-2.col-sm-10.col-sm-offset-1
+        = simple_form_for [@referential, @clean_up], html: {id: 'clean_referential_form'} do |f|
+          fieldset
+            legend= t('titles.clean_up.date_type')
+            .col-lg-12
+              .col-lg-12
+                = f.input :date_type,
+                  checked: @clean_up.date_type || :outside,
+                  as: :radio_buttons,
+                  label: false
+
+            hr.between.after.before.hidden
+            - if @clean_up&.errors&.present?
+              .col-md-12
+                .alert.alert-danger
+                  = @clean_up&.errors&.full_messages&.join('<br />')
+            .col-md-3.after.between.hidden
+              label= t('titles.clean_up.begin_date')
+            .col-md-3.before.hidden
+              label= t('titles.clean_up.end_date')
+            = f.input :begin_date, as: :date, label: false, wrapper_html: { class: 'date smart_date col-md-9 hidden between before after' }, start_year: @referential.metadatas_period&.min&.year, end_year: @referential.metadatas_period&.max&.year
+            .col-md-3.between.hidden
+              label= t('titles.clean_up.end_date')
+            = f.input :end_date, as: :date, label: false, wrapper_html: { class: 'date cleanup_end_date_wrapper smart_date col-md-9 hidden between', id: "end_date" }, start_year: @referential.metadatas_period&.min&.year, end_year: @referential.metadatas_period&.max&.year
+
+          fieldset
+            legend= t('titles.clean_up.method_type')
+            - CleanUp.data_cleanups.options.each do |option|
+              .col-md-6
+                .form-group
+                  = label :data_cleanups, option.last, option.first, class: 'col-md-10 control-label switchable_checkbox optional'
+                  .col-md-2
+                    .onoffswitch
+                      = hidden_field_tag "data_cleanups[#{option.last}]", false, id: ""
+                      = check_box_tag "data_cleanups[#{option.last}]", true, @clean_up.data_cleanups.include?(option.last), class: 'onoffswitch-checkbox'
+                      = label :data_cleanups, option.last, option.first, class: 'onoffswitch-label' do
+                        span.onoffswitch-inner on=I18n.t("simple_form.yes") off=I18n.t("simple_form.no")
+                        span.onoffswitch-switch
+
+          = cancel_button
+          = f.button :submit, t('actions.clean_up'), class: 'btn btn-default formSubmitr', form: 'clean_referential_form'

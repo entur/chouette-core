@@ -123,6 +123,19 @@ module Chouette
       SQL
     end
 
+    # THIS WILL NEED SOME LATER OPTIM
+    def self.clean!
+      # Delete vehicle_journey time_table association
+      ::ActiveRecord::Base.transaction do
+        time_table_ids = pluck(:id)
+        Chouette::TimeTablesVehicleJourney.where(time_table_id: time_table_ids).delete_all
+        Chouette::TimeTableDate.joins(:time_table).where(time_tables: {id: time_table_ids}).delete_all
+        Chouette::TimeTablePeriod.joins(:time_table).where(time_tables: {id: time_table_ids}).delete_all
+
+        delete_all
+      end
+    end
+
     def continuous_dates
       in_days = self.dates.where(in_out: true).sort_by(&:date)
       chunk = {}

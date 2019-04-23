@@ -68,11 +68,10 @@ module OptionsSupport
     candidates = self.class.options.select do |k, v|
       k.to_s == name || v[:name]&.to_s == name
     end
-    candidates = Hash.new(candidates)
     return candidates.values.last || {} if candidates.size < 2
 
     # if we have multiple candidates, it means that we have to filter on the `depend` value
-    candidates.find do |opt|
+    candidates.values.find do |opt|
       opt[:depends] && send(opt[:depends][:option])&.to_s == opt[:depends][:value].to_s
     end || {}
   end

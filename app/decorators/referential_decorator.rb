@@ -44,12 +44,7 @@ class ReferentialDecorator < AF83::Decorator
 
     instance_decorator.action_link policy: :edit, secondary: :show, on: :show do |l|
       l.content t('actions.clean_up')
-      l.href '#'
-      l.type 'button'
-      l.data {{
-        toggle: 'modal',
-        target: '#purgeModal'
-      }}
+      l.href { h.new_referential_clean_up_path(object.id) }
     end
 
     instance_decorator.destroy_action_link  do |l|

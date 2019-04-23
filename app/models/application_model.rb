@@ -4,6 +4,10 @@ class ApplicationModel < ::ActiveRecord::Base
   self.abstract_class = true
 
   class << self
+    def clean!
+      destroy_all
+    end
+    
     def skip_objectid_uniqueness?
       @skip_objectid_uniqueness
     end
@@ -13,7 +17,7 @@ class ApplicationModel < ::ActiveRecord::Base
       yield
       @skip_objectid_uniqueness = false
     end
-    
+
     def add_light_belongs_to(rel_name)
       rel = reflections[rel_name.to_s]
       raise "missing relation #{rel_name} on #{self.name}" unless rel

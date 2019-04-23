@@ -88,6 +88,7 @@ ChouetteIhm::Application.routes.draw do
       put :unarchive
       get :select_compliance_control_set
       post :validate
+      put :clean
     end
 
     resources :autocomplete_stop_areas, only: [:show, :index] do

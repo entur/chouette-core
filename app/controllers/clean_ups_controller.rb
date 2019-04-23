@@ -1,22 +1,50 @@
 class CleanUpsController < ChouetteController
   include ReferentialSupport
-  respond_to :html, :only => [:create]
+
   belongs_to :referential
 
   defaults :resource_class => CleanUp
 
   def create
-    @clean_up = CleanUp.new(clean_up_params)
-    @clean_up.referential = @referential
-    if @clean_up.valid?
-      @clean_up.save
-    else
-      flash[:alert] = @clean_up.errors.full_messages.join("<br/>")
+    create! do |success, _failure|
+      success.html do
+        redirect_to @referential
+      end
     end
-    redirect_to referential_path(@referential)
+  end
+
+  def new
+    build_resource
+    @clean_up.begin_date = @referential.metadatas_period.min
+    @clean_up.end_date = @referential.metadatas_period.max
+  end
+
+  def get_data_cleanups
+    data_cleanups_params.keys.select do |k|
+      data_cleanups_params[k] == 'true'
+    end
+  end
+
+  def data_cleanups_params
+     params.require(:data_cleanups).permit(CleanUp.data_cleanups.values)
   end
 
   def clean_up_params
-    params.require(:clean_up).permit(:date_type, :begin_date, :end_date)
+    clean_up_params = params.require(:clean_up).permit(:date_type, :begin_date, :end_date).update(data_cleanups: get_data_cleanups)
+    if clean_up_params[:date_type] == 'outside'
+      clean_up_params.delete 'begin_date(3i)'
+      clean_up_params.delete 'begin_date(2i)'
+      clean_up_params.delete 'begin_date(1i)'
+      clean_up_params.delete 'end_date(3i)'
+      clean_up_params.delete 'end_date(2i)'
+      clean_up_params.delete 'end_date(1i)'
+      clean_up_params[:begin_date] = @referential.metadatas_period.min
+      clean_up_params[:end_date] = @referential.metadatas_period.max
+    end
+    pp clean_up_params
+  end
+
+  def begin_of_association_chain
+    nil
   end
 end

@@ -148,7 +148,7 @@ class Merge < ApplicationModel
   end
 
   def clean_new
-    CleanUp.new(referential: new, methods: [:destroy_empty, :destroy_unassociated_calendars]).clean
+    CleanUp.new(referential: new, methods: [:clean_irrelevant_data, :clean_unassociated_calendars]).clean
   end
 
   def merge_referential_metadata(referential)
@@ -640,7 +640,7 @@ class Merge < ApplicationModel
 
   def after_save_current
     referentials.each(&:merged!)
-    Stat::JourneyPatternCoursesByDate.compute_for_referential(new)
+    new.update_stats!
     aggregate_if_urgent_offer
     HoleSentinel.new(workbench).watch!
   end
