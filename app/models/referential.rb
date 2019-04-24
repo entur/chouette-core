@@ -336,6 +336,7 @@ class Referential < ApplicationModel
   def self.new_from(from, workbench)
     clone = Referential.new(
       name: I18n.t("activerecord.copy", name: from.name),
+      organisation: workbench.organisation,
       prefix: from.prefix,
       time_zone: from.time_zone,
       bounds: from.bounds,
