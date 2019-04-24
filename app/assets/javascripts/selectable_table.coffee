@@ -8,9 +8,10 @@
         selection = []
         if e.currentTarget.checked
           $(this).closest('.table').find("[type='checkbox']").each ->
-            $(this).prop('checked', true)
-            # Add each element to selection
-            selection.push($(this).attr('id'))
+            unless $(this).attr('disabled')
+              $(this).prop('checked', true)
+              # Add each element to selection
+              selection.push($(this).attr('id'))
 
           # Remove th checkbox from selection
           selection.splice(0, 1)
