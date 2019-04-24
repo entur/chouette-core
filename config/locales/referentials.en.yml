@@ -11,6 +11,7 @@ en:
     edit:
       title: "Edit the data set"
     show:
+      title: "%{name}"
       lines: "lines"
       networks: "networks"
       vehicle_journeys: "vehicle journeys"

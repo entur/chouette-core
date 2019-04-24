@@ -12,7 +12,7 @@ en:
     edit:
       title: "Update company  %{name}"
     show:
-      title: "Company  %{name}"
+      title: "%{name}"
     index:
       title: "Companies"
       name: "Search by name..."

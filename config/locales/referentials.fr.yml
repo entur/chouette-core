@@ -11,7 +11,7 @@ fr:
     edit:
       title: "Editer le jeu de données"
     show:
-      title: "Jeu de données %{name}"
+      title: "%{name}"
       lines: "lignes"
       networks: "réseaux"
       vehicle_journeys: "courses"

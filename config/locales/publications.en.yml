@@ -2,7 +2,7 @@ fr:
   publications:
     search_no_results: 'No publication'
     show:
-      title: "Publication %{name}"
+      title: "%{name}"
   activerecord:
     models:
       publication:

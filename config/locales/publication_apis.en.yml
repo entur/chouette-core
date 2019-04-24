@@ -8,7 +8,7 @@ en:
       edit: Edit a Publication API
       destroy_confirm: "Are you sure you want to delete this Publication API ?"
     show:
-      title: "Publication API “%{name}”"
+      title: "%{name}"
     form:
       sections:
         params: "Publication API settings"

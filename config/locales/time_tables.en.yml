@@ -29,7 +29,7 @@ en:
     duplicate:
       title: "Duplicate timetable"
     edit:
-      title: "Update timetable %{time_table}"
+      title: "Update %{time_table}"
       day_types: Day types
       periods: Periods
       exceptions: Exceptions
@@ -66,7 +66,7 @@ en:
         begin: Period start
         end: Period end
     show:
-      title: "Timetable %{name}"
+      title: "%{name}"
       dates: "Application dates"
       periods: "Application periods"
       from: "from"

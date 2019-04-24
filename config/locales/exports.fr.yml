@@ -20,7 +20,7 @@ fr:
     create:
       title: "Générer un export"
     show:
-      title: "Export %{name}"
+      title: "%{name}"
       report: "Rapport"
       exported_file: "Fichier source"
       compliance_check: "Test de conformité"

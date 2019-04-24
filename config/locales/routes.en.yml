@@ -40,7 +40,7 @@ en:
           normal: Normal alighting
           forbidden: Forbidden alighting
     show:
-      title: "Route %{name}"
+      title: "%{name}"
       stop_points: "Stop point on route list"
       stop_areas:
         title: "Stop area list"

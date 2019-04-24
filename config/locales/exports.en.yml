@@ -20,7 +20,7 @@ en:
     create:
       title: "Generate a new export"
     show:
-      title: "Export %{name}"
+      title: "%{name}"
       report: "Report"
       exported_file: "Original file"
       compliance_check: "Validation report"

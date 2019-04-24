@@ -18,7 +18,7 @@ en:
     edit:
       title: "Update journey pattern %{journey_pattern}"
     show:
-      title: "Journey Pattern %{journey_pattern}"
+      title: "%{journey_pattern}"
       stop_points: "Stop point on journey pattern list"
       stop_points_count: 
         none: '%{count} stop areas'
@@ -28,7 +28,7 @@ en:
       confirmation: Confimation
       confirm_page_change: You are about to change page. Would you like to save your work before that ?
     index:
-      title: "Journey Patterns of %{route}"
+      title: "%{route}"
     form:
       warning: "Be careful, selection is also applied to the %{count} vehicle journeys associated to this journey pattern"
   activerecord:

@@ -19,11 +19,11 @@ fr:
     create:
       title: "Ajouter une Interdiction de Trafic entre Arrêts"
     edit:
-      title: "Editer l'Interdiction de Trafic entre Arrêts %{name}"
+      title: "Editer %{name}"
     update:
-      title: "Editer l'Interdiction de Trafic entre Arrêts %{name}"
+      title: "Editer %{name}"
     show:
-      title: "Interdiction de Trafic entre Arrêts %{name}"
+      title: "%{name}"
     index:
       title: "Interdictions de Trafic entre Arrêts"
 

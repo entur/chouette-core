@@ -19,11 +19,11 @@ en:
     create:
       title: "Add a Stop Area Routing Constraint"
     edit:
-      title: "Edit Stop Area Routing Constraint %{name}"
+      title: "Edit %{name}"
     update:
-      title: "Edit Stop Area Routing Constraint %{name}"
+      title: "Edit %{name}"
     show:
-      title: "Stop Area Routing Constraint %{name}"
+      title: "%{name}"
     index:
       title: "Stop Area Routing Constraints"
 
