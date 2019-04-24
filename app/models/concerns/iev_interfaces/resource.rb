@@ -3,7 +3,7 @@ module IevInterfaces::Resource
 
   included do
     extend Enumerize
-    attr_accessor :rows_count
+    attr_accessor :rows_count, :total_rows
 
     enumerize :status, in: %i[OK ERROR WARNING IGNORED], scope: true
     validates_presence_of :name, :resource_type
@@ -14,11 +14,15 @@ module IevInterfaces::Resource
   end
 
   def each(collection, opts = {})
+    total_rows = collection.count
     checksum_manager_method = opts[:skip_checksums] ? :no_updates : :transaction
 
     inner_block = proc do |items|
       items.each do |item|
         inc_rows_count
+        if self.respond_to?(:import)
+          import.notify_sub_operation_progress(name, rows_count.to_f/total_rows)
+        end
         yield item, self
       end
     end

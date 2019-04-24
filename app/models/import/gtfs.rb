@@ -6,6 +6,14 @@ class Import::Gtfs < Import::Base
 
   after_commit :update_main_resource_status, on:  [:create, :update]
 
+  def operation_progress_weight(operation_name)
+    operation_name.to_sym == :stop_times ? 90 : 10.0/9
+  end
+
+  def operations_progress_total_weight
+    100
+  end
+
   def self.accepts_file?(file)
     Zip::File.open(file) do |zip_file|
       zip_file.glob('agency.txt').size == 1
@@ -48,6 +56,7 @@ class Import::Gtfs < Import::Base
     import_resources :agencies, :stops, :routes
 
     create_referential
+    notify_operation_progress(:create_referential)
     referential.switch
   end
 
@@ -55,7 +64,13 @@ class Import::Gtfs < Import::Base
     prepare_referential
     referential.pending!
 
-    import_resources :calendars, :calendar_dates, :calendar_checksums unless check_calendar_files_missing_and_create_message
+    if check_calendar_files_missing_and_create_message
+      notify_operation_progress :calendars
+      notify_operation_progress :calendar_dates
+      notify_operation_progress :calendar_checksums
+    else
+      import_resources :calendars, :calendar_dates, :calendar_checksums
+    end
     import_resources :trips, :stop_times, :missing_checksums
   end
 

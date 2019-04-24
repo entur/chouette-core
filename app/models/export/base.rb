@@ -16,6 +16,7 @@ class Export::Base < ActiveRecord::Base
   validates :type, :referential_id, presence: true
 
   after_create :purge_exports
+  # after_commit :notify_state
   attr_accessor :synchronous
 
   scope :not_used_by_publication_apis, -> {
@@ -66,11 +67,13 @@ class Export::Base < ActiveRecord::Base
   def run
     update status: 'running', started_at: Time.now
     export
+    notify_state
   rescue Exception => e
     Rails.logger.error e.message
 
     messages.create(criticity: :error, message_attributes: { text: e.message }, message_key: :full_text)
     update status: 'failed'
+    notify_state
     raise
   end
 

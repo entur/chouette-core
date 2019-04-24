@@ -85,6 +85,10 @@ class Workbench < ApplicationModel
     end
   end
 
+  def notifications_channel
+    "/workbenches/#{id}"
+  end
+
   def referential_to_aggregate
     locked_referential_to_aggregate || output.current
   end

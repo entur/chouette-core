@@ -56,11 +56,13 @@ module LocalImportSupport
   def import
     update status: 'running', started_at: Time.now
 
+    @progress = 0
     profile_tag 'import' do
       ActiveRecord::Base.cache do
         import_without_status
       end
     end
+    @progress = nil
     @status ||= 'successful'
     referential&.active!
     update status: @status, ended_at: Time.now
@@ -86,6 +88,7 @@ module LocalImportSupport
     main_resource&.save
     save
     notify_parent
+    notify_state
   end
 
   def worker_died
@@ -148,6 +151,8 @@ module LocalImportSupport
     resources.each do |resource|
       profile_operation resource do
         send "import_#{resource}"
+
+        notify_operation_progress(resource)
       end
     end
   end

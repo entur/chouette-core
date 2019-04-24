@@ -30,6 +30,8 @@ module ImportResourcesSupport
   end
 
   def create_resource name
-    resources.find_or_initialize_by(name: name, resource_type: 'file', reference: name)
+    resources.find_or_initialize_by(name: name, resource_type: 'file', reference: name).tap do |r|
+      r.import = self
+    end
   end
 end
