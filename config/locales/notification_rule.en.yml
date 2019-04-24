@@ -27,6 +27,8 @@ en:
     attributes:
       notification_rule:
         period: Period
+        period_start: Suspension start date
+        period_end: Suspension end date
         notification_type: Notification types
         line_id: Line
         name: "%{notification_type} from %{from} to %{to}"
