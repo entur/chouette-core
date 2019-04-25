@@ -8,6 +8,6 @@ class NotificationsController < ChouetteController
     else
       notifications = [notifications.last]
     end
-    render json: notifications.map(&:full_payload)
+    render json: notifications.compact.map(&:full_payload)
   end
 end
