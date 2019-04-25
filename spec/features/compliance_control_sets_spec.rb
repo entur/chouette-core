@@ -41,7 +41,7 @@ RSpec.describe "ComplianceControlSets", type: :feature do
       expect_breadcrumb_links "Liste des jeux de contrôles"
 
       # Headline
-      expect( page ).to have_content("Consulter le jeu de contrôles #{control_set.name}")
+      expect( page ).to have_content(control_set.name)
 
       # Information Definition List
       expect( page.first('.dl-term') ).to have_content("Nom")

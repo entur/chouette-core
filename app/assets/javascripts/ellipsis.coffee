@@ -39,21 +39,26 @@ $.fn.extend
     originalText ?= this.text()
     this.attr "data-originalText", originalText
     this.text originalText
+
+    extraHeight = 0
+    this.parent().find('> *').each (i, e)=>
+      extraHeight += $(e).outerHeight(true) if e != this[0]
+
     placeholder = this.clone().addClass('placeholder').insertAfter(this)
     placeholder.css
       margin: 0
       padding: 0
     placeholder.text originalText
 
-    unless placeholder.height() > placeholder.parent().height() || placeholderWidth(placeholder)() > placeholder.parent().width()
+    unless (placeholder.height() + extraHeight) > placeholder.parent().height() || placeholderWidth(placeholder)() > placeholder.parent().width()
       this.text originalText
       placeholder.remove()
       return this
     length = originalText.length
 
-    if placeholder.height() > placeholder.parent().height()
-      max = this.parent().height()
-      min = this.parent().height() * 0.9
+    if placeholder.height() + extraHeight > placeholder.parent().height()
+      max = this.parent().height() - extraHeight
+      min = max * 0.9
       dimension = placeholderHeight(placeholder)
     else
       max = this.parent().width()

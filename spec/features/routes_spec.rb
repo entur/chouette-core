@@ -26,21 +26,6 @@ describe "Routes", :type => :feature do
       end
     end
 
-    describe "from line's page, create a new route" do
-      it "return to line's page that display new route" do
-        visit referential_line_path(referential, line)
-        click_link "Ajouter un itinéraire"
-        fill_in "route_name", :with => "A to B"
-        fill_in "route_published_name", :with => "Published A to B"
-        # select 'Aller', :from => "route_direction"
-        check('route[wayback]')
-        click_button("Valider")
-        expect(page).to have_content("A to B")
-        expect(page).to have_content("Published A to B")
-
-      end
-    end
-
     describe "Modifies boarding/alighting properties on route stops" do
       xit "Puts (http) an update request" do
         #visit edit_boarding_alighting_referential_line_route_path(referential, line, route)
