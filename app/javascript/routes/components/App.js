@@ -16,6 +16,13 @@ export default class App extends Component {
     onLoadFirstPage(isActionUpdate)
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    let fetchDone = !!prevProps.isFetching && !this.props.isFetching
+    if (fetchDone && $('.route.formSubmitr').length > 0) {
+      $(document).trigger('submitMover')
+    }
+   }
+
   render() {
     if (this.props.isFetching) {
       return (
