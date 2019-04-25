@@ -1,8 +1,8 @@
 import _ from 'lodash'
-import formHelper from '../form_helper'
+import { RECEIVE_ROUTE } from './route'
 
-const stopPoint = (state = {}, action, length) => {
-  switch (action.type) {
+const stopPoint = ({ type }, length) => {
+  switch (type) {
     case 'ADD_STOP':
       return {
         text: '',
@@ -20,20 +20,12 @@ const stopPoint = (state = {}, action, length) => {
   }
 }
 
-const updateFormForDeletion = (stop) =>{
-  if (stop.stoppoint_id !== undefined){
-    let now = Date.now()
-    formHelper.addInput('id', stop.stoppoint_id, now)
-    formHelper.addInput('_destroy', 'true', now)
-  }
-}
-
 const stopPoints = (state = [], action) => {
   switch (action.type) {
     case 'ADD_STOP':
       return [
         ...state,
-        stopPoint(undefined, action, state.length)
+        stopPoint(action, state.length)
       ]
     case 'MOVE_STOP_UP':
       return [
@@ -50,7 +42,6 @@ const stopPoints = (state = [], action) => {
         ...state.slice(action.index + 2)
       ]
     case 'DELETE_STOP':
-      updateFormForDeletion(state[action.index])
       return [
         ...state.slice(0, action.index),
         ...state.slice(action.index + 1).map((stopPoint)=>{
@@ -141,6 +132,8 @@ const stopPoints = (state = [], action) => {
         let emptyMap = _.assign({}, t.olMap, {isOpened: false, json: {}})
         return _.assign({}, t, {olMap: emptyMap})
       })
+    case RECEIVE_ROUTE:
+      return action.json['stop_points']
     default:
       return state
   }

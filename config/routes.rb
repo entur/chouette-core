@@ -119,6 +119,10 @@ ChouetteIhm::Application.routes.draw do
           get 'costs'
           post 'duplicate', to: 'routes#duplicate'
         end
+        collection do
+          get 'fetch_user_permissions'
+          get 'fetch_opposite_routes'
+        end
         resource :journey_patterns_collection, :only => [:show, :update]
         resources :journey_patterns do
           get 'new_vehicle_journey', on: :member

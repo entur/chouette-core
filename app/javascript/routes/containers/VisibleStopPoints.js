@@ -4,14 +4,15 @@ import StopPointList from '../components/StopPointList'
 
 const mapStateToProps = (state) => {
   return {
-    stopPoints: state.stopPoints
+    stopPoints: state.stopPoints,
+    errors: state.formErrors.stopPoints
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onDeleteClick: (index) =>{
-      dispatch(actions.deleteStop(index))
+    onDeleteClick: (index, stopPointId) =>{
+      dispatch(actions.deleteStop(index, stopPointId))
       dispatch(actions.closeMaps())
     },
     onMoveUpClick: (index) =>{

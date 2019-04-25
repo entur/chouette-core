@@ -23,12 +23,12 @@ module Chouette
 
     # Uses a custom validation to avoid StopArea model loading. See #8202
     # validates_presence_of :stop_area
-    validate :stop_area_id_validation
-    def stop_area_id_validation
-      unless stop_area_id.present? && Chouette::StopArea.exists?(stop_area_id)
-        errors.add(:stop_area_id, I18n.t("stop_areas.errors.empty"))
-      end
-    end
+    # validate :stop_area_id_validation
+    # def stop_area_id_validation
+    #   unless stop_area_id.present? && Chouette::StopArea.exists?(stop_area_id)
+    #     errors.add(:stop_area_id, I18n.t("stop_areas.errors.empty"))
+    #   end
+    # end
 
     scope :default_order, -> { order("position") }
     scope :light, -> { select(:id, :objectid, :stop_area_id, :for_alighting, :for_boarding, :position) }

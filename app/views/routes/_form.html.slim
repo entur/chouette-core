@@ -1,29 +1,11 @@
-= simple_form_for [@referential, @line, @route], html: {class: 'form-horizontal', id: 'route_form'}, wrapper: :horizontal_form do |f|
-  .row
-    .col-lg-12
-      = f.input :name
-      = f.input :published_name
+#route
 
-      .form-group.has_switch
-        = f.label :wayback, class: 'col-sm-4 col-xs-5 control-label'
-        = f.input :wayback, as: :boolean, checked_value: :outbound, unchecked_value: :inbound, label: content_tag(:span, @route.wayback_text, class: 'switch-label', data: {checkedValue: t('enumerize.route.wayback.outbound'), uncheckedValue: t('enumerize.route.wayback.inbound')}), wrapper_html: { class: 'col-sm-8 col-xs-7'}
-
-      = f.input :opposite_route_id, collection: @forward, disabled: @route.wayback.outbound?, wrapper_html: {class: input_opposite_route_id_css(@route, 'outbound')}
-      = f.input :opposite_route_id, collection: @backward, disabled: @route.wayback.inbound?, wrapper_html: {class: input_opposite_route_id_css(@route, 'inbound')}
-
-  .separator
-
-  .row
-    .col-lg-12
-      #stop_points
-
-  = cancel_button
-  = f.button :submit, t('actions.submit'), class: 'btn btn-default formSubmitr', form: 'route_form'
-
-// Get JSON data for route stop points
 = javascript_tag do
-  | window.itinerary_stop = "#{URI.escape(route_json_for_edit(@route))}";
-  // | window.I18n = #{(I18n.backend.send(:translations)[I18n.locale].to_json).html_safe};
+  | window.routeFormAction = "#{form_action}";
+  | window.redirectUrl = "#{redirect_url}";
+  | window.routeSubmitUrl = "#{route_submit_url}";
+  | window.fetchRouteUrl = "#{route_fetch_url}.json";
+  | window.fetchUserPermissionsUrl = "#{url_for(action: 'fetch_user_permissions', controller: 'routes', only_path: false)}";
+  | window.fetchOppositeRoutesUrl = "#{url_for(action: 'fetch_opposite_routes', controller: 'routes', only_path: false)}";
 
-/ StopPoints Reactux component
-= javascript_pack_tag 'routes/edit.js'
+= javascript_pack_tag 'routes/form.js'
