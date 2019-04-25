@@ -56,7 +56,7 @@ module NotifiableSupport
       workgroup_for_notifications.workbenches.map(&:users)
     end
 
-    users.compact.map(&:email_recipient)
+    users.compact.flatten.map(&:email_recipient)
   end
 
   def has_notification_recipients?
