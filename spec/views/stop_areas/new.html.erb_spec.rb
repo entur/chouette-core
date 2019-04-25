@@ -8,6 +8,7 @@ describe "/stop_areas/new", :type => :view do
   before do
     allow(view).to receive(:has_feature?)
     allow(view).to receive(:resource){ stop_area }
+    allow(view).to receive(:resource_class){ stop_area.class }
   end
 
   describe "form" do
