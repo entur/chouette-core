@@ -54,7 +54,6 @@ class CleanUp < ApplicationModel
       clean_timetables_and_children
       clean_routes_outside_referential
       run_methods
-      referential.update_stats!
     end
 
     Chouette::Benchmark.log('reset_referential_state') do
