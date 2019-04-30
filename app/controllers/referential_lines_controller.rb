@@ -19,9 +19,9 @@ class ReferentialLinesController < ChouetteController
     when "stop_points", "journey_patterns"
       left_join = %Q{LEFT JOIN "#{sort_route_column}" ON "#{sort_route_column}"."route_id" = "routes"."id"}
 
-      @routes = @routes.joins(left_join).group(:id).order("count(#{sort_route_column}.route_id) #{sort_route_direction}")
+      @routes = @routes.joins(left_join).group(:id).order(Arel.sql("count(#{sort_route_column}.route_id) #{sort_route_direction}"))
     else
-      @routes = @routes.order("lower(#{sort_route_column}) #{sort_route_direction}")
+      @routes = @routes.order(Arel.sql("lower(#{sort_route_column}) #{sort_route_direction}"))
     end
 
     @routes = @routes.paginate(page: params[:page], per_page: 10)
@@ -90,7 +90,7 @@ class ReferentialLinesController < ChouetteController
       end
     end
 
-    @q = referential.lines.search(params[:q])
+    @q = referential.lines.ransack(params[:q])
 
     if sort_column && sort_direction
       @lines ||= @q.result(:distinct => true).order(sort_column + ' ' + sort_direction)

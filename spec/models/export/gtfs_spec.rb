@@ -7,7 +7,7 @@ RSpec.describe Export::Gtfs, type: [:model, :with_exportable_referential] do
       line.company = nil
       line.save
 
-      stop_areas = stop_area_referential.stop_areas.order("random()").limit(2)
+      stop_areas = stop_area_referential.stop_areas.order(Arel.sql('random()')).limit(2)
       route = FactoryGirl.create :route, line: line, stop_areas: stop_areas, stop_points_count: 0
       journey_pattern = FactoryGirl.create :journey_pattern, route: route, stop_points: route.stop_points.sample(3)
       vehicle_journey = FactoryGirl.create :vehicle_journey, journey_pattern: journey_pattern, company: nil
@@ -47,7 +47,7 @@ RSpec.describe Export::Gtfs, type: [:model, :with_exportable_referential] do
       company.save
 
       line = referential.lines.first
-      stop_areas = stop_area_referential.stop_areas.order("random()").limit(2)
+      stop_areas = stop_area_referential.stop_areas.order(Arel.sql('random()')).limit(2)
       route = FactoryGirl.create :route, line: line, stop_areas: stop_areas, stop_points_count: 0
       journey_pattern = FactoryGirl.create :journey_pattern, route: route, stop_points: route.stop_points.sample(3)
       vehicle_journey = FactoryGirl.create :vehicle_journey, journey_pattern: journey_pattern, company: company
@@ -87,7 +87,7 @@ RSpec.describe Export::Gtfs, type: [:model, :with_exportable_referential] do
       company.save
 
       line = referential.lines.first
-      stop_areas = stop_area_referential.stop_areas.order("random()").limit(2)
+      stop_areas = stop_area_referential.stop_areas.order(Arel.sql('random()')).limit(2)
       route = FactoryGirl.create :route, line: line, stop_areas: stop_areas, stop_points_count: 0
       journey_pattern = FactoryGirl.create :journey_pattern, route: route, stop_points: route.stop_points.sample(2)
       vehicle_journey = FactoryGirl.create :vehicle_journey, journey_pattern: journey_pattern, company: company

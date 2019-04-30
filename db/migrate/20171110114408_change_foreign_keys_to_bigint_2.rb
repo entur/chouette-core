@@ -1,4 +1,4 @@
-class ChangeForeignKeysToBigint2 < ActiveRecord::Migration
+class ChangeForeignKeysToBigint2 < ActiveRecord::Migration[4.2]
   def change
     change_column :api_keys, :organisation_id, :bigint
     change_column :compliance_check_blocks, :compliance_check_set_id, :bigint

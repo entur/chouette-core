@@ -76,7 +76,7 @@ module IevInterfaces
 
     scope = self.ransack_period_range(scope: scope, error_message:  t("#{collection_name}.filters.error_period_filter"), query: :where_started_at_in)
 
-    @q = scope.search(params[:q])
+    @q = scope.ransack(params[:q])
 
     unless instance_variable_get "@#{collection_name}"
       coll = @q.result

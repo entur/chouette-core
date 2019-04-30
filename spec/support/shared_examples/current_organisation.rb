@@ -1,6 +1,6 @@
 RSpec.shared_examples_for 'checks current_organisation' do |opts = {}|
   success_code = opts[:success_code] || 200
-  
+
   context "when belonging the the right organisation" do
     let(:organisation){ @user.organisation }
 
@@ -13,7 +13,7 @@ RSpec.shared_examples_for 'checks current_organisation' do |opts = {}|
     let(:organisation){ create :organisation }
 
     it 'should respond with NOT FOUND' do
-      expect{request}.to raise_error(ActiveRecord::RecordNotFound)
+      expect{ request }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 end

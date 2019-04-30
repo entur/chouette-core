@@ -40,7 +40,7 @@ module Chouette
       .where("time_tables_vehicle_journeys.vehicle_journey_id is null")
     }
 
-    scope :used, -> { joins(:vehicle_journeys).uniq }
+    scope :used, -> { joins(:vehicle_journeys).distinct }
 
     scope :empty, -> {
       includes(:periods, :dates).where(time_table_periods: {id: nil}, time_table_dates: {id: nil})
@@ -582,17 +582,5 @@ module Chouette
     def empty?
       dates.empty? && periods.empty?
     end
-
-    # returns VehicleJourneys with at least 1 day in their time_tables
-    # included in the given range. Abandonned to use flattened_circulation_periods
-    # def self.including_vehicle_journeys_within_date_range vehicle_journey_ids, date_range
-    #   time_tables = Chouette::TimeTable.where(id: Chouette::VehicleJourney.where(id: vehicle_journey_ids).joins("INNER JOIN time_tables_vehicle_journeys ON vehicle_journeys.id = time_tables_vehicle_journeys.vehicle_journey_id").pluck('time_tables_vehicle_journeys.time_table_id')).overlapping(date_range).uniq
-    #
-    #   time_tables = time_tables.select do |time_table|
-    #     range = date_range
-    #     range = date_range & (time_table.start_date-1.day..time_table.end_date+1.day) || [] if time_table.start_date.present? && time_table.end_date.present?
-    #     range.any?{|d| time_table.include_day?(d) }
-    #   end
-    # end
   end
 end

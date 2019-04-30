@@ -1,4 +1,4 @@
-class CreatePublicationSetups < ActiveRecord::Migration
+class CreatePublicationSetups < ActiveRecord::Migration[4.2]
   def change
     create_table :publication_setups do |t|
       t.belongs_to :workgroup, index: true, limit: 8

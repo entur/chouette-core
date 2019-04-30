@@ -489,7 +489,7 @@ RSpec.describe CleanUp, :type => :model do
     let(:cleaner) { create(:clean_up) }
 
     it "calls methods in the :methods attribute" do
-      cleaner = create(
+      cleaner = build(
         :clean_up,
         methods: [:clean_routes_outside_referential]
       )

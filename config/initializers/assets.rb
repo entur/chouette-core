@@ -9,3 +9,4 @@ Rails.application.config.assets.precompile += %w( base.css es6_browserified/*.js
 Rails.application.config.assets.precompile += %w( flags.css )
 Rails.application.config.assets.precompile += %w( api.css )
 Rails.application.config.assets.precompile += %w( OpenLayers/maps_backgrounds.js )
+Rails.application.config.assets.precompile += %w( language_engine/*_flag.png )

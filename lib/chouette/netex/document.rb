@@ -1,4 +1,13 @@
+module NetexDocumentWithLog
+  def node_if_content name, &block
+    Rails.logger.info "NETEX Export: #{name}"
+    super name, &block
+  end
+end
+
 class Chouette::Netex::Document
+  prepend NetexDocumentWithLog
+
   include Chouette::Netex::Concerns::Helpers
   include Chouette::Netex::Concerns::EntityCollections
   include Chouette::Netex::Concerns::SourceCollections
@@ -156,12 +165,6 @@ class Chouette::Netex::Document
     netex_frames :resource, :site, :service, :timetable, :service_calendar
     @builder = nil
   end
-
-  def node_if_content_with_log name, &block
-    Rails.logger.info "NETEX Export: #{name}"
-    node_if_content_without_log name, &block
-  end
-  alias_method_chain :node_if_content, :log
 
   def netex_frames *frame
     frame.each &method(:netex_frame)

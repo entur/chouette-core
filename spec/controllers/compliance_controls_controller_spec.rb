@@ -7,14 +7,14 @@ RSpec.describe ComplianceControlsController, type: :controller do
 
   describe 'GET #new' do
     it 'should be successful' do
-      get :new, compliance_control_set_id: compliance_control_set.id, sti_class: 'GenericAttributeControl::MinMax'
-      expect(response).to be_success
+      get :new, params: { compliance_control_set_id: compliance_control_set.id, sti_class: 'GenericAttributeControl::MinMax' }
+      expect(response).to be_successful
     end
   end
 
   describe 'POST #create' do
     it 'should be successful' do
-      post :create, compliance_control_set_id: compliance_control_set.id, compliance_control: compliance_control.as_json.merge(type: 'GenericAttributeControl::MinMax')
+      post :create, params: { compliance_control_set_id: compliance_control_set.id, compliance_control: compliance_control.as_json.merge(type: 'GenericAttributeControl::MinMax') }
       # expect(response).to have_http_status(302)
       # expect(response).to redirect_to compliance_control_set_path(compliance_control_set)
     end
@@ -22,29 +22,29 @@ RSpec.describe ComplianceControlsController, type: :controller do
 
   describe 'GET #select_type' do
     it 'should be successful' do
-      get :select_type, compliance_control_set_id: compliance_control_set.id
-      expect(response).to be_success
+      get :select_type, params: { compliance_control_set_id: compliance_control_set.id }
+      expect(response).to be_successful
     end
   end
 
   context "on a control_set the user does not own" do
     describe "GET show" do
       it 'should be successful' do
-        get :show, compliance_control_set_id: compliance_control_set.id, id: compliance_control.id
-        expect(response).to be_success
+        get :show, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control.id }
+        expect(response).to be_successful
       end
     end
 
     describe 'GET #edit' do
       it 'should be forbidden' do
-        get :edit, compliance_control_set_id: compliance_control_set.id, id: compliance_control.id
+        get :edit, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control.id }
         expect(response).to have_http_status 403
       end
     end
 
     describe 'POST #update' do
       it 'should be forbidden' do
-        post :update, compliance_control_set_id: compliance_control_set.id, id: compliance_control.id, compliance_control: compliance_control.as_json.merge(type: 'GenericAttributeControl::MinMax')
+        post :update, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control.id, compliance_control: compliance_control.as_json.merge(type: 'GenericAttributeControl::MinMax') }
         expect(response).to have_http_status 403
       end
     end
@@ -52,7 +52,7 @@ RSpec.describe ComplianceControlsController, type: :controller do
     describe 'DELETE #destroy' do
       it 'should be forbidden' do
         expect {
-          delete :destroy, compliance_control_set_id: compliance_control_set.id, id: compliance_control.id
+          delete :destroy, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control.id }
         }.to change(GenericAttributeControl::MinMax, :count).by(0)
         expect(response).to have_http_status 403
       end
@@ -65,21 +65,21 @@ RSpec.describe ComplianceControlsController, type: :controller do
     }
     describe "GET show" do
       it 'should be successful' do
-        get :show, compliance_control_set_id: compliance_control_set.id, id: compliance_control.id
-        expect(response).to be_success
+        get :show, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control.id }
+        expect(response).to be_successful
       end
     end
 
     describe 'GET #edit' do
       it 'should be successful' do
-        get :edit, compliance_control_set_id: compliance_control_set.id, id: compliance_control.id
-        expect(response).to be_success
+        get :edit, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control.id }
+        expect(response).to be_successful
       end
     end
 
     describe 'POST #update' do
       it 'should be successful' do
-        post :update, compliance_control_set_id: compliance_control_set.id, id: compliance_control.id, compliance_control: compliance_control.as_json.merge(type: 'GenericAttributeControl::MinMax')
+        post :update, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control.id, compliance_control: compliance_control.as_json.merge(type: 'GenericAttributeControl::MinMax') }
         expect(response).to redirect_to compliance_control_set_path(compliance_control_set)
       end
     end
@@ -87,7 +87,7 @@ RSpec.describe ComplianceControlsController, type: :controller do
     describe 'DELETE #destroy' do
       it 'should be successful' do
         expect {
-          delete :destroy, compliance_control_set_id: compliance_control_set.id, id: compliance_control.id
+          delete :destroy, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control.id }
         }.to change(GenericAttributeControl::MinMax, :count).by(-1)
         expect(response).to have_http_status(302)
       end

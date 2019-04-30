@@ -14,7 +14,7 @@ RSpec.describe Chouette::Route, :type => :model do
           let( :new_stop_point ){build( :stop_point, :route => subject)}
           def added_stop_hash
             subject_stop_points_attributes.tap do |h|
-                h["4"] = new_stop_point.attributes.merge( "position" => "4", "_destroy" => "" )
+                h["5"] = new_stop_point.attributes.merge( "position" => "5", "_destroy" => "" )
             end
           end
           let!( :new_route_size ){ subject.stop_points.size+1 }
@@ -110,4 +110,3 @@ RSpec.describe Chouette::Route, :type => :model do
     end
   end
 end
-

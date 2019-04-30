@@ -6,8 +6,8 @@ RSpec.describe Api::V1::ImportsController, type: :controller do
 
     describe 'GET #index' do
       it 'should not be successful' do
-        get :index, workbench_id: workbench.id
-        expect(response).not_to be_success
+        get :index, params: { workbench_id: workbench.id }
+        expect(response).not_to be_successful
       end
     end
   end
@@ -17,8 +17,8 @@ RSpec.describe Api::V1::ImportsController, type: :controller do
 
     describe 'GET #index' do
       it 'should be successful' do
-        get :index, workbench_id: workbench.id, format: :json
-        expect(response).to be_success
+        get :index, params: { workbench_id: workbench.id, format: :json }
+        expect(response).to be_successful
       end
     end
 
@@ -27,7 +27,7 @@ RSpec.describe Api::V1::ImportsController, type: :controller do
 
       it 'should be successful' do
         expect {
-          post :create, {
+          post :create, params: {
             workbench_id: workbench.id,
             workbench_import: {
               name: "test",
@@ -40,7 +40,7 @@ RSpec.describe Api::V1::ImportsController, type: :controller do
             format: :json
           }
         }.to change{Import::Workbench.count}.by(1)
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(Import::Workbench.last.automatic_merge).to be_truthy
       end
     end

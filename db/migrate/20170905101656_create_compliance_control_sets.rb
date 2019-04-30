@@ -1,4 +1,4 @@
-class CreateComplianceControlSets < ActiveRecord::Migration
+class CreateComplianceControlSets < ActiveRecord::Migration[4.2]
   def change
     create_table :compliance_control_sets do |t|
       t.string :name

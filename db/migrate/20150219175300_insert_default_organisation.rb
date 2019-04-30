@@ -1,4 +1,4 @@
-class InsertDefaultOrganisation < ActiveRecord::Migration
+class InsertDefaultOrganisation < ActiveRecord::Migration[4.2]
   class Organisation  < ApplicationModel
     attr_accessor :name
   end

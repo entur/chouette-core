@@ -54,7 +54,7 @@ class GroupOfLinesController < ChouetteController
   end
 
   def collection
-    @q = line_referential.group_of_lines.search(params[:q])
+    @q = line_referential.group_of_lines.ransack(params[:q])
     @group_of_lines ||= @q.result(:distinct => true).order(:name).paginate(:page => params[:page])
   end
 

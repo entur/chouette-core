@@ -18,7 +18,7 @@ describe "/lines/show", :type => :view do
     allow(view).to receive_messages(current_organisation: referential.organisation, resource: line)
     controller.request.path_parameters[:line_referential_id] = line_referential.id
     controller.request.path_parameters[:id] = line.id
-    allow(view).to receive(:resource_class).and_return(Chouette::Line)
+    allow(view).to receive(:params).and_return(ActionController::Parameters.new(action: :show))
     allow(view).to receive(:params).and_return({action: :show})
   end
 

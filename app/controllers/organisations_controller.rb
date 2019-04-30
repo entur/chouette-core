@@ -11,7 +11,7 @@ class OrganisationsController < ChouetteController
 
   def show
     show! do
-      @q = @organisation.users.search(params[:q])
+      @q = @organisation.users.ransack(params[:q])
       @users = UserDecorator.decorate(
         @q.result.paginate(page: params[:page]).order(sort_params)
       )

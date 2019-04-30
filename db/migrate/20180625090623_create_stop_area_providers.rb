@@ -1,4 +1,4 @@
-class CreateStopAreaProviders < ActiveRecord::Migration
+class CreateStopAreaProviders < ActiveRecord::Migration[4.2]
   def change
     create_table :stop_area_providers do |t|
       t.string :objectid

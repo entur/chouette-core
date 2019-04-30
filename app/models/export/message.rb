@@ -3,6 +3,6 @@ class Export::Message < ApplicationModel
 
   include IevInterfaces::Message
 
-  belongs_to :export, class_name: Export::Base
-  belongs_to :resource, class_name: Export::Resource
+  belongs_to :export, class_name: 'Export::Base'
+  belongs_to :resource, class_name: 'Export::Resource'
 end

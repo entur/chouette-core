@@ -33,9 +33,9 @@ class Delayed::Worker
   end
 end
 
-class Delayed::Job
-  def initialize_with_organisation(options)
-    initialize_without_organisation options
+module Delayed::InitializeWithOrganisation
+  def initialize(options)
+    super options
     payload_object = options[:payload_object]
     object = payload_object.try(:object)
     if object&.respond_to?(:organisation)
@@ -45,7 +45,10 @@ class Delayed::Job
       self.operation_type = object.operation_type
     end
   end
-  alias_method_chain :initialize, :organisation
+end
+
+class Delayed::Job
+  prepend Delayed::InitializeWithOrganisation
 
   def self.locked
     where.not(locked_at: nil)

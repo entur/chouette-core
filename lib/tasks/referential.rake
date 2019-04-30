@@ -8,7 +8,7 @@ namespace :referential do
 
     Referential.transaction do
       workbench = Workbench.find_by!(id: args[:workbench_id])
-      line = workbench.line_referential.lines.order("random()").first
+      line = workbench.line_referential.lines.order(Arel.sql('random()')).first
       name = "Referential #{Faker::Name.unique.name}"
 
       referential = workbench.referentials.create!(name: name, slug: name.downcase.parameterize.underscore, organisation: workbench.organisation,

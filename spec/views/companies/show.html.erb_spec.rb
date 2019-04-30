@@ -16,7 +16,7 @@ describe "/companies/show", :type => :view do
     allow(view).to receive(:resource_class).and_return(Chouette::Company)
     controller.request.path_parameters[:line_referential_id] = line_referential.id
     controller.request.path_parameters[:id] = company.id
-    allow(view).to receive(:params).and_return({action: :show})
+    allow(view).to receive(:params).and_return(ActionController::Parameters.new(action: :show))
   end
 
   describe "action links" do

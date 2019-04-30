@@ -47,7 +47,7 @@ class JourneyPatternsController < ChouetteController
   end
 
   def collection
-    @q = route.journey_patterns.search( params[:q])
+    @q = route.journey_patterns.ransack( params[:q])
     @journey_patterns ||= @q.result(:distinct => true).order(:name)
   end
 

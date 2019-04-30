@@ -1,5 +1,20 @@
 # coding: utf-8
+
+module ReferentialSaveWithLock
+  def save(options = {})
+    super(options)
+  rescue ActiveRecord::StatementInvalid => e
+    if e.message.include?('PG::LockNotAvailable')
+      raise TableLockTimeoutError.new(e)
+    else
+      raise
+    end
+  end
+end
+
 class Referential < ApplicationModel
+  prepend ReferentialSaveWithLock
+
   include DataFormatEnumerations
   include ObjectidFormatterSupport
 
@@ -17,8 +32,8 @@ class Referential < ApplicationModel
 
   validates_format_of :slug, with: %r{\A[a-z][0-9a-z_]+\Z}
   validates_format_of :prefix, with: %r{\A[0-9a-zA-Z_]+\Z}
-  validates_format_of :upper_corner, with: %r{\A-?[0-9]+\.?[0-9]*\,-?[0-9]+\.?[0-9]*\Z}
-  validates_format_of :lower_corner, with: %r{\A-?[0-9]+\.?[0-9]*\,-?[0-9]+\.?[0-9]*\Z}
+  # validates_format_of :upper_corner, with: %r{\A-?[0-9]+\.?[0-9]*\,-?[0-9]+\.?[0-9]*\Z}
+  # validates_format_of :lower_corner, with: %r{\A-?[0-9]+\.?[0-9]*\,-?[0-9]+\.?[0-9]*\Z}
   validate :slug_excluded_values
 
   attr_accessor :upper_corner
@@ -82,9 +97,9 @@ class Referential < ApplicationModel
 
   scope :in_periode, ->(periode) { where(id: referential_ids_in_periode(periode)) }
   scope :include_metadatas_lines, ->(line_ids) { joins(:metadatas).where('referential_metadata.line_ids && ARRAY[?]::bigint[]', line_ids) }
-  scope :order_by_validity_period, ->(dir) { joins(:metadatas).order("unnest(periodes) #{dir}") }
-  scope :order_by_lines, ->(dir) { joins(:metadatas).group("referentials.id").order("sum(array_length(referential_metadata.line_ids,1)) #{dir}") }
-  scope :order_by_organisation_name, ->(dir) { joins(:organisation).order("lower(organisations.name) #{dir}") }
+  scope :order_by_validity_period, ->(dir) { joins(:metadatas).order(Arel.sql("unnest(periodes) #{dir}")) }
+  scope :order_by_lines, ->(dir) { joins(:metadatas).group("referentials.id").order(Arel.sql("sum(array_length(referential_metadata.line_ids,1)) #{dir}")) }
+  scope :order_by_organisation_name, ->(dir) { joins(:organisation).order(Arel.sql("lower(organisations.name) #{dir}")) }
   scope :not_in_referential_suite, -> { where referential_suite_id: nil }
   scope :blocked, -> { where('ready = ? AND created_at < ?', false, 4.hours.ago) }
   scope :created_before, -> (date) { where('created_at < ? ', date) }
@@ -96,18 +111,6 @@ class Referential < ApplicationModel
     states.reverse! if dir == 'asc'
     Referential.order(*states)
   end
-
-  def save_with_table_lock_timeout(options = {})
-    save_without_table_lock_timeout(options)
-  rescue ActiveRecord::StatementInvalid => e
-    if e.message.include?('PG::LockNotAvailable')
-      raise TableLockTimeoutError.new(e)
-    else
-      raise
-    end
-  end
-
-  alias_method_chain :save, :table_lock_timeout
 
   def self.force_register_models_with_checksum
     paths = Rails.application.paths['app/models'].to_a
@@ -572,45 +575,6 @@ class Referential < ApplicationModel
 
   def destroy_jobs
     true
-  end
-
-  def upper_corner
-    envelope.upper_corner
-  end
-
-  def upper_corner=(upper_corner)
-    if String === upper_corner
-      upper_corner = (upper_corner.blank? ? nil : GeoRuby::SimpleFeatures::Point::from_lat_lng(Geokit::LatLng.normalize(upper_corner), 4326))
-    end
-
-    envelope.tap do |envelope|
-      envelope.upper_corner = upper_corner
-      self.bounds = envelope.to_polygon.as_ewkt
-    end
-  end
-
-  def lower_corner
-    envelope.lower_corner
-  end
-
-  def lower_corner=(lower_corner)
-    if String === lower_corner
-      lower_corner = (lower_corner.blank? ? nil : GeoRuby::SimpleFeatures::Point::from_lat_lng(Geokit::LatLng.normalize(lower_corner), 4326))
-    end
-
-    envelope.tap do |envelope|
-      envelope.lower_corner = lower_corner
-      self.bounds = envelope.to_polygon.as_ewkt
-    end
-  end
-
-  def default_bounds
-    GeoRuby::SimpleFeatures::Envelope.from_coordinates( [ [-5.2, 42.25], [8.23, 51.1] ] ).to_polygon.as_ewkt
-  end
-
-  def envelope
-    bounds = read_attribute(:bounds)
-    GeoRuby::SimpleFeatures::Geometry.from_ewkt(bounds.present? ? bounds : default_bounds ).envelope
   end
 
   # Archive

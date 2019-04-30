@@ -463,7 +463,7 @@ class Import::Gtfs < Import::Base
       group.each do |r|
         ids << r.id
         source = r.current_checksum_source(db_lookup: false)
-        checksum_sources << self.class.sanitize(source)
+        checksum_sources << self.class.sanitize_sql(source)
         checksums << Digest::SHA256.new.hexdigest(source)
       end
       sql = <<SQL
@@ -471,7 +471,7 @@ class Import::Gtfs < Import::Base
         FROM
         (select unnest(array[#{ids.join(",")}]) as id,
         unnest(array['#{checksums.join("','")}']) as checksum,
-        unnest(array[#{checksum_sources.join(",")}]) as checksum_source) as data_table
+        unnest(array['#{checksum_sources.join("','")}']) as checksum_source) as data_table
         where tmp.id = data_table.id;
 SQL
       ActiveRecord::Base.connection.execute sql

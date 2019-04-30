@@ -1,4 +1,4 @@
-class CreateCleanUps < ActiveRecord::Migration
+class CreateCleanUps < ActiveRecord::Migration[4.2]
   def change
     create_table :clean_ups do |t|
       t.string :status

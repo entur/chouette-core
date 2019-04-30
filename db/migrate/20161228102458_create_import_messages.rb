@@ -1,4 +1,4 @@
-class CreateImportMessages < ActiveRecord::Migration
+class CreateImportMessages < ActiveRecord::Migration[4.2]
   def change
     create_table :import_messages do |t|
       t.integer :criticity

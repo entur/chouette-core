@@ -49,7 +49,7 @@ class PublicationSetupsController < ChouetteController
   end
 
   def collection
-    @q = end_of_association_chain.search(params[:q])
+    @q = end_of_association_chain.ransack(params[:q])
     scope = @q.result(distinct: true)
     scope = scope.order(sort_column + ' ' + sort_direction)
     @publication_setups = scope.paginate(page: params[:page])

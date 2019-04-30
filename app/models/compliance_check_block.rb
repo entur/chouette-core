@@ -23,7 +23,7 @@ class ComplianceCheckBlock < ApplicationModel
 
     if stop_areas_in_countries?
       matching_routes = routes_collection(compliance_check)
-      ids = matching_routes.select(:line_id).uniq.to_sql
+      ids = matching_routes.select(:line_id).distinct.to_sql
       scope = scope.where("lines.id IN (#{ids})")
     end
     scope
@@ -60,7 +60,7 @@ class ComplianceCheckBlock < ApplicationModel
   end
 
   def stop_areas_collection(compliance_check)
-    ids = routes_collection(compliance_check).joins(:stop_points).select('stop_area_id').uniq.pluck(:stop_area_id)
+    ids = routes_collection(compliance_check).joins(:stop_points).select('stop_area_id').distinct.pluck(:stop_area_id)
     compliance_check.referential.stop_areas.where(id: ids)
   end
 

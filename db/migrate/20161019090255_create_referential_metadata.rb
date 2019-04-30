@@ -1,4 +1,4 @@
-class CreateReferentialMetadata < ActiveRecord::Migration
+class CreateReferentialMetadata < ActiveRecord::Migration[4.2]
   def change
     create_table :referential_metadata do |t|
       t.references :referential, index: true

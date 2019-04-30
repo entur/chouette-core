@@ -1,4 +1,4 @@
-RSpec.describe Export::Netex, type: [:model, :with_commit] do
+RSpec.describe Export::Netex, type: [:model] do
 
   let( :boiv_iev_uri ){  URI("#{Rails.configuration.iev_url}/boiv_iev/referentials/exporter/new?id=#{subject.id}")}
 
@@ -42,7 +42,7 @@ RSpec.describe Export::Netex, type: [:model, :with_commit] do
 
     it 'will trigger the Java API' do
       with_stubbed_request(:get, boiv_iev_uri) do |request|
-        with_commit{ subject.save! }
+        subject.save!
         expect(request).to have_been_requested
       end
     end

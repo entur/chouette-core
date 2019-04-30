@@ -120,11 +120,14 @@ class Workgroup < ApplicationModel
   def nightly_aggregate_timeframe?
     return false unless nightly_aggregate_enabled?
 
-    time = nightly_aggregate_time.seconds_since_midnight
-    current = Time.current.seconds_since_midnight
+    tz = Time.zone
 
+    current = Time.current.seconds_since_midnight
+    Time.zone = 'UTC'
+    time = nightly_aggregate_time.seconds_since_midnight
     cron_delay = NIGHTLY_AGGREGATE_CRON_TIME * 2
     within_timeframe = (current - time).abs <= cron_delay
+    Time.zone = tz
 
     # "5.minutes * 2" returns a FixNum (in our Rails version)
     within_timeframe && (nightly_aggregated_at.blank? || nightly_aggregated_at < NIGHTLY_AGGREGATE_CRON_TIME.seconds.ago)

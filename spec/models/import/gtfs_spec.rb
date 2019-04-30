@@ -53,7 +53,7 @@ RSpec.describe Import::Gtfs do
         expect(parent).to receive(:do_force_failure!).and_call_original
 
         import.force_failure!
-        expect(import.referential.state).to eq :failed
+        expect(import.referential.reload.state).to eq :failed
         expect(import.reload.status).to eq 'failed'
         expect(parent.reload.status).to eq 'failed'
         expect(resoure.reload.referential.state).to eq :failed

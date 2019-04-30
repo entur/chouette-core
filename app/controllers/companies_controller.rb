@@ -40,11 +40,11 @@ class CompaniesController < ChouetteController
 
   def collection
     scope = line_referential.companies
-    @q = scope.search(params[:q])
+    @q = scope.ransack(params[:q])
     ids = @q.result(:distinct => true).pluck(:id)
     scope = scope.where(id: ids)
     if sort_column && sort_direction
-      @companies ||= scope.order("lower(#{sort_column})" + ' ' + sort_direction).paginate(:page => params[:page])
+      @companies ||= scope.order(Arel.sql("lower(#{sort_column})" + ' ' + sort_direction)).paginate(:page => params[:page])
     else
       @companies ||= scope.order('lower(name)').paginate(:page => params[:page])
     end

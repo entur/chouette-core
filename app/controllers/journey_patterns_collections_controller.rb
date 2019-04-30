@@ -19,7 +19,7 @@ class JourneyPatternsCollectionsController < ChouetteController
   def show
     @q = route.journey_patterns
     if params[:q].present?
-      ids = @q.search(params[:q]).result(distinct: true).pluck(:id)
+      ids = @q.ransack(params[:q]).result(distinct: true).pluck(:id)
       @q = @q.where(id: ids)
     end
     @q = @q.includes(:stop_points)

@@ -96,7 +96,7 @@ class LinesController < ChouetteController
 
       scope = ransack_status line_referential.lines
       scope = ransack_transport_mode scope
-      @q = scope.search(params[:q])
+      @q = scope.ransack(params[:q])
 
       if sort_column && sort_direction
         lines ||= @q.result(:distinct => true).order(sort_column + ' ' + sort_direction).paginate(:page => params[:page]).includes([:network, :company])

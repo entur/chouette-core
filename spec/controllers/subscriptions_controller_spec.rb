@@ -12,7 +12,7 @@ RSpec.describe SubscriptionsController, type: :controller do
     end
 
     it "should be not found" do
-      post :create, subscription: params
+      post :create, params: { subscription: params }
       expect(response).to have_http_status 404
     end
 
@@ -22,7 +22,7 @@ RSpec.describe SubscriptionsController, type: :controller do
       end
 
       it "should be add errors" do
-        post :create, subscription: params
+        post :create, params: { subscription: params }
         expect(response).to have_http_status 200
         expect(resource.errors[:email]).to be_present
       end
@@ -44,7 +44,7 @@ RSpec.describe SubscriptionsController, type: :controller do
       it "should create models and redirect to home" do
         counted = [User, Organisation, LineReferential, StopAreaReferential, Workbench, Workgroup]
         counts = counted.map(&:count)
-        post :create, subscription: params
+        post :create, params: { subscription: params }
 
         expect(response).to redirect_to "/"
         counted.map(&:count).each_with_index do |v, i|
@@ -63,7 +63,7 @@ RSpec.describe SubscriptionsController, type: :controller do
         context 'after_create' do
           it 'should schedule mailer' do
             expect(SubscriptionMailer).to receive(:created).and_call_original
-            post :create, subscription: params
+            post :create, params: { subscription: params }
           end
         end
       end
@@ -79,7 +79,7 @@ RSpec.describe SubscriptionsController, type: :controller do
         context 'after_create' do
           it 'should not schedule mailer' do
             expect(SubscriptionMailer).to_not receive(:created)
-            post :create, subscription: params
+            post :create, params: { subscription: params }
           end
         end
       end

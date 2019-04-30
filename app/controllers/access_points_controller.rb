@@ -46,7 +46,7 @@ class AccessPointsController < ChouetteController
   alias_method :access_point, :resource
 
   def collection
-    @q = parent.access_points.search(params[:q])
+    @q = parent.access_points.ransack(params[:q])
     @access_points ||=
       begin
         access_points = @q.result(:distinct => true).order(:name)

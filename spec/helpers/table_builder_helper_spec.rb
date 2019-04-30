@@ -39,11 +39,11 @@ describe TableBuilderHelper, type: :helper do
       allow(referentials).to receive(:model).and_return(Referential)
       stub_policy_scope(referential)
 
-      allow(helper).to receive(:params).and_return({
+      allow(helper).to receive(:params).and_return(ActionController::Parameters.new(
         controller: 'workbenches',
         action: 'show',
         id: referentials[0].workbench.id
-      })
+      ))
 
       referentials = ReferentialDecorator.decorate(
         referentials
@@ -174,10 +174,7 @@ describe TableBuilderHelper, type: :helper do
 
     it "can set a column as non-sortable" do
       company = create(:company)
-      line_referential = create(
-        :line_referential,
-        companies: [company]
-      )
+      line_referential = company.line_referential
       referential = build_stubbed(
         :referential,
         line_referential: line_referential
@@ -204,11 +201,11 @@ describe TableBuilderHelper, type: :helper do
 
       allow(companies).to receive(:model).and_return(Chouette::Company)
 
-      allow(helper).to receive(:params).and_return({
+      allow(helper).to receive(:params).and_return(ActionController::Parameters.new(
         controller: 'companies',
         action: 'index',
         line_referential_id: line_referential.id
-      })
+      ))
 
       companies = CompanyDecorator.decorate(
         companies,
@@ -289,10 +286,7 @@ describe TableBuilderHelper, type: :helper do
 
     it "can set all columns as non-sortable" do
       company = create(:company)
-      line_referential = build_stubbed(
-        :line_referential,
-        companies: [company]
-      )
+      line_referential = company.line_referential
       referential = build_stubbed(
         :referential,
         line_referential: line_referential
@@ -319,11 +313,11 @@ describe TableBuilderHelper, type: :helper do
 
       allow(companies).to receive(:model).and_return(Chouette::Company)
 
-      allow(helper).to receive(:params).and_return({
+      allow(helper).to receive(:params).and_return(ActionController::Parameters.new(
         controller: 'companies',
         action: 'index',
         line_referential_id: line_referential.id
-      })
+      ))
 
       companies = CompanyDecorator.decorate(
         companies,

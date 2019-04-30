@@ -6,13 +6,13 @@ RSpec.describe RoutingConstraintZonesController, :type => :controller do
   let(:q)     { {} }
 
   describe 'GET index' do
-    let(:request){ get :index, referential_id: referential.id, line_id: route.line_id, q: q }
+    let(:request){ get :index, params: { referential_id: referential.id, line_id: route.line_id, q: q }}
 
     before(:each){ referential.update objectid_format: :netex }
 
     context 'without filter' do
       it 'should include the rcz' do
-        expect(request).to be_success
+        expect(request).to be_successful
         expect(assigns(:routing_constraint_zones)).to include rcz
       end
     end
@@ -20,7 +20,7 @@ RSpec.describe RoutingConstraintZonesController, :type => :controller do
     context 'with a name filter' do
       let(:q) { { name_or_short_id_cont: 'foo', route_id_eq: '' } }
       it 'should not include the rcz' do
-        expect(request).to be_success
+        expect(request).to be_successful
         expect(assigns(:routing_constraint_zones)).to_not include rcz
       end
     end

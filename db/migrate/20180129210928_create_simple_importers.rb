@@ -1,4 +1,4 @@
-class CreateSimpleImporters < ActiveRecord::Migration
+class CreateSimpleImporters < ActiveRecord::Migration[4.2]
   def change
     create_table :simple_importers do |t|
       t.string :configuration_name

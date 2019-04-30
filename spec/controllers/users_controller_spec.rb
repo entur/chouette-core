@@ -14,7 +14,7 @@ RSpec.describe UsersController, :type => :controller do
     extra_params ||= {}
 
     describe "#{verb.to_s.upcase} #{action}" do
-      let(:do_request) { send verb, action, { id: target_user.id }.update(extra_params) }
+      let(:do_request) { send verb, action, params: { id: target_user.id }.update(extra_params) }
       let(:target_user) { create :user }
 
       it 'should be forbidden' do
@@ -98,7 +98,7 @@ RSpec.describe UsersController, :type => :controller do
     extra_params ||= {}
 
     describe "#{verb.to_s.upcase} #{action}" do
-      let(:do_request){ send verb, action, { id: target_user.id }.update(extra_params) }
+      let(:do_request){ send verb, action, params: { id: target_user.id }.update(extra_params) }
 
       before(:each) do
         @request.env["devise.mapping"] = Devise.mappings[:user]

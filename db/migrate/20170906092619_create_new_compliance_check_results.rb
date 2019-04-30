@@ -1,4 +1,4 @@
-class CreateNewComplianceCheckResults < ActiveRecord::Migration
+class CreateNewComplianceCheckResults < ActiveRecord::Migration[4.2]
   def change
     drop_table :compliance_check_results if table_exists? :compliance_check_results
     create_table :compliance_check_results do |t|

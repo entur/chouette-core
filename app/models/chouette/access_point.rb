@@ -51,8 +51,8 @@ module Chouette
           self.latitude = nil
           self.longitude = nil
         else
-          self.latitude = BigDecimal.new(@coordinates.split(",").first)
-          self.longitude = BigDecimal.new(@coordinates.split(",").last)
+          self.latitude = BigDecimal(@coordinates.split(",").first)
+          self.longitude = BigDecimal(@coordinates.split(",").last)
         end
         @coordinates = nil
       end
@@ -85,7 +85,6 @@ module Chouette
     def default_position
       stop_area.geometry or stop_area.default_position
     end
-
 
     def access_point_type
       access_type && Chouette::AccessPointType.new(access_type.underscore)

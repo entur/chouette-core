@@ -1,7 +1,7 @@
 # This migration comes from ninoxe_engine (originally 20130204141720)
 require "forwardable"
 
-class AddForeignKeys < ActiveRecord::Migration
+class AddForeignKeys < ActiveRecord::Migration[4.2]
   def disable_foreign_key(table, name)
     if foreign_key?(table, name)
       remove_foreign_key table, name: name

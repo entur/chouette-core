@@ -12,7 +12,7 @@ RSpec.describe FootnotesController, :type => :controller do
   end
 
   describe "GET edit_all" do
-    let(:request){ get :edit_all, line_id: line.id, referential_id: referential.id }
+    let(:request){ get :edit_all, params: { line_id: line.id, referential_id: referential.id }}
 
     it 'should respond with 403' do
       expect(request).to have_http_status 403
@@ -33,7 +33,7 @@ RSpec.describe FootnotesController, :type => :controller do
   end
 
   describe "PATCH update_all" do
-    let(:request){ patch :update_all, line_id: line.id, referential_id: referential.id, line: {footnotes_attributes: {}} }
+    let(:request){ patch :update_all, params: { line_id: line.id, referential_id: referential.id, line: { footnotes_attributes: [{ code: "" }] }}}
 
     it 'should respond with 403' do
       expect(request).to have_http_status 403

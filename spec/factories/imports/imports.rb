@@ -12,7 +12,7 @@ FactoryGirl.define do
     creator 'rspec'
 
     after(:build) do |import|
-      import.class.skip_callback(:create, :before, :initialize_fields)
+      import.class.skip_callback(:create, :before, :initialize_fields, raise: false)
     end
   end
 
@@ -29,7 +29,7 @@ FactoryGirl.define do
     creator 'rspec'
 
     after(:build) do |import|
-      import.class.skip_callback(:create, :before, :initialize_fields)
+      import.class.skip_callback(:create, :before, :initialize_fields, raise: false)
     end
   end
 end

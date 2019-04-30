@@ -1,4 +1,4 @@
-class CreateCleanUpResults < ActiveRecord::Migration
+class CreateCleanUpResults < ActiveRecord::Migration[4.2]
   def change
     create_table :clean_up_results do |t|
       t.string :message_key

@@ -386,7 +386,7 @@ module TableBuilderHelper
 
     active = column.key.to_s == sort_on
 
-    link_to(params.merge({direction: direction, sort: column.key})) do
+    link_to(params.permit!.merge({direction: direction, sort: column.key})) do
       arrow_up = content_tag(
         :span,
         '',

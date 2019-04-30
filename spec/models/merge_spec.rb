@@ -252,7 +252,7 @@ RSpec.describe Merge do
     end
 
     it "should run checks" do
-      expect{merge.merge}.to change{ComplianceCheckSet.count}.by 2
+      expect{ merge }.to change{ ComplianceCheckSet.count }.by 2
     end
 
     context "when the control_set has been destroyed" do

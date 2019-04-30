@@ -1,4 +1,4 @@
-class CreateComplianceCheckResources < ActiveRecord::Migration
+class CreateComplianceCheckResources < ActiveRecord::Migration[4.2]
   def change
     create_table :compliance_check_resources do |t|
       t.string :status

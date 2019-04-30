@@ -34,11 +34,11 @@ RSpec.describe JourneyPatternsCollectionsController, :type => :controller do
     let( :route ){ create(:route, referential: referential) }
 
     let(:request){
-      get :show, referential_id: referential.id, line_id: line.id, route_id: route.id, format: :json
+      get :show, params: { referential_id: referential.id, line_id: line.id, route_id: route.id, format: :json }
     }
     it 'should be successful' do
       request
-      expect(response).to be_success
+      expect(response).to be_successful
     end
   end
 end

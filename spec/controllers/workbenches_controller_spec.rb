@@ -9,7 +9,7 @@ RSpec.describe WorkbenchesController, :type => :controller do
 
   describe "GET show" do
     it "returns http success" do
-      get :show, id: workbench.id
+      get :show, params: { id: workbench.id }
       expect(response).to have_http_status(200)
     end
   end
@@ -17,7 +17,7 @@ RSpec.describe WorkbenchesController, :type => :controller do
   describe 'DELETE delete_referentials' do
     let(:referential) { create(:referential, workbench: workbench, organisation: workbench.organisation) }
     let(:request) do
-      delete :delete_referentials, id: workbench.id, referentials: [referential.id]
+      delete :delete_referentials, params: { id: workbench.id, referentials: [referential.id] }
     end
 
     context 'with an active referential' do
@@ -68,7 +68,7 @@ RSpec.describe WorkbenchesController, :type => :controller do
         }
       }
     }
-    let(:request){ patch :update, id: workbench.id, workbench: workbench_params }
+    let(:request){ patch :update, params: { id: workbench.id, workbench: workbench_params }}
 
     without_permission "workbenches.update" do
       it 'should respond with 403' do

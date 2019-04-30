@@ -1,4 +1,4 @@
-class DeleteComplianceControlSetForeignKeyForComplianceCheckSet < ActiveRecord::Migration
+class DeleteComplianceControlSetForeignKeyForComplianceCheckSet < ActiveRecord::Migration[4.2]
 
   def up
     remove_foreign_key :compliance_check_sets, :compliance_control_sets

@@ -8,8 +8,8 @@ class TimeTableCombination
 
   validates_presence_of  :source_id, :combined_type, :operation
 
-  validates :time_table_id, presence: true, if: "calendar_id.blank?"
-  validates :calendar_id, presence: true, if: "time_table_id.blank?"
+  validates :time_table_id, presence: true, if: ->{ calendar_id.blank? }
+  validates :calendar_id, presence: true, if:  ->{ time_table_id.blank? }
 
   validates_inclusion_of :combined_type, :in => %w(time_table calendar)
   validates_inclusion_of :operation, :in =>  %w(union intersection disjunction), :allow_nil => true

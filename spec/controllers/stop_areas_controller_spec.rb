@@ -19,28 +19,30 @@ RSpec.describe StopAreasController, :type => :controller do
         registration_number: "doesn't match"
       )
 
-      get :index,
+      get :index, params: {
         stop_area_referential_id: stop_area_referential.id,
         q: {
           name_or_objectid_or_registration_number_cont: registration_number
         }
+      }
 
       expect(assigns(:stop_areas)).to eq([matched])
     end
 
     it "doesn't filter when the name filter is empty" do
-      get :index,
+      get :index, params: {
         stop_area_referential_id: stop_area_referential.id,
         q: {
           name_or_objectid_or_registration_number_cont: ''
         }
+      }
 
       expect(assigns(:stop_areas)).to eq([stop_area])
     end
   end
 
   describe 'PUT deactivate' do
-    let(:request){ put :deactivate, id: stop_area.id, stop_area_referential_id: stop_area_referential.id }
+    let(:request){ put :deactivate, params: { id: stop_area.id, stop_area_referential_id: stop_area_referential.id }}
 
     it 'should respond with 403' do
       expect(request).to have_http_status 403
@@ -55,7 +57,7 @@ RSpec.describe StopAreasController, :type => :controller do
   end
 
   describe 'PUT activate' do
-    let(:request){ put :activate, id: stop_area.id, stop_area_referential_id: stop_area_referential.id }
+    let(:request){ put :activate, params: { id: stop_area.id, stop_area_referential_id: stop_area_referential.id }}
     before(:each){
       stop_area.deactivate!
     }

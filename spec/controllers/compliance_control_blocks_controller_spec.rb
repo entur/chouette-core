@@ -12,28 +12,28 @@ RSpec.describe ComplianceControlBlocksController, type: :controller do
   }
   describe 'GET #new' do
     it 'should be successful' do
-      get :new, compliance_control_set_id: compliance_control_set.id, id: compliance_control_block.id
-      expect(response).to be_success
+      get :new, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control_block.id }
+      expect(response).to be_successful
     end
   end
 
   describe 'POST #create' do
     it 'should be successful' do
-      post :create, compliance_control_set_id: compliance_control_set.id, compliance_control_block: compliance_control_block_params
+      post :create, params: { compliance_control_set_id: compliance_control_set.id, compliance_control_block: compliance_control_block_params }
       expect(response).to redirect_to compliance_control_set_path(compliance_control_set)
     end
   end
 
   describe 'GET #edit' do
     it 'should be successful' do
-      get :edit, compliance_control_set_id: compliance_control_set.id, id: compliance_control_block.id
-      expect(response).to be_success
+      get :edit, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control_block.id }
+      expect(response).to be_successful
     end
   end
 
   describe 'POST #update' do
     it 'should be successful' do
-      post :update, {
+      post :update, params: {
         compliance_control_set_id: compliance_control_set.id,
         id: compliance_control_block.id,
         compliance_control_block: compliance_control_block_params
@@ -45,7 +45,7 @@ RSpec.describe ComplianceControlBlocksController, type: :controller do
   describe 'DELETE #destroy' do
     it 'should be successful' do
       expect {
-        delete :destroy, compliance_control_set_id: compliance_control_set.id, id: compliance_control_block.id
+        delete :destroy, params: { compliance_control_set_id: compliance_control_set.id, id: compliance_control_block.id }
       }.to change(ComplianceControlBlock, :count).by(-1)
       expect(response).to redirect_to compliance_control_set_path(compliance_control_set)
     end

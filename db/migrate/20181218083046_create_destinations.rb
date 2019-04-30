@@ -1,4 +1,4 @@
-class CreateDestinations < ActiveRecord::Migration
+class CreateDestinations < ActiveRecord::Migration[4.2]
   def change
     create_table :destinations do |t|
       t.belongs_to :publication_setup, index: true, limit: 8

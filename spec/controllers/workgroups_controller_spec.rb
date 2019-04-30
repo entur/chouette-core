@@ -8,12 +8,12 @@ RSpec.describe WorkgroupsController, :type => :controller do
   let(:merge_id) { 2**64/2 - 1 } # Let's check we support Bigint
 
   describe "GET show" do
-    let(:request){ get :show, id: workgroup.id }
+    let(:request){ get :show, params: { id: workgroup.id }}
     it_behaves_like 'checks current_organisation'
   end
 
   describe "GET edit_controls" do
-    let(:request){ get :edit_controls, id: workgroup.id }
+    let(:request){ get :edit_controls, params: { id: workgroup.id }}
     it 'should respond with 403' do
       expect(request).to have_http_status 403
     end
@@ -31,7 +31,7 @@ RSpec.describe WorkgroupsController, :type => :controller do
         workgroup: { name: "Foo" }
       }
     }
-    let(:request){ put :create, params }
+    let(:request){ put :create, params: params }
 
     without_permission "workgroups.create" do
       it 'should respond with 403' do
@@ -94,7 +94,7 @@ RSpec.describe WorkgroupsController, :type => :controller do
         }
       }
     }
-    let(:request){ patch :update_controls, params }
+    let(:request){ patch :update_controls, params: params }
 
     it 'should respond with 403' do
       expect(request).to have_http_status 403

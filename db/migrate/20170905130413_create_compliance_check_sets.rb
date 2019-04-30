@@ -1,4 +1,4 @@
-class CreateComplianceCheckSets < ActiveRecord::Migration
+class CreateComplianceCheckSets < ActiveRecord::Migration[4.2]
   def change
     create_table :compliance_check_sets do |t|
       t.references :referential, index: true, foreign_key: true

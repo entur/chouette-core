@@ -8,14 +8,14 @@ describe ReferentialsController, :type => :controller do
   let(:workbench) { create :workbench, organisation: organisation }
 
   describe "GET new" do
-    let(:request){ get :new, workbench_id: workbench.id }
+    let(:request){ get :new, params: { workbench_id: workbench.id }}
 
     it_behaves_like 'checks current_organisation'
 
     context "when cloning another referential" do
       before{ request }
       let(:source){ referential }
-      let(:request){ get :new, workbench_id: workbench.id, from: source.id }
+      let(:request){ get :new, params: { workbench_id: workbench.id, from: source.id }}
 
       it 'returns http success' do
         expect(response).to have_http_status(200)
@@ -53,7 +53,7 @@ describe ReferentialsController, :type => :controller do
 
   describe 'PUT archive' do
     let(:referential){ create :referential, workbench: workbench, organisation: organisation }
-    let(:request){ put :archive, id: referential.id }
+    let(:request){ put :archive, params: { id: referential.id }}
     it_behaves_like 'checks current_organisation', success_code: 302
   end
 
@@ -61,7 +61,7 @@ describe ReferentialsController, :type => :controller do
     it 'gets compliance control set for current organisation' do
       compliance_control_set = create(:compliance_control_set, organisation: @user.organisation)
       create(:compliance_control_set)
-      get :select_compliance_control_set, id: referential.id
+      get :select_compliance_control_set, params: { id: referential.id }
       expect(assigns[:compliance_control_sets]).to eq([compliance_control_set])
     end
   end
@@ -69,7 +69,7 @@ describe ReferentialsController, :type => :controller do
   describe "POST #validate" do
     it "displays a flash message" do
       compliance_control_set = create(:compliance_control_set, organisation: @user.organisation)
-      post :validate, id: referential.id, compliance_control_set: compliance_control_set.id
+      post :validate, params: { id: referential.id, compliance_control_set: compliance_control_set.id }
 
       expect(controller).to set_flash[:notice].to(
         I18n.t('notice.referentials.validate')
@@ -101,21 +101,23 @@ describe ReferentialsController, :type => :controller do
     context 'when creating a new referential' do
       let(:request){
         post :create,
-        workbench_id: workbench.id,
-        referential: {
-          name: 'new one',
-          stop_area_referential: referential.stop_area_referential,
-          line_referential: referential.line_referential,
-          objectid_format: referential.objectid_format,
-          workbench_id: referential.workbench_id,
-          from_current_offer: from_current_offer,
-          urgent: urgent,
-          metadatas_attributes: metadatas_attributes
+        params: {
+          workbench_id: workbench.id,
+          referential: {
+            name: 'new one',
+            stop_area_referential: referential.stop_area_referential,
+            line_referential: referential.line_referential,
+            objectid_format: referential.objectid_format,
+            workbench_id: referential.workbench_id,
+            from_current_offer: from_current_offer,
+            urgent: urgent,
+            metadatas_attributes: metadatas_attributes
+          }
         }
       }
 
       it "creates the new referential" do
-        expect{request}.to change{Referential.count}.by 1
+        expect{ request }.to change{ Referential.count }.by 1
         expect(Referential.last.name).to eq "new one"
         expect(Referential.last.state).to eq :active
         expect(Referential.last.created_from).to be_nil
@@ -144,17 +146,19 @@ describe ReferentialsController, :type => :controller do
     context "when duplicating" do
       let(:request){
         post :create,
-        workbench_id: workbench.id,
-        referential: {
-          name: 'Duplicated',
-          created_from_id: referential.id,
-          stop_area_referential: referential.stop_area_referential,
-          line_referential: referential.line_referential,
-          objectid_format: referential.objectid_format,
-          workbench_id: referential.workbench_id,
-          from_current_offer: from_current_offer,
-          urgent: urgent,
-          metadatas_attributes: metadatas_attributes
+        params: {
+          workbench_id: workbench.id,
+          referential: {
+            name: 'Duplicated',
+            created_from_id: referential.id,
+            stop_area_referential: referential.stop_area_referential,
+            line_referential: referential.line_referential,
+            objectid_format: referential.objectid_format,
+            workbench_id: referential.workbench_id,
+            from_current_offer: from_current_offer,
+            urgent: urgent,
+            metadatas_attributes: metadatas_attributes
+          }
         }
       }
 
@@ -224,7 +228,7 @@ describe ReferentialsController, :type => :controller do
         out_scope_lines = referential.lines_outside_of_scope
         message = I18n.t("referentials.show.lines_outside_of_scope", count: out_scope_lines.count, lines: out_scope_lines.pluck(:name).join(", "), organisation: referential.organisation.name)
 
-        get :show, id: referential.id
+        get :show, params: { id: referential.id }
 
         expect(out_scope_lines.count).to eq(1)
         expect(referential.organisation.lines_scope).to be_nil

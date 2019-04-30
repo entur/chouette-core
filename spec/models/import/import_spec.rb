@@ -41,7 +41,7 @@ RSpec.describe Import::Base, type: :model do
 
         Import::Base.abort_old
 
-        expect(current_import.reload.status).to eq('pending')
+        expect(current_import.reload.status).to eq('running')
         expect(old_import.reload.status).to eq('aborted')
       end
     end
@@ -50,9 +50,9 @@ RSpec.describe Import::Base, type: :model do
       Timecop.freeze(Time.now) do
         import = create(
           :workbench_import,
-          status: 'successful',
           created_at: 4.hours.ago - 1.minute
         )
+        import.update status: 'successful'
 
         Import::Base.abort_old
 
@@ -75,7 +75,7 @@ RSpec.describe Import::Base, type: :model do
 
         Import::Netex.abort_old
 
-        expect(workbench_import.reload.status).to eq('pending')
+        expect(workbench_import.reload.status).to eq('running')
         expect(netex_import.reload.status).to eq('aborted')
       end
     end

@@ -88,7 +88,7 @@ module Chouette
 
     scope :ending_with, ->(id){
       if id.present?
-        pattern_ids = all.select(:journey_pattern_id).uniq.map(&:journey_pattern_id)
+        pattern_ids = all.select(:journey_pattern_id).distinct.map(&:journey_pattern_id)
         pattern_ids = Chouette::JourneyPattern.where(id: pattern_ids).to_a.select{|jp| p "ici: #{jp.stop_points.order(:position).last.stop_area_id}" ; jp.stop_points.order(:position).last.stop_area_id == id.to_i}.map &:id
         where(journey_pattern_id: pattern_ids)
       else
@@ -98,7 +98,7 @@ module Chouette
 
     scope :in_purchase_window, ->(range){
       purchase_windows = Chouette::PurchaseWindow.overlap_dates(range)
-      sql = purchase_windows.joins(:vehicle_journeys).select('vehicle_journeys.id').uniq.to_sql
+      sql = purchase_windows.joins(:vehicle_journeys).select('vehicle_journeys.id').distinct.to_sql
       where("vehicle_journeys.id IN (#{sql})")
     }
 
@@ -107,7 +107,7 @@ module Chouette
       joins(:vehicle_journey_at_stops)
       .select('id', field)
       .group(:id)
-      .order("#{field} #{dir}")
+      .order(Arel.sql("#{field} #{dir}"))
     }
 
     scope :order_by_arrival_time, -> (dir) {
@@ -115,7 +115,7 @@ module Chouette
       joins(:vehicle_journey_at_stops)
       .select('id', field)
       .group(:id)
-      .order("#{field} #{dir}")
+      .order(Arel.sql("#{field} #{dir}"))
     }
 
     scope :without_any_purchase_window, -> { joins('LEFT JOIN purchase_windows_vehicle_journeys ON purchase_windows_vehicle_journeys.vehicle_journey_id = vehicle_journeys.id LEFT JOIN purchase_windows ON purchase_windows.id = purchase_windows_vehicle_journeys.purchase_window_id').where(purchase_windows: { id: nil }) }
@@ -483,7 +483,7 @@ module Chouette
             AND "vehicle_journey_at_stops"."stop_point_id" =
               "journey_patterns"."departure_stop_point_id"
         ')
-        .order('"vehicle_journey_at_stops"."departure_time"')
+        .order(Arel.sql('"vehicle_journey_at_stops"."departure_time"'))
     end
 
     # Requires a SELECT DISTINCT and a join with

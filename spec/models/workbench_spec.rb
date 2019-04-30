@@ -25,7 +25,7 @@ RSpec.describe Workbench, :type => :model do
 
   it do
     # This callback interferes with the validation test
-    Workbench.skip_callback(:validation, :before, :initialize_output)
+    Workbench.skip_callback(:validation, :before, :initialize_output, raise: false)
 
     should validate_presence_of(:output)
 

@@ -29,7 +29,7 @@ RSpec.describe MergeDecorator, type: [:helper, :decorator] do
 
     context 'with a failed Aggregate' do
       before do
-        create :aggregate, workgroup: workbench.workgroup, status: :failed, referential_ids: [referential.id]
+        create :aggregate, :failed, workgroup: workbench.workgroup, referential_ids: [referential.id]
       end
       it 'should be nil' do
         expect(subject.aggregated_at).to be_nil
@@ -38,7 +38,7 @@ RSpec.describe MergeDecorator, type: [:helper, :decorator] do
 
     context 'with a successful Aggregate on other referentials' do
       before do
-        create :aggregate, ended_at: '2020/01/01 12:00', workgroup: workbench.workgroup, status: :successful, referential_ids: [create(:referential).id]
+        create :aggregate, :successful, ended_at: '2020/01/01 12:00', workgroup: workbench.workgroup, referential_ids: [create(:referential).id]
       end
       it 'should be nil' do
         expect(subject.aggregated_at).to be_nil
@@ -47,7 +47,7 @@ RSpec.describe MergeDecorator, type: [:helper, :decorator] do
 
     context 'with a successful Aggregate on right referentials' do
       let!(:aggregate) do
-        create :aggregate, ended_at: '2020/01/01 12:00', workgroup: workbench.workgroup, status: :successful, referential_ids: [referential.id]
+        aggregate = create :aggregate, :successful, ended_at: '2020/01/01 12:00', workgroup: workbench.workgroup, referential_ids: [referential.id]
       end
       it 'should be present' do
         expect(subject.aggregated_at).to eq aggregate.ended_at
@@ -56,10 +56,10 @@ RSpec.describe MergeDecorator, type: [:helper, :decorator] do
 
     context 'with 2 successfuls Aggregates on right referentials' do
       let!(:aggregate) do
-        create :aggregate, ended_at: '2020/01/01 12:00', workgroup: workbench.workgroup, status: :successful, referential_ids: [referential.id]
+        create :aggregate, :successful, ended_at: '2020/01/01 12:00', workgroup: workbench.workgroup, referential_ids: [referential.id]
       end
       let!(:aggregate2) do
-        create :aggregate, ended_at: '2020/01/01 13:00', workgroup: workbench.workgroup, status: :successful, referential_ids: [referential.id]
+        create :aggregate, :successful, ended_at: '2020/01/01 13:00', workgroup: workbench.workgroup, referential_ids: [referential.id]
       end
       it 'should be present' do
         expect(subject.aggregated_at).to eq aggregate2.ended_at

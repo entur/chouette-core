@@ -1,4 +1,4 @@
-class AddStatusToPublications < ActiveRecord::Migration
+class AddStatusToPublications < ActiveRecord::Migration[4.2]
   def change
     add_column :publications, :status, :string
     add_column :publications, :started_at, :datetime

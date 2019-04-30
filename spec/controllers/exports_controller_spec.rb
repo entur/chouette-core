@@ -6,26 +6,26 @@ RSpec.describe ExportsController, :type => :controller do
   let(:export)    { create(:netex_export, workbench: workbench, referential: first_referential) }
 
   describe "GET index" do
-    let(:request){ get :index, workbench_id: workbench.id }
+    let(:request){ get :index, params: { workbench_id: workbench.id }}
     it_behaves_like 'checks current_organisation'
   end
 
   describe 'GET #new' do
     it 'should be successful if authorized' do
-      get :new, workbench_id: workbench.id
-      expect(response).to be_success
+      get :new, params: { workbench_id: workbench.id }
+      expect(response).to be_successful
     end
 
     it 'should be unsuccessful unless authorized' do
       remove_permissions('exports.create', from_user: @user, save: true)
-      get :new, workbench_id: workbench.id
-      expect(response).not_to be_success
+      get :new, params: { workbench_id: workbench.id }
+      expect(response).not_to be_successful
     end
   end
 
   describe "POST #create" do
     let(:params){ {name: "foo"} }
-    let(:request){ post :create, workbench_id: workbench.id, export: params  }
+    let(:request){ post :create, params: { workbench_id: workbench.id, export: params }}
     it 'should create no objects' do
       expect{request}.to_not change{Export::Netex.count}
     end
@@ -83,15 +83,15 @@ RSpec.describe ExportsController, :type => :controller do
   describe 'POST #upload' do
     context "with the token" do
       it 'should be successful' do
-        post :upload, workbench_id: workbench.id, id: export.id, token: export.token_upload
-        expect(response).to be_success
+        post :upload, params: { workbench_id: workbench.id, id: export.id, token: export.token_upload }
+        expect(response).to be_successful
       end
     end
 
     context "without the token" do
       it 'should be unsuccessful' do
-        post :upload, workbench_id: workbench.id, id: export.id, token: "foo"
-        expect(response).to_not be_success
+        post :upload, params: { workbench_id: workbench.id, id: export.id, token: "foo" }
+        expect(response).to_not be_successful
       end
     end
   end

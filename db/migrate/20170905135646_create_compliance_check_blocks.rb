@@ -1,4 +1,4 @@
-class CreateComplianceCheckBlocks < ActiveRecord::Migration
+class CreateComplianceCheckBlocks < ActiveRecord::Migration[4.2]
   def change
     create_table :compliance_check_blocks do |t|
       t.string :name

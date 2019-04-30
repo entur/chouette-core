@@ -30,7 +30,7 @@ module Chouette
     end
 
     def commercial_stop_areas
-      Chouette::StopArea.joins(:children => [:stop_points => [:route => [:line => :network] ] ]).where(:networks => {:id => self.id}).uniq
+      Chouette::StopArea.joins(:children => [:stop_points => [:route => [:line => :network] ] ]).where(:networks => {:id => self.id}).distinct
     end
 
     def stop_areas

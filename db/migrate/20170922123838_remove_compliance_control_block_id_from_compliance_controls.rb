@@ -1,4 +1,4 @@
-class RemoveComplianceControlBlockIdFromComplianceControls < ActiveRecord::Migration
+class RemoveComplianceControlBlockIdFromComplianceControls < ActiveRecord::Migration[4.2]
   def change
     remove_reference :compliance_controls, :compliance_control_block, index: true, foreign_key: true
   end

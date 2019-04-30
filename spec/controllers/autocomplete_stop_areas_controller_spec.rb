@@ -17,26 +17,26 @@ RSpec.describe AutocompleteStopAreasController, type: :controller do
 
   describe 'GET #index' do
     it 'should be successful' do
-      get :index, referential_id: referential.id
-      expect(response).to be_success
+      get :index, params: { referential_id: referential.id }
+      expect(response).to be_successful
     end
 
     it "should filter stop areas based on referential" do
-      get :index, referential_id: referential.id
+      get :index, params: { referential_id: referential.id }
       expect(assigns(:stop_areas)).to include(stop_area)
       expect(assigns(:stop_areas)).to_not include(other_referential_stop_area)
     end
 
     context 'search by name' do
       it 'should be successful' do
-        get :index, referential_id: referential.id, q: 'écolà', :format => :json
-        expect(response).to be_success
+        get :index, params: { referential_id: referential.id, q: 'écolà', :format => :json }
+        expect(response).to be_successful
         expect(assigns(:stop_areas)).to eq([stop_area])
       end
 
       it 'should be accent insensitive' do
-        get :index, referential_id: referential.id, q: 'ecola', :format => :json
-        expect(response).to be_success
+        get :index, params: { referential_id: referential.id, q: 'ecola', :format => :json }
+        expect(response).to be_successful
         expect(assigns(:stop_areas)).to eq([stop_area])
       end
     end
@@ -45,7 +45,7 @@ RSpec.describe AutocompleteStopAreasController, type: :controller do
   context "when searching from the route editor" do
     let(:scope) { :route_editor }
     let(:request){
-      get :index, referential_id: referential.id, scope: scope
+      get :index, params: { referential_id: referential.id, scope: scope }
     }
     it "should filter stop areas based on type" do
       request

@@ -1,4 +1,4 @@
-class ChangeObjectidSuffix < ActiveRecord::Migration
+class ChangeObjectidSuffix < ActiveRecord::Migration[4.2]
   def tables
     ['routes', 'journey_patterns', 'vehicle_journeys', 'time_tables', 'routing_constraint_zones']
   end

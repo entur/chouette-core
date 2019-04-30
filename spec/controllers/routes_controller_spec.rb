@@ -30,8 +30,10 @@ RSpec.describe RoutesController, type: :controller do
 
   describe "GET /index" do
     before(:each) do
-      get :index, line_id: route.line_id,
-          referential_id: referential.id
+      get :index, params: {
+        line_id: route.line_id,
+        referential_id: referential.id
+      }
     end
 
     it_behaves_like "line and referential linked"
@@ -40,10 +42,11 @@ RSpec.describe RoutesController, type: :controller do
 
   describe "POST /create" do
     before(:each) do
-      post :create, line_id: route.line_id,
-          referential_id: referential.id,
-          route: { name: "changed", published_name: "published_name"}
-
+      post :create, params: {
+        line_id: route.line_id,
+        referential_id: referential.id,
+        route: { name: "changed", published_name: "published_name"}
+      }
     end
     it_behaves_like "line and referential linked"
     it_behaves_like "redirected to referential_line_path(referential,line)"
@@ -54,9 +57,11 @@ RSpec.describe RoutesController, type: :controller do
 
   describe "PUT /update" do
     let(:request){
-      put :update, id: route.id, line_id: route.line_id,
-          referential_id: referential.id,
-          route: route.attributes.update({name: "New name"})
+      put :update, params: {
+        id: route.id, line_id: route.line_id,
+        referential_id: referential.id,
+        route: route.attributes.update({'name' => "New name"})
+      }
     }
     before(:each) do
       @checksum_source = route.checksum_source
@@ -70,6 +75,7 @@ RSpec.describe RoutesController, type: :controller do
         expect(Chouette::Route.last.metadata.modifier_username).to eq @user.username
       end
       it "updates checksum" do
+        expect(route.reload.name).to eq "New name"
         expect(route.reload.checksum_source).to_not eq @checksum_source
       end
     end
@@ -91,9 +97,11 @@ RSpec.describe RoutesController, type: :controller do
 
   describe "GET /show" do
     before(:each) do
-      get :show, id: route.id,
-          line_id: route.line_id,
-          referential_id: referential.id
+      get :show, params: {
+        id: route.id,
+        line_id: route.line_id,
+        referential_id: referential.id
+      }
     end
 
     it_behaves_like "route, line and referential linked"
@@ -104,10 +112,11 @@ RSpec.describe RoutesController, type: :controller do
 
     it "creates a new route" do
       expect do
-        post :duplicate,
+        post :duplicate, params: {
           referential_id: route.line.line_referential_id,
           line_id: route.line_id,
           id: route.id
+        }
       end.to change { Chouette::Route.count }.by(1)
 
       expect(Chouette::Route.last.name).to eq(I18n.t('activerecord.copy', name: route.name))
@@ -121,11 +130,12 @@ RSpec.describe RoutesController, type: :controller do
       end
       it "creates a new route on the opposite way " do
         expect do
-          post :duplicate,
+          post :duplicate, params: {
             referential_id: route.line.line_referential_id,
             line_id: route.line_id,
             id: route.id,
             opposite: true
+          }
         end.to change { Chouette::Route.count }.by(1)
 
         new_route = Chouette::Route.last
@@ -147,11 +157,12 @@ RSpec.describe RoutesController, type: :controller do
       let!(:duplicated){ route.duplicate }
       it "creates a new route on the opposite way " do
         expect do
-          post :duplicate,
+          post :duplicate, params: {
             referential_id: duplicated.line.line_referential_id,
             line_id: duplicated.line_id,
             id: duplicated.id,
             opposite: true
+          }
         end.to change { Chouette::Route.count }.by(1)
 
         expect(Chouette::Route.last.name).to eq(I18n.t('routes.opposite', name: duplicated.name))

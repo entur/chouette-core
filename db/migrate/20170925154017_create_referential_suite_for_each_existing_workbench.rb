@@ -1,4 +1,4 @@
-class CreateReferentialSuiteForEachExistingWorkbench < ActiveRecord::Migration
+class CreateReferentialSuiteForEachExistingWorkbench < ActiveRecord::Migration[4.2]
   def up
     Workbench.where(output: nil).each do |workbench|
       workbench.output = ReferentialSuite.create

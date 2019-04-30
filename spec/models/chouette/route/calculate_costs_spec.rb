@@ -27,7 +27,7 @@ RSpec.describe Chouette::Route do
 
       route.calculate_costs
 
-      expect(route.costs).to eq({ "test" => { distance: 42, time: 123 } })
+      expect(route.costs).to eq({ "test" => { 'distance' => 42, 'time' => 123 } })
     end
   end
 end

@@ -54,7 +54,7 @@ class RoutingConstraintZonesController < ChouetteController
   alias_method :line, :parent
 
   def collection
-    @q = line.routing_constraint_zones.search(params[:q])
+    @q = line.routing_constraint_zones.ransack(params[:q])
 
     @routing_constraint_zones ||= begin
       routing_constraint_zones = sort_collection

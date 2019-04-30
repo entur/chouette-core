@@ -24,7 +24,7 @@ describe "/lines/edit", :type => :view do
       render
       lines.each do |line|
         expect(rendered).to have_selector("form") do
-          with_tag "input[type='checkbox'][value=?]", line.id
+          with_tag "input[type='checkbox'][value=?]", line.id.to_s
         end
       end
 
