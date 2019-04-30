@@ -235,17 +235,18 @@ RSpec.describe CleanUp, :type => :model do
         end
 
         it 'should truncate periods' do
-          expect{cleaner.clean_time_table_periods}.to change{Chouette::TimeTablePeriod.last.id}.by 2
+          expect{ cleaner.clean_time_table_periods }.to change{ Chouette::TimeTablePeriod.last.id }.by 2
           expect(overlapping_after_period.reload.period_start).to eq end_date + 1.day
           expect(overlapping_before_period.reload.period_end).to eq begin_date - 1.day
-          expect(Chouette::TimeTablePeriod.offset(1).last.period_start).to eq overlapping_period.period_start
-          expect(Chouette::TimeTablePeriod.offset(1).last.period_end).to eq begin_date - 1.day
-          expect(Chouette::TimeTablePeriod.last.period_start).to eq end_date + 1.day
-          expect(Chouette::TimeTablePeriod.last.period_end).to eq overlapping_period.period_end
+          periods =  Chouette::TimeTablePeriod.order(:id).last(2)
+          expect(periods.first.period_start).to eq overlapping_period.period_start
+          expect(periods.first.period_end).to eq begin_date - 1.day
+          expect(periods.last.period_start).to eq end_date + 1.day
+          expect(periods.last.period_end).to eq overlapping_period.period_end
         end
 
         it 'create dates when remaining period is too short' do
-          expect{cleaner.clean_time_table_periods}.to change{ Chouette::TimeTableDate.count }.by 1
+          expect{ cleaner.clean_time_table_periods }.to change{ Chouette::TimeTableDate.count }.by 1
           expect(Chouette::TimeTableDate.last.date).to eq end_date + 1
         end
       end
@@ -276,8 +277,9 @@ RSpec.describe CleanUp, :type => :model do
 
         it 'create dates when remaining period is too short' do
           expect{cleaner.clean_time_table_periods}.to change{ Chouette::TimeTableDate.count }.by 2
-          expect(Chouette::TimeTableDate.offset(1).last.date).to eq begin_date
-          expect(Chouette::TimeTableDate.last.date).to eq end_date
+          dates = Chouette::TimeTableDate.order(:id).last(2)
+          expect(dates.first.date).to eq begin_date
+          expect(dates.last.date).to eq end_date
         end
       end
 

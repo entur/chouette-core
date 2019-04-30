@@ -683,6 +683,14 @@ ActiveRecord::Schema.define(version: 2019_04_16_143445) do
     t.datetime "updated_at"
   end
 
+  create_table "notifications", id: :serial, force: :cascade do |t|
+    t.json "payload"
+    t.string "channel"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["channel"], name: "index_notifications_on_channel"
+  end
+
   create_table "organisations", id: :serial, force: :cascade do |t|
     t.string "name"
     t.datetime "created_at"
@@ -739,6 +747,7 @@ ActiveRecord::Schema.define(version: 2019_04_16_143445) do
     t.bigint "workgroup_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "public", default: false
     t.index ["workgroup_id"], name: "index_publication_apis_on_workgroup_id"
   end
 

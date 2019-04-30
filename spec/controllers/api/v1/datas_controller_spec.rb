@@ -20,7 +20,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
     describe 'get #download_full' do
       let(:slug) { :foo }
       let(:key) { :foo }
-      let(:get_request) { get :download_full, slug: slug, key: key }
+      let(:get_request) { get :download_full, params: { slug: slug, key: key }}
 
       it 'should not be successful' do
         expect{ get_request }.to raise_error ActiveRecord::RecordNotFound
@@ -52,7 +52,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
       let(:slug) { :foo }
       let(:key) { :foo }
       let(:line_id) { :foo }
-      let(:get_request) { get :download_line, slug: slug, key: key, line_id: line_id }
+      let(:get_request) { get :download_line, params: { slug: slug, key: key, line_id: line_id }}
 
       it 'should not be successful' do
         expect{ get_request }.to raise_error ActiveRecord::RecordNotFound
