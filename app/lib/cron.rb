@@ -92,5 +92,11 @@ module Cron
         Delayed::Heartbeat::Worker.handle_dead_workers
       end
     end
+
+    def purge_referentials
+      protected_action do
+        Referential.clean!
+      end
+    end
   end
 end

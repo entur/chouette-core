@@ -19,6 +19,8 @@ class Referential < ApplicationModel
   include ObjectidFormatterSupport
 
   STATES = %i(pending active failed archived)
+  TIME_BEFORE_CLEANING = SmartEnv['REFERENTIALS_CLEANING_COOLDOWN']
+  KEPT_DURING_CLEANING = 20
 
   validates_presence_of :name
   validates_presence_of :slug
@@ -83,6 +85,7 @@ class Referential < ApplicationModel
   scope :active, -> { where(ready: true, failed_at: nil, archived_at: nil) }
   scope :failed, -> { where.not(failed_at: nil) }
   scope :archived, -> { where.not(archived_at: nil) }
+  scope :inactive_and_not_pending, -> { where('failed_at IS NOT NULL OR archived_at IS NOT NULL') }
 
   scope :ready, -> { where(ready: true) }
   scope :exportable, -> {
@@ -105,7 +108,22 @@ class Referential < ApplicationModel
   scope :blocked, -> { where('ready = ? AND created_at < ?', false, 4.hours.ago) }
   scope :created_before, -> (date) { where('created_at < ? ', date) }
 
+  scope :clean_scope, -> {
+    return none unless TIME_BEFORE_CLEANING > 0
+
+    kept_ids = []
+    kept_ids += archived.where('archived_at >= ?', TIME_BEFORE_CLEANING.days.ago).pluck(:id)
+    kept_ids += order('created_at DESC').limit(KEPT_DURING_CLEANING).pluck(:id)
+    kept_ids += ReferentialMetadata.pluck(:referential_source_id)
+
+    inactive_and_not_pending.where.not(id: kept_ids.uniq)
+  }
+
   after_save :notify_state
+
+  def self.clean!
+    clean_scope.destroy_all
+  end
 
   def self.order_by_state(dir)
     states = ["ready #{dir}", "archived_at #{dir}", "failed_at #{dir}"]

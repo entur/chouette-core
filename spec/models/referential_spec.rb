@@ -5,6 +5,113 @@ describe Referential, :type => :model do
   it { should belong_to(:workbench) }
   it { should belong_to(:referential_suite) }
 
+  context '#clean_scope' do
+    let(:cooldown){ 30 }
+    before(:each) do
+       Referential.send :remove_const, 'TIME_BEFORE_CLEANING'
+       Referential.const_set 'TIME_BEFORE_CLEANING', cooldown
+     end
+
+    it 'should be empty' do
+      create(:referential, :bare)
+      expect(Referential.clean_scope).to be_empty
+    end
+
+    context 'with an old Referential' do
+      let(:old_referential) do
+        old_referential = create(:referential, :bare)
+        old_referential.active!
+        old_referential
+      end
+
+      context 'archived' do
+        before { old_referential.archived! }
+        it 'should not contain it' do
+          expect(Referential.clean_scope).to_not include old_referential
+        end
+
+        context "with #{Referential::KEPT_DURING_CLEANING} referentials after" do
+          before do
+            create_list(:referential, Referential::KEPT_DURING_CLEANING)
+          end
+
+          it 'should not contain it' do
+            expect(Referential.clean_scope).to_not include old_referential
+          end
+        end
+
+        context 'used in a merged offer' do
+          before do
+            other_referential = create(:referential, :bare)
+            create(:referential_metadata, referential: other_referential, referential_source: old_referential)
+          end
+          it 'should not contain it' do
+            expect(Referential.clean_scope).to_not include old_referential
+          end
+        end
+      end
+
+      context 'archived more than a month ago' do
+        before(:each) do
+           old_referential.archived!
+           old_referential.update archived_at: Referential::TIME_BEFORE_CLEANING.days.ago.prev_day
+         end
+
+        it 'should not contain it' do
+          expect(Referential.clean_scope).to_not include old_referential
+        end
+
+        context "with #{Referential::KEPT_DURING_CLEANING} referentials after" do
+          before do
+            old_referential
+            create_list(:referential, Referential::KEPT_DURING_CLEANING, :bare)
+          end
+
+          it 'should contain it' do
+            expect(Referential.clean_scope).to include old_referential
+          end
+
+          context 'with Referential::KEPT_DURING_CLEANING zeroed' do
+            let(:cooldown){ 0 }
+
+            it 'should be empty' do
+              expect(Referential.clean_scope).to be_empty
+            end
+          end
+
+          context 'used in a merged offer' do
+            before do
+              other_referential = create(:referential, :bare)
+              create(:referential_metadata, referential: other_referential, referential_source: old_referential)
+            end
+            it 'should not contain it' do
+              expect(Referential.clean_scope).to_not include old_referential
+            end
+          end
+        end
+      end
+
+      context 'active' do
+        before { old_referential.active! }
+
+        it 'should not contain it' do
+          expect(Referential.clean_scope).to_not include old_referential
+        end
+
+        context "with #{Referential::KEPT_DURING_CLEANING} referentials after" do
+          before do
+            old_referential
+            create_list(:referential, Referential::KEPT_DURING_CLEANING, :bare)
+          end
+
+          it 'should not contain it' do
+            expect(Referential.clean_scope).to_not include old_referential
+          end
+        end
+      end
+    end
+  end
+
   context "validation" do
     subject { build_stubbed(:referential) }
 
