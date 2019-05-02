@@ -41,6 +41,7 @@ class Referential < ApplicationModel
 
   attr_accessor :from_current_offer
   attr_accessor :urgent
+  attr_accessor :bare #this is used in specs to skip schema creation
 
   has_one :user
   has_many :import_resources, class_name: 'Import::Resource', dependent: :destroy
@@ -527,7 +528,7 @@ class Referential < ApplicationModel
   end
 
   def create_schema
-    return if created_from
+    return if created_from || bare
 
     report = Benchmark.measure do
       Apartment::Tenant.create slug
