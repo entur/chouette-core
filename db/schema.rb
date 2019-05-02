@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_04_16_143445) do
+ActiveRecord::Schema.define(version: 2019_05_02_080722) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -630,6 +630,8 @@ ActiveRecord::Schema.define(version: 2019_04_16_143445) do
     t.datetime "updated_at"
     t.boolean "seasonal"
     t.jsonb "metadata", default: {}
+    t.date "active_from"
+    t.date "active_until"
     t.index ["line_referential_id", "registration_number"], name: "index_lines_on_referential_id_and_registration_number"
     t.index ["line_referential_id"], name: "index_lines_on_line_referential_id"
     t.index ["objectid"], name: "lines_objectid_key", unique: true

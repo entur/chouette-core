@@ -67,7 +67,12 @@ module Chouette
       where(id: workbench.notification_rules.pluck(:line_id))
     }
 
-    scope :active, ->  { where(deactivated: false) }
+    scope :active, lambda { |*args|
+      on_date = args.first || Time.now
+      scope = where(deactivated: [nil, false])
+      scope = scope.where('active_from IS NULL OR active_from <= ?', on_date)
+      scope = scope.where('active_until IS NULL OR active_until >= ?', on_date)
+    }
 
     def self.nullable_attributes
       [:published_name, :number, :comment, :url, :color, :text_color, :stable_id]
@@ -109,28 +114,35 @@ module Chouette
       line_referential.companies.where(id: ([company_id] + Array(secondary_company_ids)).compact)
     end
 
-    def deactivate
-      self.deactivated = true
-    end
+    # def deactivate
+    #   self.deactivated = true
+    # end
+    #
+    # def activate
+    #   self.deactivated = false
+    # end
+    #
+    # def deactivate!
+    #   update_attribute :deactivated, true
+    # end
+    #
+    # def activate!
+    #   update_attribute :deactivated, false
+    # end
+    #
 
-    def activate
-      self.deactivated = false
-    end
+    def active?(on_date=Time.now)
+      on_date = on_date.to_date
 
-    def deactivate!
-      update_attribute :deactivated, true
-    end
+      return false if deactivated
+      return false if active_from && active_from > on_date
+      return false if active_until && active_until < on_date
 
-    def activate!
-      update_attribute :deactivated, false
-    end
-
-    def activated?
-      !deactivated
+      true
     end
 
     def status
-      activated? ? :activated : :deactivated
+      active? ? :activated : :deactivated
     end
 
     def code

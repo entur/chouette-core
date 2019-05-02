@@ -70,29 +70,6 @@ describe Chouette::Line, :type => :model do
     end
   end
 
-  # it { should validate_numericality_of :objectversion }
-
-  # describe ".last_stop_areas_parents" do
-  #
-  #   it "should return stop areas if no parents" do
-  #     line = create(:line_with_stop_areas)
-  #     expect(line.stop_areas_last_parents).to eq(line.stop_areas)
-  #   end
-  #
-  #   # it "should return stop areas parents if parents" do
-  #   #   line = create(:line_with_stop_areas)
-  #   #   route = create(:route, :line => line)
-  #   #   parent = create(:stop_area)
-  #   #   stop_areas = [ create(:stop_area),  create(:stop_area), create(:stop_area, :parent_id => parent.id) ]
-  #   #   stop_areas.each do |stop_area|
-  #   #     create(:stop_point, :stop_area => stop_area, :route => route)
-  #   #   end
-  #   #
-  #   #   expect(line.stop_areas_last_parents).to match(line.stop_areas[0..(line.stop_areas.size - 2)].push(parent))
-  #   # end
-  #
-  # end
-
   describe "#stop_areas" do
     let!(:route){create(:route, :line => subject)}
     it "should retreive route's stop_areas" do
@@ -124,5 +101,96 @@ describe Chouette::Line, :type => :model do
     end
   end
 
+  describe '#active?' do
+    let(:deactivated){ nil }
+    let(:active_from){ nil }
+    let(:active_until){ nil }
+    let(:line){ create :line, deactivated: deactivated, active_from: active_from, active_until: active_until }
 
+    it 'should be true by default' do
+      expect(line.active?).to be_truthy
+      expect(line.active?(1.year.from_now)).to be_truthy
+      expect(Chouette::Line.active).to include line
+      expect(Chouette::Line.active(1.year.from_now)).to include line
+    end
+
+    context 'with deactivated set' do
+      let(:deactivated){ true }
+
+      it 'should be false' do
+        expect(line.active?).to be_falsy
+        expect(line.active?(1.year.from_now)).to be_falsy
+        expect(Chouette::Line.active).to_not include line
+        expect(Chouette::Line.active(1.year.from_now)).to_not include line
+      end
+
+      context 'with active_from set' do
+        let(:active_from){ Time.now }
+
+        it 'should be false' do
+          expect(line.active?).to be_falsy
+          expect(line.active?(1.year.from_now)).to be_falsy
+          expect(Chouette::Line.active).to_not include line
+          expect(Chouette::Line.active(1.year.from_now)).to_not include line
+        end
+      end
+
+      context 'with active_until set' do
+        let(:active_until){ 1.year.from_now }
+
+        it 'should be false' do
+          expect(line.active?).to be_falsy
+          expect(line.active?(1.year.from_now)).to be_falsy
+          expect(Chouette::Line.active).to_not include line
+          expect(Chouette::Line.active(1.year.from_now)).to_not include line
+        end
+
+        context 'with active_from set' do
+          let(:active_from){ Time.now }
+
+          it 'should be false' do
+            expect(line.active?).to be_falsy
+            expect(line.active?(1.year.from_now)).to be_falsy
+            expect(Chouette::Line.active).to_not include line
+            expect(Chouette::Line.active(1.year.from_now)).to_not include line
+          end
+        end
+      end
+    end
+
+    context 'with active_from set' do
+      let(:active_from){ 1.day.from_now }
+
+      it 'should depend on the date' do
+        expect(line.active?).to be_falsy
+        expect(line.active?(1.year.from_now)).to be_truthy
+        expect(Chouette::Line.active).to_not include line
+        expect(Chouette::Line.active(1.year.from_now)).to include line
+      end
+
+      context 'with active_until set' do
+        let(:active_until){ 10.days.from_now }
+
+        it 'should depend on the date' do
+          expect(line.active?).to be_falsy
+          expect(line.active?(10.days.from_now)).to be_truthy
+          expect(line.active?(11.days.from_now)).to be_falsy
+          expect(Chouette::Line.active).to_not include line
+          expect(Chouette::Line.active(10.days.from_now)).to include line
+          expect(Chouette::Line.active(11.days.from_now)).to_not include line
+        end
+      end
+    end
+
+    context 'with active_until set' do
+      let(:active_until){ 1.day.ago }
+
+      it 'should depend on the date' do
+        expect(line.active?).to be_falsy
+        expect(line.active?(1.year.ago)).to be_truthy
+        expect(Chouette::Line.active).to_not include line
+        expect(Chouette::Line.active(1.year.ago)).to include line
+      end
+    end
+  end
 end
