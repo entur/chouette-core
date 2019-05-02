@@ -2,6 +2,9 @@
 
 class ReferentialStateUpdater
   constructor: (@channel)->
+    unless ($('meta[name=referential_state]').length)
+      console.log("No subscription to referential state channel.")
+      return
     console.log "subscribing to #{@channel}"
     @currentState = $('meta[name=referential_state]').attr('content')
     console.log "current state is #{@currentState}"
