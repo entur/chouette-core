@@ -4,11 +4,9 @@ module ReferentialsHelper
   def line_status(status)
     case status
     when :deactivated
-      content_tag(:span, nil, class: 'fa fa-exclamation-circle fa-lg text-danger') +
-      Chouette::Line.tmf('deactivated')
+      render_icon('fa fa-exclamation-circle fa-lg text-danger', Chouette::Line.tmf('deactivated')) + Chouette::Line.tmf('deactivated')
     else
-      content_tag(:span, nil, class: 'fa fa-check-circle fa-lg text-success') +
-      Chouette::Line.tmf('activated')
+      render_icon('fa fa-check-circle fa-lg text-success', Chouette::Line.tmf('activated')) + Chouette::Line.tmf('activated')
     end
   end
 

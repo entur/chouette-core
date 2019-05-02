@@ -69,10 +69,12 @@ module Chouette
 
     scope :active, lambda { |*args|
       on_date = args.first || Time.now
-      scope = where(deactivated: [nil, false])
-      scope = scope.where('active_from IS NULL OR active_from <= ?', on_date)
-      scope = scope.where('active_until IS NULL OR active_until >= ?', on_date)
+      scope = not_deactivated.active_from(on_date).active_until(on_date)
     }
+
+    scope :not_deactivated, -> { where(deactivated: [nil, false]) }
+    scope :active_from, ->(from_date) { where('active_from IS NULL OR active_from <= ?', from_date) }
+    scope :active_until, ->(until_date) { where('active_until IS NULL OR active_until >= ?', until_date) }
 
     def self.nullable_attributes
       [:published_name, :number, :comment, :url, :color, :text_color, :stable_id]

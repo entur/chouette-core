@@ -1,7 +1,7 @@
 class Chouette::Netex::Line < Chouette::Netex::Resource
   def resource_metas
     default_resource_metas.update(
-      status: resource.deactivated? ? 'inactive' : 'active'
+      status: resource.active? ? 'active', 'inactive'
     )
   end
 
