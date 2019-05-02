@@ -84,6 +84,7 @@ RSpec.describe Import::Base, type: :model do
   describe "#destroy" do
     it "must destroy all child imports" do
       netex_import = create(:netex_import)
+      netex_import.parent.reload
 
       netex_import.parent.destroy
 
