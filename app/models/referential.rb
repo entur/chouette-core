@@ -111,12 +111,15 @@ class Referential < ApplicationModel
   scope :clean_scope, -> {
     return none unless TIME_BEFORE_CLEANING > 0
 
-    kept_ids = []
-    kept_ids += archived.where('archived_at >= ?', TIME_BEFORE_CLEANING.days.ago).pluck(:id)
-    kept_ids += order('created_at DESC').limit(KEPT_DURING_CLEANING).pluck(:id)
-    kept_ids += ReferentialMetadata.pluck(:referential_source_id)
+    kept = []
+    kept << archived.where('archived_at >= ?', TIME_BEFORE_CLEANING.days.ago).select(:id).to_sql
+    kept << order('created_at DESC').limit(KEPT_DURING_CLEANING).select(:id).to_sql
 
-    inactive_and_not_pending.where.not(id: kept_ids.uniq)
+    scope = inactive_and_not_pending
+    kept.each do |kept_scope|
+      scope = scope.where("referentials.id NOT IN (#{kept_scope})")
+    end
+    scope.joins('LEFT JOIN public.referential_metadata ON referential_metadata.referential_source_id = referentials.id').where('referential_metadata.id' => nil)
   }
 
   after_save :notify_state
