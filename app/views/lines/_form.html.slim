@@ -16,9 +16,9 @@
   .row
     .col-lg-12
       h2.mb-lg= t("lines.form.sections.location")
-      = f.input :network_id, as: :select, :collection => @line_referential.networks.order('lower(name) asc'), include_blank: true
-      = f.input :company_id, as: :select, :collection => @line_referential.companies.order('lower(name) asc'), include_blank: true
-      = f.input :secondary_company_ids, :collection => @line_referential.companies.order('lower(name) asc'), include_blank: false, input_html: { multiple: true, 'data-select2ed': true }, label: Chouette::Line.tmf(:secondary_companies)
+      = f.input :network_id, as: :select, :collection => @line_referential.networks.order(Arel.sql('lower(name) asc')), include_blank: true
+      = f.input :company_id, as: :select, :collection => @line_referential.companies.order(Arel.sql('lower(name) asc')), include_blank: true
+      = f.input :secondary_company_ids, :collection => @line_referential.companies.order(Arel.sql('lower(name) asc')), include_blank: false, input_html: { multiple: true, 'data-select2ed': true }, label: Chouette::Line.tmf(:secondary_companies)
   .separator.section_separator
   .row
     .col-lg-12
