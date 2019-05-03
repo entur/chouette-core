@@ -5,6 +5,10 @@ RSpec.describe ExportsController, :type => :controller do
   let(:workbench) { create :workbench, organisation: organisation }
   let(:export)    { create(:netex_export, workbench: workbench, referential: first_referential) }
 
+  before(:each) do
+    stub_request(:get, %r{#{Rails.configuration.iev_url}/boiv_iev*})
+  end
+
   describe "GET index" do
     let(:request){ get :index, params: { workbench_id: workbench.id }}
     it_behaves_like 'checks current_organisation'
@@ -40,7 +44,7 @@ RSpec.describe ExportsController, :type => :controller do
       }}
 
       it 'should be successful' do
-        expect{request}.to change{Export::Netex.count}.by(1)
+        expect{request}.to change { Export::Netex.count }.by(1)
       end
     end
 

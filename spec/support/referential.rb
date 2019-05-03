@@ -99,10 +99,12 @@ RSpec.configure do |config|
   end
 
   config.after(:each) do
-    raise "First referential has been destroyed" unless Referential.where(slug: 'first').exists?
+    first_referential.reload rescue raise("First referential has been destroyed")
     # Reset tenant back to `public`
     Apartment::Tenant.reset
     # Rollback transaction
+
+    # we need the rescue, see https://github.com/rails/webpacker/issues/422
     DatabaseCleaner.clean rescue nil
   end
 
