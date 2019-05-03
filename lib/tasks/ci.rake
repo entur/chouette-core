@@ -164,4 +164,4 @@ namespace :ci do
 end
 
 desc "Run continuous integration tasks (spec, ...)"
-task :ci => ["ci:cache:fetch", "ci:build", "ci.cache:store"]
+task :ci => ["ci:cache:fetch", "ci:build", "ci:cache:store"]
