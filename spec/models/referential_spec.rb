@@ -19,7 +19,7 @@ describe Referential, :type => :model do
 
     context 'with an old Referential' do
       let(:old_referential) do
-        old_referential = create(:referential, :bare)
+        old_referential = create(:workbench_referential, :bare)
         old_referential.active!
         old_referential
       end
@@ -69,6 +69,14 @@ describe Referential, :type => :model do
 
           it 'should contain it' do
             expect(Referential.clean_scope).to include old_referential
+          end
+
+          context 'scoped in a workbench' do
+            it 'should only account for referentials in the workbench' do
+              expect(old_referential.workbench.referentials.clean_scope).to_not include old_referential
+              create_list(:workbench_referential, Referential::KEPT_DURING_CLEANING, :bare, workbench: old_referential.workbench)
+              expect(old_referential.workbench.referentials.clean_scope).to include old_referential
+            end
           end
 
           context 'with Referential::KEPT_DURING_CLEANING zeroed' do

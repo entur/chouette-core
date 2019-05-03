@@ -95,7 +95,9 @@ module Cron
 
     def purge_referentials
       protected_action do
-        Referential.clean!
+        Workbench.find_each do |w|
+          w.referentials.clean!
+        end
       end
     end
   end
