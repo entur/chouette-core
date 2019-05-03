@@ -38,7 +38,7 @@ RSpec.describe ImportsController, :type => :controller do
           import: {
             name: 'Offre',
             file: fixture_file_upload('nozip.zip')
-          }
+          }}
       end
     end
   end
