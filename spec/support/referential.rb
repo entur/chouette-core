@@ -63,7 +63,7 @@ RSpec.configure do |config|
       line_referential: line_referential,
       stop_area_referential: stop_area_referential
     )
-    
+
     workbench = FactoryGirl.create(
       :workbench,
       name: "Gestion de l'offre",
@@ -99,10 +99,11 @@ RSpec.configure do |config|
   end
 
   config.after(:each) do
+    raise "First referential has been destroyed" unless Referential.where(slug: 'first').exists?
     # Reset tenant back to `public`
     Apartment::Tenant.reset
     # Rollback transaction
-    DatabaseCleaner.clean
+    DatabaseCleaner.clean rescue nil
   end
 
 end
