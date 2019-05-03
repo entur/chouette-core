@@ -42,7 +42,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
 
           it 'should be successful' do
             get_request
-            expect(response).to be_success
+            expect(response).to be_successful
           end
         end
       end
@@ -75,7 +75,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
 
           it 'should be successful' do
             get_request
-            expect(response).to be_success
+            expect(response).to be_successful
           end
         end
       end
