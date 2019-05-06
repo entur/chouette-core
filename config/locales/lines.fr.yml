@@ -126,7 +126,7 @@ fr:
         default_fs_msg: "Ces courses sont considérées régulières"
         group_of_line: "Groupe de lignes"
         comment: "Commentaire"
-        objectid: "Identifiant Neptune"
+        objectid: "Identifiant externe"
         object_version: "Version"
         created_at: "Créé le"
         updated_at: "Edité le"
