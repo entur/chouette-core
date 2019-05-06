@@ -72,6 +72,7 @@ module Chouette
       scope = not_deactivated.active_from(on_date).active_until(on_date)
     }
 
+    scope :deactivated, -> { where(deactivated: true) }
     scope :not_deactivated, -> { where(deactivated: [nil, false]) }
     scope :active_from, ->(from_date) { where('active_from IS NULL OR active_from <= ?', from_date) }
     scope :active_until, ->(until_date) { where('active_until IS NULL OR active_until >= ?', until_date) }

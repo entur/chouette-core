@@ -29,7 +29,7 @@ module LinesHelper
   def status_symbol(status)
     if status == 'activated'
       render_icon 'fa fa-check-circle text-success', Chouette::Line.tmf('deactivated')
-    else
+    elsif status == 'deactivated'
       render_icon 'fa fa-exclamation-circle text-danger', Chouette::Line.tmf('activated')
     end
   end

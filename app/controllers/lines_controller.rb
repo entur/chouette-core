@@ -123,6 +123,9 @@ class LinesController < ChouetteController
 
   def line_params
     out = params.require(:line).permit(
+      :activated,
+      :active_from,
+      :active_until,
       :transport_mode,
       :network_id,
       :company_id,
