@@ -82,7 +82,7 @@ class Permission
       permissions = []
       %w{stop_areas stop_area_providers lines companies networks}.each do |resources|
         actions = %w{edit update create}
-        actions << (%w{stop_areas lines}.include?(resources) ? "change_status" : "destroy")
+        actions << (%w{stop_areas lines}.include?(resources) ? "update_activation_dates" : "destroy")
 
         actions.each do |action|
           permissions << "#{resources}.#{action}"

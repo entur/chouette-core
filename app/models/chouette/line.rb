@@ -69,13 +69,18 @@ module Chouette
 
     scope :active, lambda { |*args|
       on_date = args.first || Time.now
-      scope = not_deactivated.active_from(on_date).active_until(on_date)
+      scope = activated.active_from(on_date).active_until(on_date)
     }
 
     scope :deactivated, -> { where(deactivated: true) }
-    scope :not_deactivated, -> { where(deactivated: [nil, false]) }
+    scope :activated, -> { where(deactivated: [nil, false]) }
     scope :active_from, ->(from_date) { where('active_from IS NULL OR active_from <= ?', from_date) }
     scope :active_until, ->(until_date) { where('active_until IS NULL OR active_until >= ?', until_date) }
+
+    scope :active_after, ->(date) { activated.where('active_until IS NULL OR active_until >= ?', date) }
+    scope :active_before, ->(date) { activated.where('active_from IS NULL OR active_from <= ?', date) }
+    scope :not_active_after, ->(date) { where('deactivated = ? OR (active_until IS NOT NULL AND active_until < ?)', true, date) }
+    scope :not_active_before, ->(date) { where('deactivated = ? OR (active_from IS NOT NULL AND active_from > ?)', true, date) }
 
     def self.nullable_attributes
       [:published_name, :number, :comment, :url, :color, :text_color, :stable_id]
@@ -117,23 +122,6 @@ module Chouette
       line_referential.companies.where(id: ([company_id] + Array(secondary_company_ids)).compact)
     end
 
-    # def deactivate
-    #   self.deactivated = true
-    # end
-    #
-    # def activate
-    #   self.deactivated = false
-    # end
-    #
-    # def deactivate!
-    #   update_attribute :deactivated, true
-    # end
-    #
-    # def activate!
-    #   update_attribute :deactivated, false
-    # end
-    #
-
     def active?(on_date=Time.now)
       on_date = on_date.to_date
 
@@ -142,6 +130,14 @@ module Chouette
       return false if active_until && active_until < on_date
 
       true
+    end
+
+    def activated
+      !deactivated
+    end
+
+    def activated= val
+      deactivated = !val
     end
 
     def status

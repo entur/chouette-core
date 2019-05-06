@@ -17,4 +17,7 @@ class LinePolicy < ApplicationPolicy
     user.has_permission?('lines.update')
   end
 
+  def update_activation_dates?
+    user.has_permission?('lines.update_activation_dates')
+  end
 end
