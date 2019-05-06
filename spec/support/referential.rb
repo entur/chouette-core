@@ -63,7 +63,7 @@ RSpec.configure do |config|
       line_referential: line_referential,
       stop_area_referential: stop_area_referential
     )
-    
+
     workbench = FactoryGirl.create(
       :workbench,
       name: "Gestion de l'offre",
@@ -99,10 +99,13 @@ RSpec.configure do |config|
   end
 
   config.after(:each) do
+    first_referential.reload rescue raise("First referential has been destroyed")
     # Reset tenant back to `public`
     Apartment::Tenant.reset
     # Rollback transaction
-    DatabaseCleaner.clean
+
+    # we need the rescue, see https://github.com/rails/webpacker/issues/422
+    DatabaseCleaner.clean rescue nil
   end
 
 end
