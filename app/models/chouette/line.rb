@@ -132,9 +132,19 @@ module Chouette
       true
     end
 
+    def always_active_on_period?(from, to)
+      return false if deactivated
+
+      return false if active_from && active_from > from
+      return false if active_until && active_until < to
+
+      true
+    end
+
     def activated
       !deactivated
     end
+    alias_method :activated?, :activated
 
     def activated= val
       deactivated = !val
