@@ -18,8 +18,11 @@ ARG WEEK
 
 # Configure locales
 ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
+ENV BUNDLER_VERSION 2.0.1
+
 RUN apt-get update && apt-get install -y --no-install-recommends locales && \
-    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen && \
+    gem install bundler:$BUNDLER_VERSION
 
 ENV DEV_PACKAGES="build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core"
 ENV RUN_PACKAGES="libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron"
