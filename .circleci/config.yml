@@ -1,0 +1,109 @@
+version: 2
+aliases:
+  - &GCP-auth
+    name: GCP Authenticate
+    command: |
+      echo 'export GCLOUD_SERVICE_KEY="$GCLOUD_SERVICE_KEY"' >> $BASH_ENV
+      /tools/gcp_authenticate.sh
+  - &docker-login
+    name: Docker login
+    command: |
+      echo 'export GCLOUD_SERVICE_KEY="$GCLOUD_SERVICE_KEY"' >> $BASH_ENV
+      /tools/docker_login.sh
+  - &docker-build-and-push
+    name: Docker build and push
+    command: |
+      echo 'export CIRCLE_PROJECT_REPONAME="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
+      echo 'export CIRCLE_SHA1="$CIRCLE_SHA1"' >> $BASH_ENV
+      echo 'export BUILD_ARGS="--build-arg NEXUS_USER=$NEXUS_USER --build-arg NEXUS_PASS=$NEXUS_PASS"' >> $BASH_ENV
+      /tools/docker_build_push.sh
+  - &post-hook
+    name: Notify about build and docker image pushed
+    command: |
+      echo 'export CIRCLE_PROJECT_REPONAME="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
+      echo 'export CIRCLE_SHA1="$CIRCLE_SHA1"' >> $BASH_ENV
+      echo 'export BUILD_STATUS_API_KEY="$BUILD_STATUS_API_KEY"' >> $BASH_ENV
+      /tools/build_notify.sh
+jobs:
+  build:
+    docker:
+      - image: eu.gcr.io/carbon-1287/circleci-toolbox-image
+        auth:
+          username: _json_key
+          password: $GCLOUD_SERVICE_KEY
+      - image: mdillon/postgis:9.6
+        environment:
+          TZ: Europe/Oslo
+          POSTGRES_DB: chouette_test
+          POSTGRES_USER: chouette
+          POSTGRES_PASSWORD: chouette
+    steps:
+      - checkout
+      - run:
+          name: Copy test config file before running tests
+          command: |
+            cp .circleci/application.yml config/application.yml
+      - run:
+          name: Install apt-dependencies
+          command: apt-get install -y libpq-dev libsqlite3-dev libxml2 libxml2-dev libxslt-dev python-pydot python-pydot-ng graphviz libproj-dev libgeos-dev libffi-dev libsparsehash-dev
+      - run:
+          name: Copy default database config file
+          command: cp config/database.example.yml config/database.yml
+      - run:
+          name: Create locale folder
+          command: mkdir -p locales
+      - run:
+          name: Print some info and versions
+          command: |
+            set -o xtrace
+            ruby -v
+            gem list bundler
+            bundler -v
+      - run:
+          name: Bundle install
+          command: |
+            set -o xtrace
+            bundle config build.nokogiri --use-system-libraries --with-xml2-include=/usr/include/libxml2
+            bundle install --deployment
+      - run:
+          name: Rake create and migrate
+          command: |
+            bundle exec rake db:create
+            bundle exec rake db:migrate
+      - run:
+          name: Rake spec
+          command: |
+            export RAIL_ENV=test
+            bundle exec rake db:reset
+            bundle exec rake spec
+      - store_test_results:
+          path: test_results
+  deploy-docker:
+    docker:
+      - image: eu.gcr.io/carbon-1287/circleci-toolbox-image
+        auth:
+          username: _json_key
+          password: $GCLOUD_SERVICE_KEY
+    environment:
+      DEBIAN_FRONTEND: "noninteractive"
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: *GCP-auth
+      - run: *docker-login
+      - run: *docker-build-and-push
+      - run: *post-hook
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - build:
+          context: org-carbon
+      - deploy-docker:
+          context: org-carbon
+          requires:
+            - build
+          filters:
+            branches:
+              only: entur_develop
