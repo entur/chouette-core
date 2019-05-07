@@ -16,7 +16,13 @@ module Chouette
 
       def get_objectid(definition)
         parts = definition.try(:split, ":")
-        Chouette::Objectid::StifCodifligne.new(provider_id: parts[0], sync_id: parts[1], object_type: parts[2], local_id: parts[3])
+
+        if parts.size == 3 || parts[3] == 'LOC'
+          # V2
+          Chouette::Objectid::StifCodifligne.new(provider_id: parts[0], object_type: parts[1], local_id: parts[2], local_marker: parts[3])
+        else
+          Chouette::Objectid::StifCodifligne.new(provider_id: parts[0], sync_id: parts[1], object_type: parts[2], local_id: parts[3])
+        end
       end
     end
   end
