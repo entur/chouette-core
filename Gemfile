@@ -93,7 +93,7 @@ gem 'ffi', '> 1.9.24'
 gem 'mimemagic'
 
 # User interface
-gem 'language_engine', af83: 'language_engine'
+gem 'language_engine', '0.0.9', af83: 'language_engine'
 gem 'calendar_helper', '0.2.5'
 gem 'cocoon'
 gem 'slim-rails'
