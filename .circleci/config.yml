@@ -87,8 +87,9 @@ jobs:
       - run:
           name: Override database.yml and secrets.yml files
           command: |
-            cp config/database.yml.docker app/config/database.yml
-            cp config/secrets.yml.docker app/config/secrets.yml
+            mkdir -p /app/config
+            cp config/database.yml.docker /app/config/database.yml
+            cp config/secrets.yml.docker /app/config/secrets.yml
       - run:
           name: Run assets:precompile (with nulldb)
           command: |
