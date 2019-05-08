@@ -43,9 +43,31 @@ jobs:
           name: Copy test config file before running tests
           command: |
             cp .circleci/application.yml config/application.yml
+
+
       - run:
-          name: Install apt-dependencies
-          command: apt-get install -y --no-install-recommends build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron
+          name: Install ruby and bundler
+          command: |
+            apt-get update
+            mkdir -p /usr/share/man/man1 /usr/share/man/man7
+            apt-get install -y --no-install-recommends ruby2.3 locales
+            echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+            locale-gen
+            gem2.3 install --no-ri --no-rdoc bundler
+      - run:
+          name: Install bundler packages
+          command: |
+            cp Gemfile Gemfile.lock /app/
+            apt-get install -y --no-install-recommends build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron
+      - run:
+          name: Prepare nodejs 6.x and yarn package installation
+          command: |
+      apt-get update && apt-get install -y --no-install-recommends curl gnupg ca-certificates apt-transport-https
+      curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+      echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
+      curl -sS https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+      echo "deb https://deb.nodesource.com/node_6.x stretch main" > /etc/apt/sources.list.d/nodesource.list
+      apt-get update && apt-get install -y --no-install-recommends yarn nodejs
       - run:
           name: Copy default database config file
           command: cp -r config/database/ci.yml config/database.yml
