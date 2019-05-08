@@ -60,10 +60,7 @@ jobs:
             DEV_PACKAGES="build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core"
             RUN_PACKAGES="libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron"
             apt-get -y install --no-install-recommends $DEV_PACKAGES $RUN_PACKAGES
-            cd /app && bundle install --deployment --jobs 4 --without development test
-            apt-get -y remove $DEV_PACKAGES
-            rm -rf /var/lib/gems/2.3.0/cache/ vendor/bundle/ruby/2.3.0/cache /root/.bundle/
-            apt-get clean && apt-get -y autoremove && rm -rf /var/lib/apt/lists/*
+            cd /app && bundle install
       - run:
           name: Prepare nodejs 6.x and yarn package installation
           command: |
@@ -72,12 +69,11 @@ jobs:
             echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
             curl -sS https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
             echo "deb https://deb.nodesource.com/node_6.x stretch main" > /etc/apt/sources.list.d/nodesource.list
+            apt-get remove -y nodejs
             apt-get update && apt-get install -y --no-install-recommends yarn nodejs
       - run:
           name: Install yarn packages
           command: |
-            apt-get remove -y nodejs
-            apt-get install -y --no-install-recommends nodejs
             cp package.json yarn.lock /app/
             cd /app && yarn --frozen-lockfile install
       - run:
@@ -97,12 +93,14 @@ jobs:
       - run:
           name: Rake create and migrate
           command: |
+            cd /app
             bundle exec rake db:create
             bundle exec rake db:migrate
       - run:
           name: Rake spec
           command: |
             export RAIL_ENV=test
+            cd /app
             bundle exec rake db:reset
             bundle exec rake spec
       - store_test_results:
