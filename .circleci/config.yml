@@ -83,7 +83,7 @@ jobs:
       - run:
           name: Install application file
           command: |
-            cp . /app/
+            cp -r . /app/
       - run:
           name: Override database.yml and secrets.yml files
           command: |
