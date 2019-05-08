@@ -55,7 +55,15 @@ jobs:
       - run:
           name: Install bundler packages
           command: |
-            apt-get install -y --no-install-recommends build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron
+            mkdir /app
+            cp Gemfile Gemfile.lock /app/
+            ENV DEV_PACKAGES="build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core"
+            ENV RUN_PACKAGES="libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron"
+            apt-get -y install --no-install-recommends $DEV_PACKAGES $RUN_PACKAGES
+            cd /app && bundle install --deployment --jobs 4 --without development test
+            apt-get -y remove $DEV_PACKAGES
+            rm -rf /var/lib/gems/2.3.0/cache/ vendor/bundle/ruby/2.3.0/cache /root/.bundle/
+            apt-get clean && apt-get -y autoremove && rm -rf /var/lib/apt/lists/*
       - run:
           name: Prepare nodejs 6.x and yarn package installation
           command: |
@@ -66,24 +74,23 @@ jobs:
             echo "deb https://deb.nodesource.com/node_6.x stretch main" > /etc/apt/sources.list.d/nodesource.list
             apt-get update && apt-get install -y --no-install-recommends yarn nodejs
       - run:
-          name: Copy default database config file
-          command: cp -r config/database/ci.yml config/database.yml
-      - run:
-          name: Create locale folder
-          command: mkdir -p locales
-      - run:
-          name: Print some info and versions
+          name: Install yarn packages
           command: |
-            set -o xtrace
-            ruby -v
-            gem list bundler
-            bundler -v
+            cp package.json yarn.lock /app/
+            cd /app && yarn --frozen-lockfile install
       - run:
-          name: Bundle install
+          name: Install application file
           command: |
-            set -o xtrace
-            bundle config build.nokogiri --use-system-libraries --with-xml2-include=/usr/include/libxml2
-            bundle install --deployment
+            cp . /app/
+      - run:
+          name: Override database.yml and secrets.yml files
+          command: |
+            cp config/database.yml.docker app/config/database.yml
+            cp config/secrets.yml.docker app/config/secrets.yml
+      - run:
+          name: Run assets:precompile (with nulldb)
+          command: |
+            cd /app && bundle exec rake ci:fix_webpacker assets:precompile i18n:js:export RAILS_DB_ADAPTER=nulldb RAILS_DB_PASSWORD=none RAILS_ENV=production
       - run:
           name: Rake create and migrate
           command: |
