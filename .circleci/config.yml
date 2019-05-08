@@ -84,8 +84,7 @@ jobs:
           name: Override database.yml and secrets.yml files
           command: |
             mkdir -p /app/config
-            cp config/database.yml.docker /app/config/database.yml
-            cp config/secrets.yml.docker /app/config/secrets.yml
+            cp config/database.yml.circleci /app/config/database.yml
       - run:
           name: Rake create and migrate
           command: |
