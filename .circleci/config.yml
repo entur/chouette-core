@@ -60,7 +60,7 @@ jobs:
             DEV_PACKAGES="build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core"
             RUN_PACKAGES="libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron"
             apt-get -y install --no-install-recommends $DEV_PACKAGES $RUN_PACKAGES
-            cd /app && bundle install
+            cd /app && bundle install --deployment
       - run:
           name: Prepare nodejs 6.x and yarn package installation
           command: |
@@ -87,19 +87,26 @@ jobs:
             cp config/database.yml.docker /app/config/database.yml
             cp config/secrets.yml.docker /app/config/secrets.yml
       - run:
-          name: Run assets:precompile (with nulldb)
-          command: |
-            cd /app && bundle exec rake ci:fix_webpacker assets:precompile i18n:js:export RAILS_DB_ADAPTER=nulldb RAILS_DB_PASSWORD=none RAILS_ENV=production
-      - run:
           name: Rake create and migrate
           command: |
             cd /app
+            export RAIL_ENV=test
+            export RAILS_DB_HOST=localhost
+            export RAILS_DB_PORT=5432
+            export RAILS_DB_NAME=chouette_test
+            export RAILS_DB_USER=chouette
+            export RAILS_DB_PASSWORD=chouette
             bundle exec rake db:create
             bundle exec rake db:migrate
       - run:
           name: Rake spec
           command: |
             export RAIL_ENV=test
+            export RAILS_DB_HOST=localhost
+            export RAILS_DB_PORT=5432
+            export RAILS_DB_NAME=chouette_test
+            export RAILS_DB_USER=chouette
+            export RAILS_DB_PASSWORD=chouette
             cd /app
             bundle exec rake db:reset
             bundle exec rake spec
