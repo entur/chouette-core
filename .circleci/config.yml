@@ -76,6 +76,8 @@ jobs:
       - run:
           name: Install yarn packages
           command: |
+            apt-get remove nodejs
+            apt-get install nodejs
             cp package.json yarn.lock /app/
             cd /app && yarn --frozen-lockfile install
       - run:
