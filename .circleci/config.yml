@@ -55,7 +55,6 @@ jobs:
       - run:
           name: Install bundler packages
           command: |
-            cp Gemfile Gemfile.lock /app/
             apt-get install -y --no-install-recommends build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron
       - run:
           name: Prepare nodejs 6.x and yarn package installation
