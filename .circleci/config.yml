@@ -57,8 +57,8 @@ jobs:
           command: |
             mkdir /app
             cp Gemfile Gemfile.lock /app/
-            ENV DEV_PACKAGES="build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core"
-            ENV RUN_PACKAGES="libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron"
+            DEV_PACKAGES="build-essential ruby2.3-dev libpq-dev libxml2-dev zlib1g-dev libmagic-dev libmagickwand-dev git-core"
+            RUN_PACKAGES="libpq5 libxml2 zlib1g libmagic1 imagemagick libproj-dev postgresql-client-common postgresql-client-9.6 cron"
             apt-get -y install --no-install-recommends $DEV_PACKAGES $RUN_PACKAGES
             cd /app && bundle install --deployment --jobs 4 --without development test
             apt-get -y remove $DEV_PACKAGES
