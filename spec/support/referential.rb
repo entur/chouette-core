@@ -99,7 +99,6 @@ RSpec.configure do |config|
   end
 
   config.after(:each) do
-    first_referential.reload rescue raise("First referential has been destroyed")
     # Reset tenant back to `public`
     Apartment::Tenant.reset
     # Rollback transaction
