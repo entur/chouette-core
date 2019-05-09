@@ -4,7 +4,7 @@ html lang=I18n.locale
     meta charset="utf-8"
     meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 
-    - if @referential.present?
+    - if @referential.present? && policy(@referential).show?
       meta name="referential_state" content="#{@referential.state}"
     - if @workbench.present?
       meta name="current_workbench_notifications_channel" content="#{@workbench.notifications_channel}"
