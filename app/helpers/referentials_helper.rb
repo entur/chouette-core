@@ -10,14 +10,14 @@ module ReferentialsHelper
         if line.active_until.present?
           Chouette::Line.tmf('active_between', from: l(line.active_from), to: l(line.active_until))
         else
-          Chouette::Line.tmf('active_from', from: l(line.active_from))
+          Chouette::Line.tmf('active_from_date', from: l(line.active_from))
         end
       elsif line.active_until.present?
-        Chouette::Line.tmf('active_until', to: l(line.active_until))
+        Chouette::Line.tmf('active_until_date', to: l(line.active_until))
       else
         Chouette::Line.tmf('activated')
       end
-      render_icon('fa fa-check-circle fa-lg text-success', Chouette::Line.tmf('activated')) + text
+      render_icon('fa fa-check-circle fa-lg text-success', text) + text
     end
   end
 

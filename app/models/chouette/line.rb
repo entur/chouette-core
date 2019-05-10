@@ -147,11 +147,13 @@ module Chouette
     alias_method :activated?, :activated
 
     def activated= val
-      deactivated = !val
+      val = val != '0' if val.is_a?(String)
+      bool = !val
+      self.deactivated = bool
     end
 
     def status
-      active? ? :activated : :deactivated
+      activated? ? :activated : :deactivated
     end
 
     def code
