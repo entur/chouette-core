@@ -15,7 +15,7 @@ class User < ApplicationModel
   end
 
   devise :invitable, :registerable, :validatable, :lockable, :timeoutable,
-         :recoverable, :rememberable, :trackable, :async, authentication_type, *more_devise_modules
+         :recoverable, :rememberable, :trackable, authentication_type, *more_devise_modules
 
   if Subscription.enabled?
     self.allow_unconfirmed_access_for = 1.day
@@ -120,6 +120,12 @@ class User < ApplicationModel
 
   def confirmed?
     confirmed_at.present? && !invited? || invitation_accepted?
+  end
+
+  def belongs_to_workgroup_owner?(workgroup)
+    return false unless workgroup
+    
+    workgroup.owner == organisation
   end
 
   def state

@@ -1,4 +1,4 @@
-class UpdatePurchaseWindowsAttributes < ActiveRecord::Migration
+class UpdatePurchaseWindowsAttributes < ActiveRecord::Migration[4.2]
   def change
     add_column :purchase_windows, :objectid, :string
     add_column :purchase_windows, :checksum, :string

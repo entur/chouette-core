@@ -1,4 +1,4 @@
-class CreateReferentialClonings < ActiveRecord::Migration
+class CreateReferentialClonings < ActiveRecord::Migration[4.2]
   def change
     create_table :referential_clonings do |t|
       t.string :status

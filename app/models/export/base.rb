@@ -16,6 +16,7 @@ class Export::Base < ActiveRecord::Base
   validates :type, :referential_id, presence: true
 
   after_create :purge_exports
+  # after_commit :notify_state
   attr_accessor :synchronous
 
   scope :not_used_by_publication_apis, -> {
@@ -51,14 +52,28 @@ class Export::Base < ActiveRecord::Base
   end
   alias_method :human_type, :human_name
 
+  def notify_parent
+    return false unless finished?
+    return false if notified_parent_at
+
+    return false unless parent.present? || publication.present?
+    parent&.child_change
+    publication&.child_change
+
+    update_column :notified_parent_at, Time.now
+    true
+  end
+  
   def run
     update status: 'running', started_at: Time.now
     export
+    notify_state
   rescue Exception => e
     Rails.logger.error e.message
 
     messages.create(criticity: :error, message_attributes: { text: e.message }, message_key: :full_text)
     update status: 'failed'
+    notify_state
     raise
   end
 

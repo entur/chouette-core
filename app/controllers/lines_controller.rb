@@ -2,6 +2,7 @@ class LinesController < ChouetteController
   include ApplicationHelper
   include Activatable
   include PolicyChecker
+  include TransportModeFilter
 
   defaults :resource_class => Chouette::Line
   respond_to :html
@@ -43,6 +44,8 @@ class LinesController < ChouetteController
 
   def new
     authorize resource_class
+    build_resource
+    @line.transport_mode = Chouette::Line.sorted_transport_modes.first
     super
   end
 
@@ -84,7 +87,7 @@ class LinesController < ChouetteController
 
   def collection
     @lines ||= begin
-      %w(network_id company_id group_of_lines_id comment_id transport_mode transport_submode).each do |filter|
+      %w(network_id company_id group_of_lines_id comment_id).each do |filter|
         if params[:q] && params[:q]["#{filter}_eq"] == '-1'
           params[:q]["#{filter}_eq"] = ''
           params[:q]["#{filter}_blank"] = '1'
@@ -92,7 +95,8 @@ class LinesController < ChouetteController
       end
 
       scope = ransack_status line_referential.lines
-      @q = scope.search(params[:q])
+      scope = ransack_transport_mode scope
+      @q = scope.ransack(params[:q])
 
       if sort_column && sort_direction
         lines ||= @q.result(:distinct => true).order(sort_column + ' ' + sort_direction).paginate(:page => params[:page]).includes([:network, :company])

@@ -1,4 +1,4 @@
-class RenameOfferWorkbenchToWorkbench < ActiveRecord::Migration
+class RenameOfferWorkbenchToWorkbench < ActiveRecord::Migration[4.2]
   def self.up
     rename_table :offer_workbenches, :workbenches
     rename_column :referentials, :offer_workbench_id, :workbench_id

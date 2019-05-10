@@ -5,7 +5,7 @@ RSpec.describe StatusesController, :type => :controller do
     render_views
 
 
-    let(:request){ get :index}
+    let(:request){ get :index }
     let(:parsed_response){ JSON.parse response.body }
     it "should be ok" do
       request

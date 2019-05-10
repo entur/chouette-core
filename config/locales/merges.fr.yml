@@ -10,6 +10,7 @@ fr:
       table:
         state:
           title: Dernière offre finalisée
+          urgent: Prise en compte d'une offre urgente
     actions:
       create: Finaliser des Jeux de Données
       rollback: 'Revenir à cette offre'
@@ -42,6 +43,7 @@ fr:
         available_referentials: "Jeux de données disponibles"
         selected_referentials: "Jeux de données selectionnés"
         notification_target: Destinataire(s) des notifications
+        contains_urgent_offer: Prise en compte d'une offre urgente
     errors:
       models:
         merge:

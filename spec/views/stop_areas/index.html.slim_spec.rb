@@ -13,7 +13,8 @@ describe "/stop_areas/index", :type => :view do
     allow(view).to receive(:link_with_search).and_return("#")
     allow(view).to receive(:collection).and_return(stop_areas)
     allow(view).to receive(:current_referential).and_return(stop_area_referential)
-    allow(view).to receive(:params).and_return({action: :index})
+    allow(view).to receive(:params).and_return(ActionController::Parameters.new(action: :index))
+    allow(view).to receive(:resource_class){ stop_area.class }
     controller.request.path_parameters[:stop_area_referential_id] = stop_area_referential.id
     render
   end

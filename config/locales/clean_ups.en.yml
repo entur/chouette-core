@@ -7,21 +7,21 @@ en:
     actions:
       clean_up: "Clean up"
       confirm: "Clean up will destroy time tables which ended on requested date\nand next recursively all object without any time table\nPlease confirm this action"
+      new: Clean up this data set
   activemodel:
     attributes:
       clean_up:
         begin_date: "Begin date : "
         end_date: "End date : "
-  titles:
+  titles: &titles
     clean_up:
       begin_date: "Begin date of clean up"
       end_date: "End date of clean up"
 
   formtastic:
     titles:
-      clean_up:
-        begin_date: "Begin date of clean up"
-        end_date: "End date of clean up"
+      <<: *titles
+
   activerecord:
     models:
       clean_up:

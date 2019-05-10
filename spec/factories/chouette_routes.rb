@@ -39,7 +39,7 @@ FactoryGirl.define do
       trait :with_opposite do
         after(:create) do |route|
           opposite = create :route, line: route.line
-          route.update opposite_route_id: opposite.id
+          route.update opposite_route: opposite
         end
       end
     end

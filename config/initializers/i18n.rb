@@ -1,24 +1,31 @@
-module I18n
-  class << self
-    def translate_with_fallback key, options={}, original=nil
-      options[:locale] ||= I18n.locale
-      begin
-        self.translate_without_fallback(key, {raise: true}.update(options))
-      rescue => e
-        split = key.to_s.split('.')
-        if split.size <= 2
-          translate_without_fallback original || key, options
-        else
-          v = split.pop
-          v2 = split.pop
-          split.pop if v2 == "default"
-          split << "default" << v
-          new_key = split.join('.')
-          translate_with_fallback new_key, options, original || key
-        end
+module I18nTranslateWithFallback
+  def translate key, options={}, original=nil
+    options[:locale] ||= I18n.locale
+    begin
+      super(key, {raise: true}.update(options))
+    rescue => e
+      split = key.to_s.split('.')
+      if split.size <= 2
+        super original || key, options
+      else
+        v = split.pop
+        v2 = split.pop
+        split.pop if v2 == "default"
+        split << "default" << v
+        new_key = split.join('.')
+        translate new_key, options, original || key
       end
     end
-    alias_method_chain :translate, :fallback
+  end
+
+
+end
+
+module I18n
+  class << self
+    alias_method :translate_without_fallback, :translate
+    prepend I18nTranslateWithFallback
+
     alias_method :t, :translate
   end
 
@@ -170,13 +177,15 @@ class ActiveRecord::Base
   extend EnhancedModelI18n
 end
 
+module ActiveModelNamingExtendedWithI18n
+  def extended klass
+    super klass
+    klass.send :extend, EnhancedModelI18n
+  end
+end
+
 module ActiveModel::Naming
   class << self
-    def extended_with_i18n klass
-      self.extended_without_i18n klass
-      klass.send :extend, EnhancedModelI18n
-    end
-
-    alias_method_chain :extended, :i18n
+    prepend ActiveModelNamingExtendedWithI18n
   end
 end

@@ -1,4 +1,4 @@
-class ChangeBeginDateFromCleanUps < ActiveRecord::Migration
+class ChangeBeginDateFromCleanUps < ActiveRecord::Migration[4.2]
   def up
     change_column :clean_ups, :begin_date, :date
   end

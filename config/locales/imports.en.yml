@@ -2,7 +2,7 @@ en:
   imports:
     search_no_results: "No import matching your query"
     filters:
-      referential: "Select data space..."
+      referential: "Select data set..."
       name_or_creator_cont: "Select an import or creator name..."
       error_period_filter: "End date must be greater or equal than begin date"
     actions:
@@ -22,7 +22,7 @@ en:
     create:
       title: "Generate a new import"
     show:
-      title: "Import %{name}"
+      title: "%{name}"
       report: "Report"
       imported_file: "Original file"
       compliance_check: "Validation report"
@@ -111,7 +111,4 @@ en:
   errors:
     messages:
       extension_whitelist_error: "You are not allowed to upload %{extension} files, allowed types: %{allowed_types}"
-  flash:
-    imports:
-      create:
-        notice: "The import is in progress. Please wait and refresh the page in a few moments."
+  

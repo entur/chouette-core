@@ -106,9 +106,16 @@ fr:
         lda: LDA
     clean_up:
       date_type:
+        outside: En dehors des périodes définies dans le jeu de données
         between: Entre deux dates
         before: Avant une date
         after: Après une date
+      data_cleanups:
+        clean_vehicle_journeys_without_time_table: Courses sans calendriers de circulation
+        clean_journey_patterns_without_vehicle_journey: Missions sans aucune Course
+        clean_routes_without_journey_pattern: Itinéraires sans aucune Mission
+        clean_unassociated_timetables: Calendriers de circulation associés à aucune Course
+        clean_unassociated_purchase_windows: Calendriers commerciaux associés à aucune Course
     transport_mode:
       interchange: Interconnection
       unknown: Inconnu

@@ -7,7 +7,7 @@ RSpec.describe Export::Gtfs, type: [:model, :with_exportable_referential] do
       line.company = nil
       line.save
 
-      stop_areas = stop_area_referential.stop_areas.order("random()").limit(2)
+      stop_areas = stop_area_referential.stop_areas.order(Arel.sql('random()')).limit(2)
       route = FactoryGirl.create :route, line: line, stop_areas: stop_areas, stop_points_count: 0
       journey_pattern = FactoryGirl.create :journey_pattern, route: route, stop_points: route.stop_points.sample(3)
       vehicle_journey = FactoryGirl.create :vehicle_journey, journey_pattern: journey_pattern, company: nil
@@ -47,7 +47,7 @@ RSpec.describe Export::Gtfs, type: [:model, :with_exportable_referential] do
       company.save
 
       line = referential.lines.first
-      stop_areas = stop_area_referential.stop_areas.order("random()").limit(2)
+      stop_areas = stop_area_referential.stop_areas.order(Arel.sql('random()')).limit(2)
       route = FactoryGirl.create :route, line: line, stop_areas: stop_areas, stop_points_count: 0
       journey_pattern = FactoryGirl.create :journey_pattern, route: route, stop_points: route.stop_points.sample(3)
       vehicle_journey = FactoryGirl.create :vehicle_journey, journey_pattern: journey_pattern, company: company
@@ -87,7 +87,7 @@ RSpec.describe Export::Gtfs, type: [:model, :with_exportable_referential] do
       company.save
 
       line = referential.lines.first
-      stop_areas = stop_area_referential.stop_areas.order("random()").limit(2)
+      stop_areas = stop_area_referential.stop_areas.order(Arel.sql('random()')).limit(2)
       route = FactoryGirl.create :route, line: line, stop_areas: stop_areas, stop_points_count: 0
       journey_pattern = FactoryGirl.create :journey_pattern, route: route, stop_points: route.stop_points.sample(2)
       vehicle_journey = FactoryGirl.create :vehicle_journey, journey_pattern: journey_pattern, company: company
@@ -105,10 +105,11 @@ RSpec.describe Export::Gtfs, type: [:model, :with_exportable_referential] do
       vehicle_journey_at_stops = vehicle_journey.vehicle_journey_at_stops.select {|vehicle_journey_at_stop| vehicle_journey_at_stop.stop_point.stop_area.commercial? }
       expect(source.stop_times.length).to eq(vehicle_journey_at_stops.length)
 
-      random_vehicle_journey_at_stop = vehicle_journey_at_stops.sample
-      stop_time = source.stop_times.detect{|stop_time| stop_time.arrival_time == GTFS::Time.format_datetime(random_vehicle_journey_at_stop.arrival_time, random_vehicle_journey_at_stop.arrival_day_offset, 'Europe/Paris') }
-      expect(stop_time).not_to be_nil
-      expect(stop_time.departure_time).to eq(GTFS::Time.format_datetime(random_vehicle_journey_at_stop.departure_time, random_vehicle_journey_at_stop.departure_day_offset, 'Europe/Paris'))
+      vehicle_journey_at_stops.each do |vj|
+        stop_time = source.stop_times.detect{|stop_time| stop_time.arrival_time == GTFS::Time.format_datetime(vj.arrival_time, vj.arrival_day_offset, 'Europe/Paris') }
+        expect(stop_time).not_to be_nil, "Did not find stop with time #{GTFS::Time.format_datetime(vj.arrival_time, vj.arrival_day_offset, 'Europe/Paris') } among #{source.stop_times.map(&:arrival_time)}"
+        expect(stop_time.departure_time).to eq(GTFS::Time.format_datetime(vj.departure_time, vj.departure_day_offset, 'Europe/Paris'))
+      end
     end
   end
 

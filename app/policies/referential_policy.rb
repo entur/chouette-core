@@ -37,6 +37,10 @@ class ReferentialPolicy < ApplicationPolicy
     record.ready? && record.archived? && !record.merged? && organisation_match? && user.has_permission?('referentials.update')
   end
 
+  def flag_urgent?
+    organisation_match? && user.has_permission?('referentials.flag_urgent')
+  end
+
   def common_lines?
     # TODO: Replace with correct BL ASA available, c.f. https://projects.af83.io/issues/2692
     true

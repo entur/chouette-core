@@ -1,4 +1,4 @@
-class CreateAggregates < ActiveRecord::Migration
+class CreateAggregates < ActiveRecord::Migration[4.2]
   def change
     create_table :aggregates do |t|
       t.integer :workgroup_id, limit: 8

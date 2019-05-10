@@ -11,7 +11,7 @@ fr:
     edit:
       title: "Editer le jeu de données"
     show:
-      title: "Jeu de données %{name}"
+      title: "%{name}"
       lines: "lignes"
       networks: "réseaux"
       vehicle_journeys: "courses"
@@ -72,6 +72,11 @@ fr:
       failed:   En erreur
       active:   En édition
       archived: Archivé
+      changed:
+        pending:  Ce Jeu de Données est désormais en cours de traitement, vos modifications ne pourront pas être enregistrées
+        failed:   Ce Jeu de Données est désormais en erreur, vos modifications ne pourront pas être enregistrées
+        active:   Ce Jeu de Données est désormais en édition, rechargez la page pour pouvoir apporter vos modifications
+        archived: Ce Jeu de Données vient d'être archivé, vos modifications ne pourront pas être enregistrées
 
   activerecord:
     errors:
@@ -130,6 +135,7 @@ fr:
         organisation: 'Organisation'
         number_of_lines: 'Nb lignes'
         from_current_offer: "Utiliser l'offre finalisée courante"
+        urgent: Contient de l'offre urgente
   formtastic:
     titles:
       referential:

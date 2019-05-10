@@ -1,4 +1,4 @@
-class RemoveCreatorId < ActiveRecord::Migration
+class RemoveCreatorId < ActiveRecord::Migration[4.2]
   def change
     [
       'companies', 'connection_links', 'facilities', 'group_of_lines',

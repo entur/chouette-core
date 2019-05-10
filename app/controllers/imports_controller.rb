@@ -5,12 +5,26 @@ class ImportsController < ChouetteController
   skip_before_action :authenticate_user!, only: [:download]
   defaults resource_class: Import::Base, collection_name: 'imports', instance_name: 'import'
   before_action :notify_parents
+  respond_to :json, :html
 
   def download
     if params[:token] == resource.token_download
       send_file resource.file.path
     else
       user_not_authorized
+    end
+  end
+
+  def show
+    instance_variable_set "@#{collection_name.singularize}", resource.decorate(context: {
+      workbench: @workbench
+    })
+    respond_to do |format|
+      format.html
+      format.json do
+        fragment = render_to_string(partial: "imports/#{@import.type.tableize.singularize}.html")
+        render json: {fragment: fragment}
+      end
     end
   end
 
@@ -52,9 +66,9 @@ class ImportsController < ChouetteController
 
   protected
 
-   def begin_of_association_chain
+  def begin_of_association_chain
     return Workgroup.find(params[:workgroup_id]) if params[:workgroup_id]
-    
+
     super
   end
 end

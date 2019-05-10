@@ -9,7 +9,7 @@ module Chouette
 
     acts_as_taggable
 
-    attr_accessor :tag_search
+    attr_accessor :tag_search, :skip_save_shortcuts
 
     def self.ransackable_attributes auth_object = nil
       (column_names + ['tag_search']) + _ransackers.keys
@@ -40,7 +40,7 @@ module Chouette
       .where("time_tables_vehicle_journeys.vehicle_journey_id is null")
     }
 
-    scope :used, -> { joins(:vehicle_journeys).uniq }
+    scope :used, -> { joins(:vehicle_journeys).distinct }
 
     scope :empty, -> {
       includes(:periods, :dates).where(time_table_periods: {id: nil}, time_table_dates: {id: nil})
@@ -121,6 +121,19 @@ module Chouette
       GROUP BY dates.date, time_tables.id
       ORDER BY dates.date ASC
       SQL
+    end
+
+    # THIS WILL NEED SOME LATER OPTIM
+    def self.clean!
+      # Delete vehicle_journey time_table association
+      ::ActiveRecord::Base.transaction do
+        time_table_ids = pluck(:id)
+        Chouette::TimeTablesVehicleJourney.where(time_table_id: time_table_ids).delete_all
+        Chouette::TimeTableDate.joins(:time_table).where(time_tables: {id: time_table_ids}).delete_all
+        Chouette::TimeTablePeriod.joins(:time_table).where(time_tables: {id: time_table_ids}).delete_all
+
+        delete_all
+      end
     end
 
     def continuous_dates
@@ -204,6 +217,7 @@ module Chouette
     end
 
     def save_shortcuts
+      return if skip_save_shortcuts
       shortcuts_update
       return unless changes.key?(:start_date) || changes.key?(:end_date)
 
@@ -212,21 +226,14 @@ module Chouette
 
     def shortcuts_update(date=nil)
       dates_array = bounding_dates
-      #if new_record?
-        if dates_array.empty?
-          self.start_date=nil
-          self.end_date=nil
-        else
-          self.start_date=dates_array.min
-          self.end_date=dates_array.max
-        end
-      #else
-      # if dates_array.empty?
-      #   update_attributes :start_date => nil, :end_date => nil
-      # else
-      #   update_attributes :start_date => dates_array.min, :end_date => dates_array.max
-      # end
-      #end
+
+      if dates_array.empty?
+        self.start_date=nil
+        self.end_date=nil
+      else
+        self.start_date=dates_array.min
+        self.end_date=dates_array.max
+      end
     end
 
     def validity_out_from_on?(expected_date)
@@ -575,17 +582,5 @@ module Chouette
     def empty?
       dates.empty? && periods.empty?
     end
-
-    # returns VehicleJourneys with at least 1 day in their time_tables
-    # included in the given range. Abandonned to use flattened_circulation_periods
-    # def self.including_vehicle_journeys_within_date_range vehicle_journey_ids, date_range
-    #   time_tables = Chouette::TimeTable.where(id: Chouette::VehicleJourney.where(id: vehicle_journey_ids).joins("INNER JOIN time_tables_vehicle_journeys ON vehicle_journeys.id = time_tables_vehicle_journeys.vehicle_journey_id").pluck('time_tables_vehicle_journeys.time_table_id')).overlapping(date_range).uniq
-    #
-    #   time_tables = time_tables.select do |time_table|
-    #     range = date_range
-    #     range = date_range & (time_table.start_date-1.day..time_table.end_date+1.day) || [] if time_table.start_date.present? && time_table.end_date.present?
-    #     range.any?{|d| time_table.include_day?(d) }
-    #   end
-    # end
   end
 end

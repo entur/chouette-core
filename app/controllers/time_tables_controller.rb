@@ -2,7 +2,7 @@ class TimeTablesController < ChouetteController
   include ReferentialSupport
   include TimeTablesHelper
   include RansackDateFilter
-  before_action only: [:index] { set_date_time_params("bounding_dates", Date) }
+  before_action(only: [:index]) { set_date_time_params("bounding_dates", Date) }
   defaults :resource_class => Chouette::TimeTable
   respond_to :html
   respond_to :xml
@@ -117,7 +117,7 @@ class TimeTablesController < ChouetteController
       scope = select_time_tables.tagged_with(tags, :any => true) if tags.any?
     end
     scope = self.ransack_period_range(scope: scope, error_message: t('referentials.errors.validity_period'), query: :overlapping)
-    @q = scope.search(params[:q])
+    @q = scope.ransack(params[:q])
 
     @time_tables ||= begin
       time_tables = @q.result(:distinct => true)

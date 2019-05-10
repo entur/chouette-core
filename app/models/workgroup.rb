@@ -12,6 +12,7 @@ class Workgroup < ApplicationModel
   has_many :organisations, through: :workbenches
   has_many :referentials, through: :workbenches
   has_many :aggregates
+  has_many :nightly_aggregates
   has_many :publication_setups
   has_many :publication_apis
   has_many :compliance_check_sets, through: :workbenches
@@ -90,6 +91,16 @@ class Workgroup < ApplicationModel
     update aggregated_at: Time.now
   end
 
+  def aggregate_urgent_data!
+    target_referentials = aggregatable_referentials.select do |r|
+      aggregated_at.blank? || (r.flagged_urgent_at.present? && r.flagged_urgent_at > aggregated_at)
+    end
+
+    return if target_referentials.empty?
+
+    aggregates.create!(referentials: aggregatable_referentials, creator: 'webservice', notification_target: nil)
+  end
+
   def nightly_aggregate!
     return unless nightly_aggregate_timeframe?
 
@@ -102,18 +113,21 @@ class Workgroup < ApplicationModel
       return
     end
 
-    aggregates.create!(referentials: target_referentials, creator: 'CRON')
+    nightly_aggregates.create!(referentials: aggregatable_referentials, creator: 'CRON', notification_target: nightly_aggregate_notification_target)
     update(nightly_aggregated_at: Time.current)
   end
 
   def nightly_aggregate_timeframe?
     return false unless nightly_aggregate_enabled?
 
-    time = nightly_aggregate_time.seconds_since_midnight
-    current = Time.current.seconds_since_midnight
+    tz = Time.zone
 
+    current = Time.current.seconds_since_midnight
+    Time.zone = 'UTC'
+    time = nightly_aggregate_time.seconds_since_midnight
     cron_delay = NIGHTLY_AGGREGATE_CRON_TIME * 2
     within_timeframe = (current - time).abs <= cron_delay
+    Time.zone = tz
 
     # "5.minutes * 2" returns a FixNum (in our Rails version)
     within_timeframe && (nightly_aggregated_at.blank? || nightly_aggregated_at < NIGHTLY_AGGREGATE_CRON_TIME.seconds.ago)

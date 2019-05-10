@@ -2,13 +2,13 @@ en:
   workbenches:
     current_offer: Current offer
     show:
-      title: "Transport offer %{name}"
+      title: "Data set %{name}"
     edit:
-      title: "Configure the workbench"
+      title: "Configure the validation"
       link:  "Settings"
       none: "None"
     update:
-      title: "Configure the workbench"
+      title: "Configure the validation"
     referential_count:
       zero: "There are no referentials in your workbench"
       one: "There is one referential in your workbench"
@@ -24,7 +24,7 @@ en:
         see: "See the list"
         no_content: "No content yet."
     actions:
-      show_output: "Merge Transport Offer"
+      show_output: "Merge Data set"
       affect_ccset: "Configure"
     errors:
       locked_referential_to_aggregate:

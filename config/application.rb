@@ -4,6 +4,7 @@ ENV['RANSACK_FORM_BUILDER'] = '::SimpleForm::FormBuilder'
 
 require 'rails/all'
 require_relative '../lib/smart_env'
+require_relative '../lib/version'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -20,6 +21,7 @@ module ChouetteIhm
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
     config.autoload_paths << config.root.join('lib')
+    config.autoload_paths << config.root.join('app', 'jobs')
 
     # custom exception pages
     config.exceptions_app = self.routes
@@ -46,6 +48,7 @@ module ChouetteIhm
     SmartEnv.add :WORKBENCH_IMPORT_DIR
     SmartEnv.add :CHOUETTE_ADDITIONAL_COMPLIANCE_CONTROLS, default: ""
     SmartEnv.add :CHOUETTE_ADDITIONAL_PUBLICATION_DESTINATIONS, default: ""
+    SmartEnv.add :MAIL_FROM, default: 'Chouette <chouette@af83.com>'
     SmartEnv.add_boolean :AUTOMATED_AUDITS_ENABLED
     SmartEnv.add_boolean :BYPASS_AUTH_FOR_SIDEKIQ
     SmartEnv.add_boolean :CHOUETTE_ROUTE_POSITION_CHECK
@@ -54,7 +57,12 @@ module ChouetteIhm
     SmartEnv.add_boolean :SUBSCRIPTION_NOTIFIER_ENABLED
     SmartEnv.add_boolean :CHOUETTE_SIDEKIQ_CANCEL_SYNCS_ON_BOOT
     SmartEnv.add_boolean :CHOUETTE_EMAIL_USER
-    SmartEnv.add_boolean :CHOUETTE_TRANSACTIONAL_CHECKSUMS
+    SmartEnv.add_boolean :CHOUETTE_TRANSACTIONAL_CHECKSUMS, default: true
+    SmartEnv.add_boolean :ENABLE_DELAYED_JOB_REAPER, default: true
+    SmartEnv.add_boolean :ENABLE_DEVELOPMENT_TOOLBAR, default: false
+    SmartEnv.add :DELAYED_JOB_REAPER_HEARTBEAT_INTERVAL_SECONDS, default: 20
+    SmartEnv.add :DELAYED_JOB_REAPER_HEARTBEAT_TIMEOUT_SECONDS, default: 60
+    SmartEnv.add_boolean :DELAYED_JOB_REAPER_WORKER_TERMINATION_ENABLED, default: true
 
     config.i18n.default_locale = SmartEnv[:RAILS_LOCALE].to_sym
 
@@ -62,15 +70,24 @@ module ChouetteIhm
     # config.browserify_rails.commandline_options = "-t [ babelify --presets [ react es2015 ] ]"
 
     config.active_record.observers = [:route_observer, :calendar_observer, :import_observer, :export_observer, :compliance_check_set_observer, :merge_observer, :aggregate_observer]
-    config.active_record.raise_in_transactional_callbacks = true
 
-    config.active_job.queue_adapter = :sidekiq
+    config.active_job.queue_adapter = :delayed_job
 
     config.action_dispatch.rescue_responses.merge!(
       'FeatureChecker::NotAuthorizedError' => :unauthorized
     )
 
-    config.development_toolbar = false
+    config.development_toolbar = SmartEnv.boolean('ENABLE_DEVELOPMENT_TOOLBAR')
+    if SmartEnv.boolean('ENABLE_DEVELOPMENT_TOOLBAR')
+      config.development_toolbar = OpenStruct.new
+      config.development_toolbar.features_doc_url = nil
+      config.development_toolbar.available_features = %w()
+      config.development_toolbar.available_permissions = %w()
+      config.development_toolbar.tap do |toolbar|
+        eval File.read(Rails.root + 'config/development_toolbar.rb')
+      end
+    end
+
     config.enable_calendar_observer = true
     config.enable_subscriptions_notifications = SmartEnv.boolean('SUBSCRIPTION_NOTIFIER_ENABLED')
     config.subscriptions_notifications_recipients = []

@@ -1,8 +1,17 @@
+module DecoratorWithScope
+  def set_scope value=nil, &block
+    super value, &block
+    instance_decorator.set_scope value, &block
+  end
+end
+
 class AF83::Decorator < ModelDecorator
   include AF83::Decorator::EnhancedDecorator
   extend AF83::Decorator::EnhancedDecorator::ClassMethods
 
   class << self
+    prepend DecoratorWithScope
+
     def decorates klass
       instance_decorator.decorates klass
     end
@@ -38,13 +47,6 @@ class AF83::Decorator < ModelDecorator
     def define_instance_class_method method_name, &block
       instance_decorator.send(:define_singleton_method, method_name, &block)
     end
-
-    def set_scope_with_instance_decorator value=nil, &block
-      set_scope_without_instance_decorator value, &block
-      instance_decorator.set_scope value, &block
-    end
-
-    alias_method_chain :set_scope, :instance_decorator
   end
 
   class ActionLinks

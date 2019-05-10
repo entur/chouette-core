@@ -9,6 +9,8 @@
     h2.mb-lg= t('publication_apis.form.sections.params')
     .form-group
       .col-lg-12
+        = form.input :public, as: :switchable_checkbox
+      .col-lg-12
         = form.input :slug, hint: 'formtastic.hints.publication_api.slug'.t
       .col-lg-12
         .form-group

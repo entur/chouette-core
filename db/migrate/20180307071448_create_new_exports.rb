@@ -1,4 +1,4 @@
-class CreateNewExports < ActiveRecord::Migration
+class CreateNewExports < ActiveRecord::Migration[4.2]
   def change
     create_table :exports do |t|
       t.string   "status"

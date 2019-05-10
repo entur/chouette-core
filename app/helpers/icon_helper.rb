@@ -30,6 +30,19 @@ module IconHelper
     "<span class='boolean-icon #{val}'>#{txt}</span>".html_safe
   end
 
+  def render_icon(klass, title, style='')
+    content_tag :span, '',
+      class: klass,
+      style: "margin-right:5px; font-weight: 600; #{style}",
+      title: title
+  end
+
+  def color_icon(color)
+    painted_color = color.presence||'FFFFFF'
+    displayed_color = color.presence||'-'
+    content_tag(:i, nil, class: 'fa fa-square fa-lg', style:"color:##{painted_color}") + " ##{displayed_color}"
+  end
+
   module Private
     extend ActionView::Helpers::OutputSafetyHelper
 

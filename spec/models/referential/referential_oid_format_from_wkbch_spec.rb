@@ -52,6 +52,7 @@ RSpec.describe Referential do
         .with(name: I18n.t("activerecord.copy", name: source.name),
       prefix: source.prefix,
       time_zone: source.time_zone,
+      organisation: source.workbench.organisation,
       bounds: source.bounds,
       line_referential: source.line_referential,
       stop_area_referential: source.stop_area_referential,

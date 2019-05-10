@@ -58,21 +58,4 @@ describe 'VehicleJourneys', type: :feature do
       end
     end
   end
-
-  # describe 'index' do
-  #   context 'user has permission to create vehicle journeys' do
-  #     it 'shows a create link for vehicle journeys' do
-  #       visit referential_line_route_vehicle_journeys_path(referential, line, route)
-  #       expect(page).to have_content(I18n.t('vehicle_journeys.actions.new'))
-  #     end
-  #   end
-
-  #   context 'user does not have permission to create vehicle journeys' do
-  #     it 'does not show a create link for vehicle journeys' do
-  #       @user.tap { |u| u.permissions.delete('vehicle_journeys.create') }.save
-  #       visit referential_line_route_vehicle_journeys_path(referential, line, route)
-  #       expect(page).not_to have_content(I18n.t('vehicle_journeys.actions.new'))
-  #     end
-  #   end
-  # end
 end

@@ -16,7 +16,7 @@ RSpec.describe LineReferentialSync, :type => :model do
 
   it 'should call LineReferentialSyncWorker on create' do
     expect(LineReferentialSyncWorker).to receive(:perform_async)
-    create(:line_referential_sync).run_callbacks(:commit)
+    create(:line_referential_sync)
   end
 
   describe 'states' do
@@ -52,7 +52,7 @@ RSpec.describe LineReferentialSync, :type => :model do
     end
 
     it "should clean previous syncs" do
-      line_ref = create(:line_referential) 
+      line_ref = create(:line_referential)
       create_list(:line_referential_sync, 5, line_referential: line_ref, status: 'successful')
 
       expect(LineReferentialSync.count).to eq(5)

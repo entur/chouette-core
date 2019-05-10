@@ -1,4 +1,4 @@
-class CreateBusinessCalendars < ActiveRecord::Migration
+class CreateBusinessCalendars < ActiveRecord::Migration[4.2]
   def change
     create_table :business_calendars do |t|
       t.string :name

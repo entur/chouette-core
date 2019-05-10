@@ -1,0 +1,34 @@
+en:
+  notification_suspensions:
+    search_no_results: "No notification suspension matching your query"
+    actions:
+      index: Notifications center
+      new: Add a notification suspensions
+      destroy: Delete the notification suspension
+      destroy_confirm: Are you sure you want to delete the notification suspension ?
+    index:
+      title: Notification suspensions
+    show:
+      title: Notification suspension
+    edit: &notification_rule_edit
+      title: Edit the notification suspension
+    update:
+      <<: *notification_rule_edit
+    new: &notification_rule_new
+      edit: Add a notification suspension
+    create:
+      <<: *notification_rule_new
+  activerecord:
+    models:
+      notification_rule:
+        zero: "notification suspensions"
+        one: "notification suspension"
+        other: "notification suspensions"
+    attributes:
+      notification_rule:
+        period: Period
+        period_start: Suspension start date
+        period_end: Suspension end date
+        notification_type: Notification types
+        line_id: Line
+        name: "%{notification_type} from %{from} to %{to}"

@@ -5,6 +5,7 @@ class ExportsController < ChouetteController
   skip_before_action :authenticate_user!, only: [:upload]
   skip_before_action :verify_authenticity_token, only: [:upload]
   defaults resource_class: Export::Base, collection_name: 'exports', instance_name: 'export'
+  before_action :load_referentials, only: %i[new create]
 
   def upload
     if params[:token] == resource.token_upload
@@ -16,11 +17,15 @@ class ExportsController < ChouetteController
     end
   end
 
-  def new
-    referentials = parent.referentials.exportable.pluck(:id)
-    referentials += parent.workgroup.output.referentials.pluck(:id)
-    @referentials = Referential.where(id: referentials).order("created_at desc")
-    new!
+  def show
+    @export = ExportDecorator.decorate(@export)
+    respond_to do |format|
+      format.html
+      format.json do
+        fragment = render_to_string(partial: "exports/show.html")
+        render json: {fragment: fragment}
+      end
+    end
   end
 
   private
@@ -42,7 +47,7 @@ class ExportsController < ChouetteController
     permitted_keys = %i(name type referential_id notification_target)
     export_class = params[:export] && params[:export][:type] && params[:export][:type].safe_constantize
     if export_class
-      permitted_keys += export_class.options.keys
+      permitted_keys += export_class.options.map {|k, v| v[:name].presence || k }
     end
     export_params = params.require(:export).permit(permitted_keys)
     export_params[:user_id] ||= current_user.id
@@ -72,5 +77,11 @@ class ExportsController < ChouetteController
         workbench: @workbench
       }
     )
+  end
+
+  def load_referentials
+    referentials = parent.referentials.exportable.pluck(:id)
+    referentials += parent.workgroup.output.referentials.pluck(:id)
+    @referentials = Referential.where(id: referentials).order("created_at desc")
   end
 end

@@ -42,43 +42,44 @@ RSpec.describe AutocompleteLinesController, type: :controller do
     end
 
     it "filters by `number`" do
-      get :index,
+      get :index, params: {
         referential_id: referential.id,
         q: '15'
+      }
 
       expect(assigns(:lines).order(:id)).to eq([line, line_without_company])
     end
 
     it "filters by `name`" do
-      get :index,
+      get :index, params: {
         referential_id: referential.id,
         q: 'Continent'
-
+      }
       expect(assigns(:lines).order(:id)).to eq([line, line_without_company])
     end
 
     it "escapes the query" do
-      get :index,
+      get :index, params: {
         referential_id: referential.id,
         q: 'Continent%'
-
+      }
       expect(assigns(:lines).order(:id)).to be_empty
     end
 
     it "filters by company `name`" do
-      get :index,
+      get :index, params: {
         referential_id: referential.id,
         q: 'standard'
-
+      }
       expect(assigns(:lines).to_a).to eq([line])
     end
 
     it "doesn't error when no `q` is sent" do
-      get :index,
+      get :index, params: {
         referential_id: referential.id
-
+      }
       expect(assigns(:lines).to_a).to be_empty
-      expect(response).to be_success
+      expect(response).to be_successful
     end
   end
 end

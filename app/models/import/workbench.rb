@@ -10,12 +10,13 @@ class Import::Workbench < Import::Base
   def launch_worker
     update_column :status, 'running'
     update_column :started_at, Time.now
-
+    notify_state
+    
     case file_type
     when :gtfs
       import_gtfs
     when :netex
-      WorkbenchImportWorker.perform_async_or_fail(self)
+      delay(queue: :imports).netex_import
     when :neptune
       import_neptune
     else
@@ -28,6 +29,10 @@ class Import::Workbench < Import::Base
       message.save
       failed!
     end
+  end
+
+  def netex_import
+    WorkbenchImportService.new.perform(self)
   end
 
   def import_gtfs
@@ -54,6 +59,7 @@ class Import::Workbench < Import::Base
   def failed!
     update_column :status, 'failed'
     update_column :ended_at, Time.now
+    notify_state
   end
 
   def done!

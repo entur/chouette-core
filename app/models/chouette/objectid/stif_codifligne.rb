@@ -3,7 +3,7 @@ module Chouette
     class StifCodifligne < Chouette::Objectid::Netex
 
       attr_accessor :sync_id
-      validates_presence_of :sync_id
+      attr_accessor :local_marker
       validates :creation_id, presence: false
 
       @@format = /^([A-Za-z_]+):([A-Za-z]+):([A-Za-z]+):([0-9A-Za-z_-]+)$/
@@ -13,11 +13,16 @@ module Chouette
         @object_type = attributes[:object_type]
         @local_id = attributes[:local_id]
         @sync_id = attributes[:sync_id]
+        @local_marker = attributes[:local_marker]
         super
       end
 
       def to_s
-        "#{self.provider_id}:#{self.sync_id}:#{self.object_type}:#{self.local_id}"
+        if sync_id.present?
+          "#{provider_id}:#{sync_id}:#{object_type}:#{local_id}"
+        else
+          "#{provider_id}:#{object_type}:#{local_id}:#{local_marker}"
+        end
       end
 
       def short_id

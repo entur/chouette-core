@@ -3,15 +3,16 @@ end
 
 crumb :workbench do |workbench|
   link workbench.name, workbench_path(workbench)
+  parent :workgroup, workbench.workgroup
 end
 
 crumb :workgroups do |workgroup|
   link Workgroup.t, workgroups_path()
 end
 
-crumb :workgroup do |workgroup|
+crumb :workgroup do |workgroup, display_parent|
   link workgroup.name, workgroup_path(workgroup)
-  parent :workgroups
+  parent :workgroups if display_parent
 end
 
 crumb :workbench_configure do |workbench|
@@ -276,12 +277,21 @@ end
 
 crumb :stop_area_providers do |stop_area_referential|
   link StopAreaProvider.t, stop_area_referential_stop_area_providers_path(stop_area_referential)
-  parent stop_area_referential
 end
 
 crumb :stop_area_provider do |stop_area_referential, stop_area_provider|
   link stop_area_provider.name, stop_area_referential_stop_area_provider_path(stop_area_referential, stop_area_provider)
+  parent :stop_area_providers, stop_area_referential
+end
+
+crumb :stop_area_routing_constraints do |stop_area_referential|
+  link StopAreaRoutingConstraint.t, [stop_area_referential, :stop_area_routing_constraints]
   parent stop_area_referential
+end
+
+crumb :stop_area_routing_constraint do |stop_area_routing_constraint|
+  link stop_area_routing_constraint.name, [stop_area_routing_constraint.stop_area_referential, stop_area_routing_constraint]
+  parent :stop_area_routing_constraints, stop_area_routing_constraint.stop_area_referential
 end
 
 crumb :stop_area do |stop_area_referential, stop_area|
@@ -402,6 +412,16 @@ end
 crumb :api_keys do |workbench|
   link I18n.t('api_keys.index.title'), workbench_api_keys_path(workbench)
   parent :workbench, workbench
+end
+
+crumb :notification_rules do |workbench|
+  link I18n.t('notification_rules.index.title'), workbench_notification_rules_path(workbench)
+  parent :workbench, workbench
+end
+
+crumb :notification_rule do |notification_rule|
+  link notification_rule.name
+  parent :notification_rules, notification_rule.workbench
 end
 
 # crumb :compliance_controls do|compliance_control_sets|

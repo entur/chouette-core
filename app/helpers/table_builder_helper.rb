@@ -278,7 +278,7 @@ module TableBuilderHelper
             i = columns.index(column)
 
             if overhead[i].blank?
-              if (i > 0) && (overhead[i - 1][:width] > 1)
+              if (i > 0) && (overhead[i - 1][:width].to_i > 1)
                 clsArrayAlt = overhead[i - 1][:cls].split
 
                 bcont << content_tag(:td, value, class: td_cls(clsArrayAlt, extra_class))
@@ -378,23 +378,24 @@ module TableBuilderHelper
       return column.header_label(model)
     end
 
-    direction =
-      if column.key.to_s == sort_on && sort_direction == 'desc'
+    direction =  if sort_direction == 'desc'
         'asc'
       else
         'desc'
       end
 
-    link_to(params.merge({direction: direction, sort: column.key})) do
+    active = column.key.to_s == sort_on
+
+    link_to(params.permit!.merge({direction: direction, sort: column.key})) do
       arrow_up = content_tag(
         :span,
         '',
-        class: "fa fa-sort-asc #{direction == 'desc' ? 'active' : ''}"
+        class: "fa fa-sort-asc #{active && direction == 'desc' ? 'active' : ''}"
       )
       arrow_down = content_tag(
         :span,
         '',
-        class: "fa fa-sort-desc #{direction == 'asc' ? 'active' : ''}"
+        class: "fa fa-sort-desc #{active && direction == 'asc' ? 'active' : ''}"
       )
 
       arrow_icons = content_tag :span, arrow_up + arrow_down, class: 'orderers'

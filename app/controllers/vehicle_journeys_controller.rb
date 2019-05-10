@@ -76,7 +76,7 @@ class VehicleJourneysController < ChouetteController
     scope = maybe_filter_out_journeys_with_time_tables(scope)
 
     @vehicle_journeys ||= begin
-      @q = scope.search filtered_ransack_params
+      @q = scope.ransack filtered_ransack_params
 
       @ppage = 20
       vehicle_journeys = @q.result.paginate(:page => params[:page], :per_page => @ppage)

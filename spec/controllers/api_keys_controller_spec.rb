@@ -2,7 +2,7 @@ RSpec.describe ApiKeysController, :type => :controller do
   let(:workbench){ create :workbench, organisation: organisation }
 
   describe "GET index" do
-    let(:request) { get :index, workbench_id: workbench.id }
+    let(:request) { get :index, params: { workbench_id: workbench.id }}
 
     context "with permission api_keys.index" do
       login_user permissions: %w{api_keys.index}

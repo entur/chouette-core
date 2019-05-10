@@ -1,0 +1,14 @@
+en:
+  notifications:
+    import:
+      workbench:
+        failed: "%{status_html} Import %{name} has failed"
+        running: "%{status_html} Import %{name} has started"
+        successful: "%{status_html} Import %{name} succeeded"
+        progress: "%{status_html} Import %{name}: %{progress}%"
+    export:
+      gtfs:
+        failed: "%{status_html} Export %{name} has failed"
+        running: "%{status_html} Export %{name} has started"
+        successful: "%{status_html} Export %{name} succeeded"
+        progress: "%{status_html} Export %{name}: %{progress}%"

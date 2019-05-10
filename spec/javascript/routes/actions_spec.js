@@ -99,3 +99,37 @@ describe('actions', () => {
     expect(actions.selectMarker(index, data)).toEqual(expectedAction)
   })
 })
+
+describe('actions', () => {
+  it('should create an action to update route form input', () => {
+    const attributes = { name: 'new_name' }
+    const expectedAction = {
+      type: 'UPDATE_ROUTE_FORM_INPUT',
+      attributes
+    }
+    expect(actions.updateRouteFormInput(attributes)).toEqual(expectedAction)
+  })
+})
+
+describe('actions', () => {
+  it('should create an action to update route form input', () => {
+    const attributes = { name: 'new_name' }
+    const expectedAction = {
+      type: 'UPDATE_ROUTE_FORM_INPUT',
+      attributes
+    }
+    expect(actions.updateRouteFormInput(attributes)).toEqual(expectedAction)
+  })
+})
+
+describe('actions', () => {
+  it('should create an action to validate route form input', () => {
+    const errorObject = { category: 'route', name: false }
+    const expectedAction = {
+      type: 'VALIDATE_FIELD',
+      category: errorObject.category,
+      value: { name: false }
+    }
+    expect(actions.validateField(errorObject)).toEqual(expectedAction)
+  })
+})

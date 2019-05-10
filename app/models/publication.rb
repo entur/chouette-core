@@ -4,7 +4,7 @@ class Publication < ActiveRecord::Base
   enumerize :status, in: %w[new pending successful failed running successful_with_warnings], default: :new
 
   belongs_to :publication_setup
-  has_many :exports, class_name: 'Export::Base'
+  has_many :exports, class_name: 'Export::Base', dependent: :destroy
   belongs_to :parent, polymorphic: true
   has_many :reports, class_name: 'DestinationReport', dependent: :destroy
 
@@ -59,7 +59,9 @@ class Publication < ActiveRecord::Base
   end
 
   def run_export
+    all_synchronous = true
     publication_setup.new_exports(parent.new).each do |export|
+      all_synchronous = all_synchronous && export.synchronous
       begin
         export.publication = self
         Rails.logger.info "Launching export #{export.name}"
@@ -71,12 +73,14 @@ class Publication < ActiveRecord::Base
         return
       end
 
-      unless export.successful?
+      if export.synchronous && !export.successful?
         Rails.logger.error "Publication Export '#{export.name}' failed"
         failed!
         return
       end
     end
+
+    return unless all_synchronous
 
     send_to_destinations
     infer_status
@@ -86,7 +90,18 @@ class Publication < ActiveRecord::Base
     publication_setup.destinations.each { |destination| destination.transmit(self) }
   end
 
+  def child_change
+    Rails.logger.info "child_change for #{inspect}"
+
+    if exports.all?(&:finished?) && running?
+      send_to_destinations
+      infer_status
+    end
+  end
+
   def infer_status
+    failed! && return unless exports.all?(&:successful?)
+
     new_status = reports.all?(&:successful?) ? :successful : :successful_with_warnings
     send("#{new_status}!")
   end

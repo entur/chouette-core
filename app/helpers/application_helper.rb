@@ -11,21 +11,22 @@ module ApplicationHelper
     end
   end
 
+  def page_header_resource_name(object)
+    return content_for(:page_header_resource_name) if content_for?(:page_header_resource_name)
+    resource_class.ts.capitalize
+  end
+
   def page_header_title(object)
     # Unwrap from decorator, we want to know the object model name
     return content_for(:page_header_title) if content_for?(:page_header_title)
-    object = object.object if object.try(:object)
-
-    if Referential === object
-      return object.full_name
-    end
+    object = object.object if object.decorated?
 
     local = "#{object.model_name.name.underscore.pluralize}.#{params[:action]}.title"
 
-    arg = object.organisation.name if Workbench === object
+    arg = object.organisation.name.capitalize if Workbench === object
 
     if object.try(:name)
-      t(local, name: arg || object.name || object.id)
+      t(local, name: arg || object.name.capitalize || object.id)
     else
       t(local)
     end
@@ -47,6 +48,7 @@ module ApplicationHelper
   end
 
   def page_header_content_for(object)
+    content_for :page_header_resource_name, page_header_resource_name(object)
     content_for :page_header_title, page_header_title(object)
     content_for :page_header_meta, page_header_meta(object)
   end
@@ -142,5 +144,16 @@ module ApplicationHelper
 
   def cancel_button(cancel_path = :back)
     link_to t('cancel'), cancel_path, method: :get, class: 'btn btn-primary formSubmitr', data: {:confirm =>  t('cancel_confirm')}
+  end
+
+  def link_to_if_i_can label, url, object: nil, permission: :show
+    object ||= url
+    object = object.last if object.is_a?(Array)
+    
+    if Pundit.policy(UserContext.new(current_user), object).send "#{permission}?"
+      link_to label, url
+    else
+      label
+    end
   end
 end

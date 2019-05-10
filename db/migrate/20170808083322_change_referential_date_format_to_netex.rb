@@ -1,4 +1,4 @@
-class ChangeReferentialDateFormatToNetex < ActiveRecord::Migration
+class ChangeReferentialDateFormatToNetex < ActiveRecord::Migration[4.2]
   def up
     execute "UPDATE referentials SET data_format = 'netex'"
   end

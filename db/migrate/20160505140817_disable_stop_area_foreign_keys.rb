@@ -1,5 +1,5 @@
 # coding: utf-8
-class DisableStopAreaForeignKeys < ActiveRecord::Migration
+class DisableStopAreaForeignKeys < ActiveRecord::Migration[4.2]
   def change
     disable_foreign_key :stop_points, :stoppoint_area_fkey
     disable_foreign_key :connection_links, :colk_endarea_fkey

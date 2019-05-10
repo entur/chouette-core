@@ -7,6 +7,7 @@ en:
         timetable: Filter by timetable...
         constraint_zone: Select a routing constraint zone
         purchase_window: Filter by purchase window
+        stop_area_constraint: Select a stop area constraint
       cancel_selection: "Cancel Selection"
       cancel_destroy: "Cancel Destroy"
       fetching_error: "There has been a problem fetching the data. Please reload the page to try again."
@@ -18,7 +19,8 @@ en:
       no_associated_timetables: No associated timetables
       no_associated_purchase_windows: No associated purchase windows
       no_associated_footnotes: No associated footnotes
-      no_excluded_constraint_zones: No exluded constraint zone
+      no_excluded_constraint_zones: No excluded constraint zone
+      no_excluded_stop_area_constraint: No excluded stop area constraints
       duplicate:
         one: Clone %{count} vehicle journey
         other: Clone %{count} vehicle journeys
@@ -61,6 +63,7 @@ en:
         end: End
       ending_stop: "Arrival"
       excluded_constraint_zones: Excluded constraint zones
+      excluded_stop_area_constraints: Excluded stopareas constraint
       infos: Informations
       set: "Set"
       show_arrival_time: "Show and edit arrival times"

@@ -1,4 +1,4 @@
-class UpdateImportMessageCriticityTypeToString < ActiveRecord::Migration
+class UpdateImportMessageCriticityTypeToString < ActiveRecord::Migration[4.2]
   def change
     change_column :import_messages, :criticity, :string
 

@@ -1,4 +1,4 @@
-class CreateTablePublicationApiSources < ActiveRecord::Migration
+class CreateTablePublicationApiSources < ActiveRecord::Migration[4.2]
   def change
     create_table :publication_api_sources do |t|
       t.integer :publication_id, limit: 8

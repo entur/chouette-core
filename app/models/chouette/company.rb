@@ -1,6 +1,14 @@
 module Chouette
+  module WorkgroupFromClass
+    def workgroup
+      self.class.current_workgroup || super
+    end
+  end
+
   class Company < Chouette::ActiveRecord
     has_metadata
+
+    prepend WorkgroupFromClass
 
     include CompanyRestrictions
     include LineReferentialSupport
@@ -18,11 +26,5 @@ module Chouette
     def self.nullable_attributes
       [:organizational_unit, :operating_department_name, :code, :phone, :fax, :email, :url, :time_zone]
     end
-
-    def workgroup_with_cache
-      self.class.current_workgroup || workgroup_without_cache
-    end
-    alias_method_chain :workgroup, :cache
-    
   end
 end

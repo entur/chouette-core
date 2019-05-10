@@ -19,9 +19,7 @@ export default class CustomFieldsInputs extends Component {
 
   listInput(cf){
     let list_values = this.options(cf).list_values
-    console.log(this.options(cf))
     let required = !!this.options(cf).required
-    console.log(required)
     let keys = _.orderBy(_.keys(list_values), function(key){ return list_values[key] })
     let data = _.map(keys, (k) => {
       let v = this.options(cf).list_values[k]
@@ -30,7 +28,6 @@ export default class CustomFieldsInputs extends Component {
     if(!required){
       data.unshift({id: "", text: I18n.t('none')})
     }
-    console.log(data)
     return(
       <Select2
         data={data}

@@ -39,11 +39,11 @@ describe TableBuilderHelper, type: :helper do
       allow(referentials).to receive(:model).and_return(Referential)
       stub_policy_scope(referential)
 
-      allow(helper).to receive(:params).and_return({
+      allow(helper).to receive(:params).and_return(ActionController::Parameters.new(
         controller: 'workbenches',
         action: 'show',
         id: referentials[0].workbench.id
-      })
+      ))
 
       referentials = ReferentialDecorator.decorate(
         referentials
@@ -56,14 +56,14 @@ describe TableBuilderHelper, type: :helper do
             <th>
                 <div class="checkbox"><input type="checkbox" name="0" id="0" value="all" /><label for="0"></label></div>
             </th>
-            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=name">Nom<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
-            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=status">Etat<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
-            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=organisation">Organisation<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
-            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=validity_period">Période de validité englobante<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
-            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=lines">Lignes<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
-            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=created_at">Créé le<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
-            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=updated_at">Edité le<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
-            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=merged_at">Finalisé le<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=name">Nom<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=status">Etat<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=organisation">Organisation<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=validity_period">Période de validité englobante<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=lines">Lignes<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=created_at">Créé le<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=updated_at">Edité le<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/workbenches/#{workbench.id}?direction=desc&amp;sort=merged_at">Finalisé le<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
             <th></th>
         </tr>
     </thead>
@@ -174,10 +174,7 @@ describe TableBuilderHelper, type: :helper do
 
     it "can set a column as non-sortable" do
       company = create(:company)
-      line_referential = create(
-        :line_referential,
-        companies: [company]
-      )
+      line_referential = company.line_referential
       referential = build_stubbed(
         :referential,
         line_referential: line_referential
@@ -204,11 +201,11 @@ describe TableBuilderHelper, type: :helper do
 
       allow(companies).to receive(:model).and_return(Chouette::Company)
 
-      allow(helper).to receive(:params).and_return({
+      allow(helper).to receive(:params).and_return(ActionController::Parameters.new(
         controller: 'companies',
         action: 'index',
         line_referential_id: line_referential.id
-      })
+      ))
 
       companies = CompanyDecorator.decorate(
         companies,
@@ -221,10 +218,10 @@ describe TableBuilderHelper, type: :helper do
     <thead>
         <tr>
             <th>ID Codif</th>
-            <th><a href="/line_referentials/#{company.referential.id}/companies?direction=desc&amp;sort=name">Nom<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
-            <th><a href="/line_referentials/#{company.referential.id}/companies?direction=desc&amp;sort=phone">Numéro de téléphone<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
-            <th><a href="/line_referentials/#{company.referential.id}/companies?direction=desc&amp;sort=email">Email<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
-            <th><a href="/line_referentials/#{company.referential.id}/companies?direction=desc&amp;sort=url">Page web associée<span class="orderers"><span class="fa fa-sort-asc active"></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/line_referentials/#{company.referential.id}/companies?direction=desc&amp;sort=name">Nom<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/line_referentials/#{company.referential.id}/companies?direction=desc&amp;sort=phone">Numéro de téléphone<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/line_referentials/#{company.referential.id}/companies?direction=desc&amp;sort=email">Email<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
+            <th><a href="/line_referentials/#{company.referential.id}/companies?direction=desc&amp;sort=url">Page web associée<span class="orderers"><span class="fa fa-sort-asc "></span><span class="fa fa-sort-desc "></span></span></a></th>
             <th></th>
         </tr>
     </thead>
@@ -289,10 +286,7 @@ describe TableBuilderHelper, type: :helper do
 
     it "can set all columns as non-sortable" do
       company = create(:company)
-      line_referential = build_stubbed(
-        :line_referential,
-        companies: [company]
-      )
+      line_referential = company.line_referential
       referential = build_stubbed(
         :referential,
         line_referential: line_referential
@@ -319,11 +313,11 @@ describe TableBuilderHelper, type: :helper do
 
       allow(companies).to receive(:model).and_return(Chouette::Company)
 
-      allow(helper).to receive(:params).and_return({
+      allow(helper).to receive(:params).and_return(ActionController::Parameters.new(
         controller: 'companies',
         action: 'index',
         line_referential_id: line_referential.id
-      })
+      ))
 
       companies = CompanyDecorator.decorate(
         companies,

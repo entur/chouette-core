@@ -11,7 +11,7 @@ FactoryGirl.define do
     creator 'rspec'
 
     after(:build) do |export|
-      export.class.skip_callback(:create, :before, :initialize_fields)
+      export.class.skip_callback(:create, :before, :initialize_fields, raise: false)
     end
   end
 
@@ -28,7 +28,7 @@ FactoryGirl.define do
     creator 'rspec'
 
     after(:build) do |export|
-      export.class.skip_callback(:create, :before, :initialize_fields)
+      export.class.skip_callback(:create, :before, :initialize_fields, raise: false)
     end
   end
 end

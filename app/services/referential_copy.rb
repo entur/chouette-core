@@ -59,6 +59,7 @@ class ReferentialCopy
       source.metadatas.find_each do |metadata|
         candidate = target.metadatas.with_lines(metadata.line_ids).find { |m| m.periodes == metadata.periodes }
         candidate ||= target.metadatas.build(line_ids: metadata.line_ids, periodes: metadata.periodes)
+        candidate.flagged_urgent_at = metadata.flagged_urgent_at if metadata.urgent?
         controlled_save! candidate, worker
       end
     end
@@ -69,7 +70,7 @@ class ReferentialCopy
   def copy_time_tables
     Chouette::TimeTable.transaction do
       source.switch do
-        Chouette::TimeTable.linked_to_lines(lines).uniq.find_each do |tt|
+        Chouette::TimeTable.linked_to_lines(lines).distinct.find_each do |tt|
           attributes = clean_attributes_for_copy tt
           target.switch do
             new_tt = Chouette::TimeTable.new attributes
@@ -81,6 +82,7 @@ class ReferentialCopy
             copy_bulk_collection tt.periods do |new_period_attributes|
               new_period_attributes[:time_table_id] = new_tt.id
             end
+            new_tt.reload.save_shortcuts
           end
         end
         target.switch do
@@ -99,7 +101,7 @@ class ReferentialCopy
   def copy_purchase_windows
     Chouette::PurchaseWindow.transaction do
       source.switch do
-        Chouette::PurchaseWindow.linked_to_lines(lines).uniq.find_each do |pw|
+        Chouette::PurchaseWindow.linked_to_lines(lines).distinct.find_each do |pw|
           attributes = clean_attributes_for_copy pw
           target.switch do
             new_pw = Chouette::PurchaseWindow.new attributes

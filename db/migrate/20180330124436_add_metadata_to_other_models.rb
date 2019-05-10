@@ -1,4 +1,4 @@
-class AddMetadataToOtherModels < ActiveRecord::Migration
+class AddMetadataToOtherModels < ActiveRecord::Migration[4.2]
   def change
     [
       ApiKey,

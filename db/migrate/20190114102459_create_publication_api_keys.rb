@@ -1,4 +1,4 @@
-class CreatePublicationApiKeys < ActiveRecord::Migration
+class CreatePublicationApiKeys < ActiveRecord::Migration[4.2]
   def change
     create_table :publication_api_keys do |t|
       t.string :name

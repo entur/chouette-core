@@ -1,4 +1,4 @@
-class RenameColumnexpectedDateFromCleanups < ActiveRecord::Migration
+class RenameColumnexpectedDateFromCleanups < ActiveRecord::Migration[4.2]
   def up
     rename_column :clean_ups, :expected_date, :begin_date
   end

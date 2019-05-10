@@ -9,7 +9,7 @@ module OperationSupport
 
     has_array_of :referentials, class_name: 'Referential'
     belongs_to :new, class_name: 'Referential'
-    has_many :publications, as: :parent
+    has_many :publications, as: :parent, dependent: :destroy
 
     validate :has_at_least_one_referential, :on => :create
     validate :check_other_operations, :on => :create
@@ -39,6 +39,10 @@ module OperationSupport
 
   def full_names
     referentials.map(&:name).to_sentence
+  end
+
+  def contains_urgent_offer?
+    referentials.any?(&:contains_urgent_offer?)
   end
 
   def publish

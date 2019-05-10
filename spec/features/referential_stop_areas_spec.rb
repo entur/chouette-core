@@ -18,14 +18,14 @@ describe 'ReferentialStopAreas', type: :feature do
 
     context 'filtering' do
       it 'supports filtering by name' do
-        fill_in 'q[name_or_objectid_or_registration_number_cont]', with: stop_areas.first.name
+        fill_in 'q[name_or_short_id_or_registration_number_cont]', with: stop_areas.first.name
         click_button 'search-btn'
         expect(page).to have_content(stop_areas.first.name)
         expect(page).not_to have_content(stop_areas.last.name)
       end
 
       it 'supports filtering by objectid' do
-        fill_in 'q[name_or_objectid_or_registration_number_cont]', with: stop_areas.first.objectid
+        fill_in 'q[name_or_short_id_or_registration_number_cont]', with: stop_areas.first.get_objectid.short_id
         click_button 'search-btn'
         expect(page).to have_content(stop_areas.first.name)
         expect(page).not_to have_content(stop_areas.last.name)

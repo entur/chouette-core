@@ -1,4 +1,4 @@
-class SetStopAreasKindToCommercialOnExistingRecords < ActiveRecord::Migration
+class SetStopAreasKindToCommercialOnExistingRecords < ActiveRecord::Migration[4.2]
   def up
     Chouette::StopArea
       .where('kind != ? or kind is null', :non_commercial)

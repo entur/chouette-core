@@ -48,7 +48,7 @@ class ReferentialOverview
   ### search
   def search
     lines = referential_lines
-    lines = lines.search h.params[search_param_name]
+    lines = lines.ransack h.params[search_param_name]
     lines
   end
 

@@ -8,7 +8,7 @@ RSpec.describe LineReferentialsController, :type => :controller do
   }
 
   describe 'PUT sync' do
-    let(:request){ put :sync, id: line_referential.id }
+    let(:request){ put :sync, params: { id: line_referential.id }}
 
     it 'should respond with 403' do
        expect(request).to have_http_status 403

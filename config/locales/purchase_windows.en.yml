@@ -32,7 +32,7 @@ en:
       overlapped_periods: Another period is overlapped with this period
       short_period: A period needs to last at least two days
     index:
-      title: purchase windows
+      title: Purchase windows
       all: All
       shared: Shared
       not_shared: Not shared
@@ -44,9 +44,9 @@ en:
     new:
       title: Add a new purchase window
     edit:
-      title: Update purchase window %{name}
+      title: Update %{name}
     show:
-      title: purchase window %{name}
+      title: "{name}"
   simple_form:
     labels:
       purchase_window:

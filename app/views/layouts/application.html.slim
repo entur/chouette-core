@@ -4,6 +4,14 @@ html lang=I18n.locale
     meta charset="utf-8"
     meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 
+    - if @referential.present? && policy(@referential).show?
+      meta name="referential_state" content="#{@referential.state}"
+    - if @workbench.present?
+      meta name="current_workbench_notifications_channel" content="#{@workbench.notifications_channel}"
+    - if @workbenches.present?
+      - @workbenches.each do |workbench|
+        meta name="current_workbench_notifications_channel" content="#{workbench.notifications_channel}"
+
     = csrf_meta_tag
 
     title = t('brandname')
@@ -25,6 +33,7 @@ html lang=I18n.locale
       = render 'layouts/navigation/main_nav_left'
       // Top menu content
       = render 'layouts/navigation/main_nav_top'
+    .notifications
     = render 'layouts/flash_messages', flash: flash
     = render 'layouts/navigation/page_header'
     = yield

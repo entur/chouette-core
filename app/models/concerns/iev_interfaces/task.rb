@@ -1,10 +1,17 @@
 module IevInterfaces::Task
   extend ActiveSupport::Concern
+  include Rails.application.routes.url_helpers
+  include ActionView::Helpers::TagHelper
+  include IconHelper
+  include OperationsHelper
 
   included do
     belongs_to :parent, polymorphic: true
     belongs_to :workbench, class_name: "::Workbench"
+    has_one :organisation, through: :workbench
     belongs_to :referential
+
+    delegate :workgroup, to: :workbench
 
     mount_uploader :file, ImportUploader
     validates_integrity_of :file
@@ -30,13 +37,16 @@ module IevInterfaces::Task
 
     scope :blocked, -> { where('created_at < ? AND status = ?', 4.hours.ago, 'running') }
     scope :successful, -> { where(status: :successful) }
+    scope :new_or_pending, -> { where(status: [:new, :pending]) }
 
     before_save :initialize_fields, on: :create
     after_save :notify_parent
+    # after_commit :notify_state, if: :status_changed?
 
     status.values.each do |s|
       define_method "#{s}!" do
         update_column :status, s
+        notify_state
       end
 
       define_method "#{s}?" do
@@ -67,8 +77,12 @@ module IevInterfaces::Task
     end
   end
 
+  def workbench_for_notifications
+    workbench || referential.workbench || referential.workgroup&.owner_workbench
+  end
+
   def notify_parent
-    return false unless self.class.finished_statuses.include?(status)
+    return false unless finished?
 
     return false unless parent.present?
     return false if notified_parent_at
@@ -80,6 +94,85 @@ module IevInterfaces::Task
 
   def children_succeedeed
     children.with_status(:successful, :warning).count
+  end
+
+  def url_for_notifications(use_self=false)
+    object = self
+    object = parent if self.try(:parent) && !use_self
+    [workbench_for_notifications, object]
+  end
+
+  def urls_to_refresh
+    ([self] + children).map{ |i| polymorphic_url(i.url_for_notifications(true), only_path: true) }
+  end
+
+  def notify_state
+    payload = self.slice(:id, :status, :name, :parent_id)
+    payload.update({
+      status_html: operation_status(self.status).html_safe,
+      message_key: "#{self.class.name.underscore.gsub('/', '.')}.#{self.status}",
+      url: polymorphic_url(url_for_notifications, only_path: true),
+      urls_to_refresh: urls_to_refresh,
+      unique_identifier: "#{self.class.name.underscore.gsub('/', '.')}-#{self.id}"
+    })
+    if self.class < Import::Base
+      payload[:fragment] = "import-fragment"
+    end
+    if self.class < Export::Base
+      payload[:fragment] = "export-fragment"
+    end
+    Notification.create! channel: workbench_for_notifications.notifications_channel, payload: payload
+  end
+
+  def notify_child_progress child, progress
+    index = self.children.index child
+    notify_progress (index+progress)/self.children.count
+  end
+
+  def notify_progress progress
+    @previous_progress ||= 0
+    return unless progress - @previous_progress >= 0.01
+    @previous_progress = progress
+    if parent
+      parent.notify_child_progress self, progress
+    else
+      payload = self.slice(:id, :status, :name, :parent_id)
+      payload.update({
+        message_key: "#{self.class.name.underscore.gsub('/', '.')}.progress",
+        status_html: operation_status(self.status).html_safe,
+        url: polymorphic_url(url_for_notifications, only_path: true),
+        urls_to_refresh: urls_to_refresh,
+        unique_identifier: "#{self.class.name.underscore.gsub('/', '.')}-#{self.id}",
+        progress: (progress*100).to_i
+      })
+      if self.class < Import::Base
+        payload[:fragment] = "import-fragment"
+      end
+      Notification.create! channel: workbench_for_notifications.notifications_channel, payload: payload
+    end
+  end
+
+  def operation_progress_weight(operation_name)
+    1
+  end
+
+  def operations_progress_total_weight
+    steps_count
+  end
+
+  def operation_relative_progress_weight(operation_name)
+    operation_progress_weight(operation_name).to_f/operations_progress_total_weight
+  end
+
+  def notify_operation_progress(operation_name)
+    if @progress
+      @progress += operation_relative_progress_weight(operation_name)
+      notify_progress @progress
+    end
+  end
+
+  def notify_sub_operation_progress(operation_name, progress)
+    notify_progress(@progress + operation_relative_progress_weight(operation_name)*progress) if @progress
   end
 
   def update_status
@@ -105,6 +198,7 @@ module IevInterfaces::Task
     end
 
     update attributes
+    notify_state
   end
 
   def finished?

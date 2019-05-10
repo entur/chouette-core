@@ -15,7 +15,7 @@ RSpec.describe 'New API Key', type: :feature do
         # the api_key is visible
         expect(page).to have_content(api_key.token)
 
-        find(".dropdown-toggle").click
+        find(".actions .dropdown-toggle").click
         click_link destroy_label
 
         expect(page.current_path).to eq(workbench_api_keys_path(workbench))

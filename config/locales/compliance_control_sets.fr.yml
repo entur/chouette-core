@@ -7,9 +7,9 @@ fr:
     index:
       title: "Liste des jeux de contrôles"
     edit:
-      title: "Editer le jeu de contrôles %{name}"
+      title: "Editer %{name}"
     show:
-      title: "Consulter le jeu de contrôles %{name}"
+      title: "%{name}"
     new:
       title: "Créer un jeu de contrôles"
     actions:

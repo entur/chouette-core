@@ -1,4 +1,4 @@
-class AddNotificationsOptionsToOperations < ActiveRecord::Migration
+class AddNotificationsOptionsToOperations < ActiveRecord::Migration[4.2]
   def change
     %i{imports exports merges aggregates compliance_check_sets}.each do |table|
       add_column table, :notification_target, :string

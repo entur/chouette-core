@@ -85,24 +85,41 @@ export default function modal(state = {}, action) {
     case 'EDIT_CONSTRAINT_EXCLUSIONS_VEHICLEJOURNEY_MODAL':
       var vehicleJourneys = JSON.parse(JSON.stringify(action.vehicleJourneys))
       let uniqExclusions = []
+      let uniqStopAreasExclusions = []
       vehicleJourneys.map((vj, i) => {
-        vj.ignored_routing_contraint_zone_ids.map((exclusion, j) =>{
-          let found = false
-          uniqExclusions.map((id, i)=>{
-            if(id == parseInt(exclusion)){
-              found = true
+        if(vj.ignored_routing_contraint_zone_ids){
+          vj.ignored_routing_contraint_zone_ids.map((exclusion, j) =>{
+            let found = false
+            uniqExclusions.map((id, i)=>{
+              if(id == parseInt(exclusion)){
+                found = true
+              }
+            })
+            if(!found){
+              uniqExclusions.push(parseInt(exclusion))
             }
           })
-          if(!found){
-            uniqExclusions.push(parseInt(exclusion))
-          }
-        })
+        }
+        if(vj.ignored_stop_area_routing_constraint_ids){
+          vj.ignored_stop_area_routing_constraint_ids.map((exclusion, j) =>{
+            let found = false
+            uniqStopAreasExclusions.map((id, i)=>{
+              if(id == parseInt(exclusion)){
+                found = true
+              }
+            })
+            if(!found){
+              uniqStopAreasExclusions.push(parseInt(exclusion))
+            }
+          })
+        }
       })
       return {
         type: 'constraint_exclusions_edit',
         modalProps: {
           vehicleJourneys: vehicleJourneys,
-          selectedConstraintZones: uniqExclusions
+          selectedConstraintZones: uniqExclusions,
+          selectedStopAreasConstraints: uniqStopAreasExclusions
         },
         confirmModal: {}
       }
@@ -141,6 +158,28 @@ export default function modal(state = {}, action) {
           }
         })
         newModalProps.selectedConstraintZones = selectedConstraintZones
+        return _.assign({}, state, {modalProps: newModalProps})
+    case 'SELECT_STOPAREAS_CONSTRAINT_MODAL':
+      let selectedStopAreasConstraints = state.modalProps.selectedStopAreasConstraints
+      alreadyPresent = false
+      selectedStopAreasConstraints.map((zone_id, i)=>{
+        if(zone_id == parseInt(action.selectedZone.id)){
+          alreadyPresent = true
+        }
+      })
+      if(alreadyPresent){ return state }
+      selectedStopAreasConstraints.push(parseInt(action.selectedZone.id))
+      newModalProps = _.assign({}, state.modalProps, {selectedStopAreasConstraints})
+      return _.assign({}, state, {modalProps: newModalProps})
+    case 'DELETE_STOPAREAS_CONSTRAINT_MODAL':
+        newModalProps = JSON.parse(JSON.stringify(state.modalProps))
+        selectedStopAreasConstraints = state.modalProps.selectedStopAreasConstraints.slice(0)
+        selectedStopAreasConstraints.map((zone_id, i) =>{
+          if(zone_id == parseInt(action.constraintZone.id)){
+            selectedStopAreasConstraints.splice(i, 1)
+          }
+        })
+        newModalProps.selectedStopAreasConstraints = selectedStopAreasConstraints
         return _.assign({}, state, {modalProps: newModalProps})
     case 'ADD_SELECTED_TIMETABLE':
       if(state.modalProps.selectedTimetable){

@@ -18,7 +18,7 @@ fr:
     edit:
       title: "Editer la mission %{journey_pattern}"
     show:
-      title: "Mission %{journey_pattern}"
+      title: "%{journey_pattern}"
       stop_points: "Liste des arrêts de la mission"
       stop_points_count: 
         none: '%{count} arrêt'
@@ -28,7 +28,7 @@ fr:
       confirmation: Confimation
       confirm_page_change: Vous vous apprêtez à changer de page. Voulez-vous valider vos modifications avant cela ?
     index:
-      title: "Missions de %{route}"
+      title: "%{route}"
     form:
       warning: "Attention, la sélection s'applique aussi aux %{count} courses de la mission"
   activerecord:

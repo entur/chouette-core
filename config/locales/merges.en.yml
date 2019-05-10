@@ -10,8 +10,9 @@ en:
       table:
         state:
           title: Worbench current output
+          urgent: Handles urgent offer
     actions:
-      create: Merge data spaces
+      create: Merge data sets
       rollback: Rollback
       rollback_confirm: Are you sure to rollback to this finalized offer ?
       see_associated_offer: Voir l'offre associée
@@ -36,12 +37,13 @@ en:
         ended_at: Ended at
         status: "Status"
         creator: "Creator"
-        referentials: "Data spaces"
+        referentials: "Data sets"
         new: Finalized dataset
         operator: User
-        available_referentials: "Avalaible data spaces"
-        selected_referentials: "Selected data spaces"
+        available_referentials: "Available data sets"
+        selected_referentials: "Selected data sets"
         notification_target: Notifications recipients
+        contains_urgent_offer: Handles urgent offer
     errors:
       models:
         merge:

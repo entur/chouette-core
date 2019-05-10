@@ -2,7 +2,7 @@ class ComplianceControlSetsController < ChouetteController
   include PolicyChecker
   defaults resource_class: ComplianceControlSet
   include RansackDateFilter
-  before_action only: [:index] { set_date_time_params("updated_at", DateTime) }
+  before_action(only: [:index]) { set_date_time_params("updated_at", DateTime) }
   respond_to :html
 
   def index
@@ -49,7 +49,7 @@ class ComplianceControlSetsController < ChouetteController
       scope = self.ransack_period_range(scope: scope, error_message: t('imports.filters.error_period_filter'), query: :where_updated_at_between)
       @q_for_form = scope.ransack(params[:q])
       compliance_control_sets = @q_for_form.result
-      compliance_control_sets = joins_with_associated_objects(compliance_control_sets).order(sort_column + ' ' + sort_direction) if sort_column && sort_direction
+      compliance_control_sets = joins_with_associated_objects(compliance_control_sets).order(Arel.sql(sort_column + ' ' + sort_direction)) if sort_column && sort_direction
       compliance_control_sets = compliance_control_sets.paginate(page: params[:page], per_page: 30)
     end
 

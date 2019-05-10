@@ -9,7 +9,7 @@ RSpec.describe LinesController, :type => :controller do
       name: "test",
       transport_mode: "bus"
     }}
-    let(:request){ post :create, line_referential_id: line_referential.id, line: line_attrs }
+    let(:request){ post :create, params: { line_referential_id: line_referential.id, line: line_attrs }}
 
     with_permission "lines.create" do
       it "should create a new line" do
@@ -32,7 +32,7 @@ RSpec.describe LinesController, :type => :controller do
   end
 
   describe 'PUT deactivate' do
-    let(:request){ put :deactivate, id: line.id, line_referential_id: line_referential.id }
+    let(:request){ put :deactivate, params: { id: line.id, line_referential_id: line_referential.id }}
 
     it 'should respond with 403' do
       expect(request).to have_http_status 403
@@ -47,7 +47,7 @@ RSpec.describe LinesController, :type => :controller do
   end
 
   describe 'PUT activate' do
-    let(:request){ put :activate, id: line.id, line_referential_id: line_referential.id }
+    let(:request){ put :activate, params: { id: line.id, line_referential_id: line_referential.id }}
     before(:each){
       line.deactivate!
     }

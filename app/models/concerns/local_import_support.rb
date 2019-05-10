@@ -3,18 +3,69 @@ module LocalImportSupport
 
   included do |into|
     include ImportResourcesSupport
-    after_commit :launch_worker, on: :create
+    after_commit :import_async, on: :create, unless: :profile?
 
     delegate :line_referential, :stop_area_referential, to: :workbench
+    attr_accessor :profile
+    attr_accessor :profile_options
+    attr_accessor :profile_times
+  end
+
+  module ClassMethods
+    def profile(filepath, profile_options={})
+      import = self.new(file: open(filepath), creator: 'Profiler', workbench: Workbench.first)
+      import.profile = true
+      import.profile_options = profile_options
+      import.name = "Profile #{File.basename(filepath)}"
+      import.save!
+      if profile_options[:operations]
+        if profile_options[:reuse_referential]
+          r = if profile_options[:reuse_referential].is_a?(Referential)
+            profile_options[:reuse_referential]
+          else
+            Referential.where(name: import.referential_name).last
+          end
+          import.referential = r
+          r.switch
+        else
+          import.create_referential
+        end
+      end
+      import.save!
+      if profile_options[:operations]
+        import.profile_tag 'import' do
+          ActiveRecord::Base.cache do
+            import.import_resources *profile_options[:operations]
+          end
+        end
+      else
+        import.import
+      end
+      import
+    end
+  end
+
+  def import_async
+    Delayed::Job.enqueue LongRunningJob.new(self, :import), queue: :imports
+  end
+
+  def profile?
+    @profile
   end
 
   def import
     update status: 'running', started_at: Time.now
 
-    import_without_status
+    @progress = 0
+    profile_tag 'import' do
+      ActiveRecord::Base.cache do
+        import_without_status
+      end
+    end
+    @progress = nil
     @status ||= 'successful'
-    update status: @status, ended_at: Time.now
     referential&.active!
+    update status: @status, ended_at: Time.now
   rescue => e
     update status: 'failed', ended_at: Time.now
     Rails.logger.error "Error in #{file_type} import: #{e} #{e.backtrace.join('\n')}"
@@ -37,30 +88,95 @@ module LocalImportSupport
     main_resource&.save
     save
     notify_parent
+    notify_state
+  end
+
+  def worker_died
+    force_failure!
+
+    Rails.logger.error "Import #{self.inspect} failed due to worker being dead"
+  end
+
+  def add_profile_time(tag, time)
+    @profile_times ||= Hash.new{ |h, k| h[k] = [] }
+    @profile_times[tag] << time
+  end
+
+  def profile_stats
+    @profile_times ||= Hash.new{ |h, k| h[k] = [] }
+    @computed_profile_stats ||= begin
+      profile_stats = {}
+      @profile_times.each do |k, times|
+        sum = times.sum
+        profile_stats[k] = {
+          sum: sum,
+          count: times.count,
+          min: times.min,
+          max: times.max,
+          average: sum/times.count
+        }
+      end
+      profile_stats
+    end
+  end
+
+  def profile_tag(tag)
+    @current_profile_scope ||= []
+    @current_profile_scope << tag
+    out = time = nil
+    begin
+      time = ::Benchmark.realtime do
+        puts "START PROFILING #{@current_profile_scope.join('.')}"  if profile?
+        out = yield
+      end
+      add_profile_time @current_profile_scope.join('.'), time if profile?
+    ensure
+      puts "END PROFILING #{@current_profile_scope.join('.')} in #{time}s" if profile?
+      @current_profile_scope.pop
+    end
+    out
+  end
+
+  def profile_operation(operation, &block)
+    if profile?
+      profile_tag operation, &block
+    else
+      Chouette::Benchmark.log "#{self.class.name} import #{operation}" do
+        yield
+      end
+    end
   end
 
   def import_resources(*resources)
     resources.each do |resource|
-      Chouette::Benchmark.log "#{self.class.name} import #{resource}" do
+      profile_operation resource do
         send "import_#{resource}"
+
+        notify_operation_progress(resource)
       end
     end
   end
 
   def create_referential
-    self.referential ||=  Referential.new(
-      name: referential_name,
-      organisation_id: workbench.organisation_id,
-      workbench_id: workbench.id,
-      metadatas: [referential_metadata]
-    )
-    begin
-      self.referential.save!
-    rescue => e
-      Rails.logger.error "Unable to create referential: #{self.referential.errors.messages}"
-      raise
+    profile_operation 'create_referential' do
+      self.referential ||=  Referential.new(
+        name: referential_name,
+        organisation_id: workbench.organisation_id,
+        workbench_id: workbench.id,
+        metadatas: [referential_metadata]
+      )
+
+      if profile?
+        Referential.find(self.referential.overlapped_referential_ids).each &:archive!
+      end
+      begin
+        self.referential.save!
+      rescue => e
+        Rails.logger.error "Unable to create referential: #{self.referential.errors.messages}"
+        raise
+      end
+      main_resource.update referential: referential if main_resource
     end
-    main_resource.update referential: referential if main_resource
   end
 
   def referential_name
@@ -130,48 +246,55 @@ module LocalImportSupport
   end
 
   def save_model(model, filename: nil, line_number:  nil, column_number: nil, resource: nil)
-    if resource
-      filename ||= "#{resource.name}.txt"
-      line_number ||= resource.rows_count
-      column_number ||= 0
-    end
+    profile_tag "save_model.#{model.class.name}" do
+      return unless model.changed?
 
-    unless model.save
-      Rails.logger.error "Can't save #{model.class.name} : #{model.errors.inspect}"
-      
-      model.errors.details.each do |key, messages|
-        messages.each do |message|
-          message.each do |criticity, error|
-            if Import::Message.criticity.values.include?(criticity.to_s)
-              create_message(
-                {
-                  criticity: criticity,
-                  message_key: error,
-                  message_attributes: {
-                    test_id: key,
-                    object_attribute: key,
-                    source_attribute: key,
+      if resource
+        filename ||= "#{resource.name}.txt"
+        line_number ||= resource.rows_count
+        column_number ||= 0
+      end
+
+      unless model.save
+        Rails.logger.error "Can't save #{model.class.name} : #{model.errors.inspect}"
+
+        # if the model cannot be saved, we still ensure we store a consistent checksum
+        model.try(:update_checksum_without_callbacks!) if model.persisted?
+
+        model.errors.details.each do |key, messages|
+          messages.uniq.each do |message|
+            message.each do |criticity, error|
+              if Import::Message.criticity.values.include?(criticity.to_s)
+                create_message(
+                  {
+                    criticity: criticity,
+                    message_key: error,
+                    message_attributes: {
+                      test_id: key,
+                      object_attribute: key,
+                      source_attribute: key,
+                    },
+                    resource_attributes: {
+                      filename: filename,
+                      line_number: line_number,
+                      column_number: column_number
+                    }
                   },
-                  resource_attributes: {
-                    filename: filename,
-                    line_number: line_number,
-                    column_number: column_number
-                  }
-                },
-                resource: resource,
-                commit: true
-              )
+                  resource: resource,
+                  commit: true
+                )
+              end
             end
           end
         end
+        @models_in_error ||= Hash.new { |hash, key| hash[key] = [] }
+        @models_in_error[model.class.name] << model_key(model)
+        @status = "failed"
+        return
       end
-      @models_in_error ||= Hash.new { |hash, key| hash[key] = [] }
-      @models_in_error[model.class.name] << model_key(model)
-      @status = "failed"
-      return
-    end
 
-    Rails.logger.debug "Created #{model.inspect}"
+      Rails.logger.debug "Created #{model.inspect}"
+    end
   end
 
   def check_parent_is_valid_or_create_message(klass, key, resource)

@@ -68,7 +68,7 @@ en:
     update:
       title: "Update stop %{name}"
     show:
-      title: "Stop %{name}"
+      title: "%{name}"
       geographic_data: "Geographic data"
       no_geographic_data: "None"
       itl_managment: "Routing constraint's links managment"

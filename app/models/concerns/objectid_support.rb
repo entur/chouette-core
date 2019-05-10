@@ -1,11 +1,44 @@
 module ObjectidSupport
   extend ActiveSupport::Concern
 
+  module SearchWithObjectID
+    def ransack args={}
+      vanilla_search = super args
+      base = vanilla_search.base
+      
+      if args && args.respond_to?(:keys)
+        args.each do |k, v|
+          if k =~ /short_id/
+            referential = self.last&.referential
+            if referential
+              condition = Ransack::Nodes::Condition.new(base.context).build({
+                'a' => {
+                  '0' => {
+                    'name' => 'actual_short_id',
+                    'ransacker_args' => referential
+                  }
+                },
+                'p' => 'cont',
+                'v' => { '0' => { 'value' => v } }
+              })
+
+              base.conditions << condition
+              base.combinator = "or"
+            end
+          end
+        end
+      end
+
+      vanilla_search.instance_variable_set "@base", base
+      vanilla_search
+    end
+  end
+
   included do
     before_validation :before_validation_objectid, unless: Proc.new {|model| model.read_attribute(:objectid)}
     after_commit :after_commit_objectid, on: :create, if: Proc.new {|model| model.read_attribute(:objectid).try(:include?, '__pending_id__')}
     validates_presence_of :objectid
-    validates_uniqueness_of :objectid, skip_validation: Proc.new {|model| model.read_attribute(:objectid).nil?}
+    validates_uniqueness_of :objectid, unless: Proc.new {|model| model.read_attribute(:objectid).nil? || model.class.skip_objectid_uniqueness? }
 
     scope :with_short_id, ->(q){
       return self.none unless self.exists?
@@ -18,41 +51,24 @@ module ObjectidSupport
     end
 
     ransacker :actual_short_id, args: [:parent, :ransacker_args] do |parent, referential|
-      Arel.sql referential.objectid_formatter.short_id_sql_expr(table_name)
+      Arel.sql referential.objectid_formatter.short_id_sql_expr(self)
     end
 
     class << self
-      def search_with_objectid args={}
-        vanilla_search = self.search_without_objectid args
-        base = vanilla_search.base
+      prepend ::ObjectidSupport::SearchWithObjectID
 
-        if args.is_a? Hash
-          args.each do |k, v|
-            if k =~ /short_id/
-              referential = self.last&.referential
-              if referential
-                condition = Ransack::Nodes::Condition.new(base.context).build({
-                  'a' => {
-                    '0' => {
-                      'name' => 'actual_short_id',
-                      'ransacker_args' => referential
-                    }
-                  },
-                  'p' => 'cont',
-                  'v' => { '0' => { 'value' => v } }
-                })
-
-                base.conditions << condition
-                base.combinator = "or"
-              end
-            end
-          end
-        end
-
-        vanilla_search.instance_variable_set "@base", base
-        vanilla_search
+      def skip_objectid_uniqueness?
+        ApplicationModel.skip_objectid_uniqueness? || @skip_objectid_uniqueness
       end
-      alias_method_chain :search, :objectid
+
+      def skipping_objectid_uniqueness
+        begin
+          @skip_objectid_uniqueness = true
+          yield
+        ensure
+          @skip_objectid_uniqueness = false
+        end
+      end
 
       def ransackable_scopes(auth_object = nil)
         [:with_short_id]
@@ -79,10 +95,11 @@ module ObjectidSupport
     def referential_identifier
       %w[line_referential stop_area_referential].each do |name|
         if (r = self.class.reflections[name])
-          return [r.klass, { id: send(r.foreign_key) }]
+          id  = send(r.foreign_key)
+          return id  ? [r.klass, { id: id }] : nil
         end
       end
-      [Referential, { slug: referential_slug }]
+      referential_slug ? [Referential, { slug: referential_slug }] : nil
     end
 
     def before_validation_objectid
@@ -94,7 +111,8 @@ module ObjectidSupport
     end
 
     def get_objectid
-      objectid_formatter.get_objectid read_attribute(:objectid) if self.class.has_objectid_format?(*referential_identifier) && read_attribute(:objectid)
+      identifier = referential_identifier
+      objectid_formatter.get_objectid read_attribute(:objectid) if identifier.present? && self.class.has_objectid_format?(*identifier) && read_attribute(:objectid)
     end
 
     def objectid

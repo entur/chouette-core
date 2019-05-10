@@ -16,6 +16,10 @@ class PublicationApi < ActiveRecord::Base
     "#{SmartEnv['RAILS_HOST']}/api/v1/datas/#{slug}"
   end
 
+  def public?
+    !!public
+  end
+
   class InvalidAuthenticationError < RuntimeError; end
   class MissingAuthenticationError < RuntimeError; end
 end

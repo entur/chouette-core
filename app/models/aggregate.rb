@@ -121,3 +121,6 @@ class Aggregate < ActiveRecord::Base
     create_compliance_check_set :after_aggregate, after_aggregate_compliance_control_set, new
   end
 end
+
+#STI
+require_dependency 'aggregates/nightly_aggregate'

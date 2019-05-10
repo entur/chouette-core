@@ -13,7 +13,12 @@ RSpec::Matchers.define :have_box_for_item do |item, disabled|
   description { "have a #{disabled ? "disabled ": ""}box for the item ##{item.id}" }
 end
 
+
 describe "workbenches/show", :type => :view do
+  before(:each) do
+    allow(view).to receive(:resource_class).and_return(Workbench)
+  end
+  
   let!(:ids) { ['STIF:CODIFLIGNE:Line:C00840', 'STIF:CODIFLIGNE:Line:C00086'] }
   let!(:lines) {
     ids.map do |id|

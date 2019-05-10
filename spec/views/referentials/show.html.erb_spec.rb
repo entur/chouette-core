@@ -21,11 +21,12 @@ describe "referentials/show", type: :view do
     allow(view).to receive(:current_organisation).and_return(current_organisation)
     allow(view).to receive(:current_user).and_return(current_user)
     allow(view).to receive(:resource).and_return(referential)
+    allow(view).to receive(:resource_class).and_return(referential.class)
     allow(view).to receive(:has_feature?).and_return(true)
     allow(view).to receive(:user_signed_in?).and_return true
     allow(view).to receive(:mutual_workbench).and_return referential.workbench
     controller.request.path_parameters[:id] = referential.id
-    allow(view).to receive(:params).and_return({action: :show})
+    allow(view).to receive(:params).and_return(ActionController::Parameters.new(action: :show))
 
     render template: "referentials/show", layout: "layouts/application"
   end

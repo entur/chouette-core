@@ -5,13 +5,79 @@ RSpec.describe Api::V1::DatasController, type: :controller do
   let(:export){ create :gtfs_export, status: :successful, file: file}
   describe 'GET #info' do
     it 'should not be successful' do
-      expect{ get :infos, slug: :foo }.to raise_error ActiveRecord::RecordNotFound
+      expect{ get :infos, params: { slug: :foo }}.to raise_error ActiveRecord::RecordNotFound
     end
 
     context 'with a publication_api' do
       it 'should be successful' do
-        get :infos, slug: create(:publication_api).slug
-        expect(response).to be_success
+        get :infos, params: { slug: create(:publication_api).slug }
+        expect(response).to be_successful
+      end
+    end
+  end
+
+  context 'with a public API' do
+    describe 'get #download_full' do
+      let(:slug) { :foo }
+      let(:key) { :foo }
+      let(:get_request) { get :download_full, params: { slug: slug, key: key }}
+
+      it 'should not be successful' do
+        expect{ get_request }.to raise_error ActiveRecord::RecordNotFound
+      end
+
+      context 'with a publication_api' do
+        let(:publication_api) { create(:publication_api, public: true) }
+
+        let(:slug) { publication_api.slug }
+
+        it 'should not be successful' do
+          expect{ get_request }.to raise_error ActiveRecord::RecordNotFound
+        end
+
+        context 'with a publication_api_source' do
+          before(:each) do
+            create :publication_api_source, publication_api: publication_api, key: key, export: export
+          end
+
+          it 'should be successful' do
+            get_request
+            expect(response).to be_successful
+          end
+        end
+      end
+    end
+
+    describe 'get #download_line' do
+      let(:slug) { :foo }
+      let(:key) { :foo }
+      let(:line_id) { :foo }
+      let(:get_request) { get :download_line, params: { slug: slug, key: key, line_id: line_id }}
+
+      it 'should not be successful' do
+        expect{ get_request }.to raise_error ActiveRecord::RecordNotFound
+      end
+
+      context 'with a publication_api' do
+        let(:publication_api) { create(:publication_api, public: true) }
+        let(:publication_api_key) { create :publication_api_key }
+
+        let(:slug) { publication_api.slug }
+
+        it 'should not be successful' do
+          expect{ get_request }.to raise_error ActiveRecord::RecordNotFound
+        end
+
+        context 'with a publication_api_source' do
+          before(:each) do
+            create :publication_api_source, publication_api: publication_api, key: "#{key}-#{line_id}", export: export
+          end
+
+          it 'should be successful' do
+            get_request
+            expect(response).to be_successful
+          end
+        end
       end
     end
   end
@@ -26,7 +92,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
     describe 'get #download_full' do
       let(:slug) { :foo }
       let(:key) { :foo }
-      let(:get_request) { get :download_full, slug: slug, key: key }
+      let(:get_request) { get :download_full, params: { slug: slug, key: key }}
 
       it 'should not be successful' do
         expect{ get_request }.to raise_error ActiveRecord::RecordNotFound
@@ -41,7 +107,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
 
         it 'should not be successful' do
           get_request
-          expect(response).to_not be_success
+          expect(response).to_not be_successful
         end
 
         context 'with a publication_api_source' do
@@ -51,7 +117,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
 
           it 'should not be successful' do
             get_request
-            expect(response).to_not be_success
+            expect(response).to_not be_successful
           end
 
           context 'authenticated' do
@@ -59,7 +125,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
 
             it 'should be successful' do
               get_request
-              expect(response).to be_success
+              expect(response).to be_successful
             end
           end
         end
@@ -70,7 +136,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
       let(:slug) { :foo }
       let(:key) { :foo }
       let(:line_id) { :foo }
-      let(:get_request) { get :download_line, slug: slug, key: key, line_id: line_id }
+      let(:get_request) { get :download_line, params: { slug: slug, key: key, line_id: line_id }}
 
       it 'should not be successful' do
         expect{ get_request }.to raise_error ActiveRecord::RecordNotFound
@@ -85,7 +151,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
 
         it 'should not be successful' do
           get_request
-          expect(response).to_not be_success
+          expect(response).to_not be_successful
         end
 
         context 'with a publication_api_source' do
@@ -95,7 +161,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
 
           it 'should not be successful' do
             get_request
-            expect(response).to_not be_success
+            expect(response).to_not be_successful
           end
 
           context 'authenticated' do
@@ -103,7 +169,7 @@ RSpec.describe Api::V1::DatasController, type: :controller do
 
             it 'should be successful' do
               get_request
-              expect(response).to be_success
+              expect(response).to be_successful
             end
           end
         end

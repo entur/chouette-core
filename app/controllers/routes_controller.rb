@@ -10,7 +10,7 @@ class RoutesController < ChouetteController
   belongs_to :referential do
     belongs_to :line, :parent_class => Chouette::Line, :optional => true, :polymorphic => true
   end
-  before_action :define_candidate_opposite_routes, only: [:new, :edit]
+  before_action :define_candidate_opposite_routes, only: [:new, :edit, :fetch_opposite_routes]
 
   def index
     index! do |format|
@@ -57,8 +57,15 @@ class RoutesController < ChouetteController
 
   def create
     create! do |success, failure|
-      success.html { redirect_to referential_line_path(@referential,@line) }
-      failure.html { flash[:alert] = route.errors[:flash]; render :action => :new }
+      failure.json { render json: { message: t('flash.actions.create.error', resource_name: t('activerecord.models.route.one')), status: 422 } }
+      success.json { render json: { message: t('flash.actions.create.notice', resource_name: t('activerecord.models.route.one')), status: 200 } }
+    end
+  end
+
+  def update
+    update! do |success, failure|
+      failure.json { render json: { message: t('flash.actions.update.error', resource_name: t('activerecord.models.route.one')), status: 422 } }
+      success.json { render json: { message: t('flash.actions.update.notice', resource_name: t('activerecord.models.route.one')) }, status: 200 }
     end
   end
 
@@ -73,12 +80,28 @@ class RoutesController < ChouetteController
     @route = resource
   end
 
+  # React endpoints
+
+  def fetch_user_permissions
+    perms =
+    %w{create destroy update}.inject({}) do | permissions, action |
+        permissions.merge({"routes.#{action}": policy(Chouette::Route).authorizes_action?(action)})
+      end.to_json
+
+      render json: perms
+  end
+
+  def fetch_opposite_routes
+    render json: { outbound: @backward, inbound: @forward }
+  end
+
+
   protected
 
   alias_method :route, :resource
 
   def collection
-    @q = parent.routes.search(params[:q])
+    @q = parent.routes.ransack(params[:q])
     @routes ||=
       begin
         routes = @q.result(:distinct => true).order(:name)

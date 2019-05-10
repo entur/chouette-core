@@ -1,6 +1,7 @@
 ChouetteIhm::Application.routes.draw do
   resource :dashboard
   resource :subscriptions, only: :create
+  resources :notifications, only: :index
 
   resources :exports, only: :upload do
     post :upload, on: :member, controller: :export_uploads
@@ -39,7 +40,8 @@ ChouetteIhm::Application.routes.draw do
       end
     end
 
-    resources :referentials, only: %w(new create)
+    resources :referentials, only: %w(new create index)
+    resources :notification_rules
   end
 
   resources :workgroups, concerns: :iev_interfaces do
@@ -49,7 +51,12 @@ ChouetteIhm::Application.routes.draw do
       put :update_controls
       get :edit_hole_sentinel
     end
-    resources :compliance_check_sets, only: [:index, :show]
+
+    resources :compliance_check_sets, only: [:index, :show] do
+      get :executed, on: :member
+      resources :compliance_checks, only: [:show]
+      resources :compliance_check_messages, only: [:index]
+    end
     resource :output, controller: :workgroup_outputs
     resources :aggregates do
       member do
@@ -82,6 +89,7 @@ ChouetteIhm::Application.routes.draw do
       put :unarchive
       get :select_compliance_control_set
       post :validate
+      put :clean
     end
 
     resources :autocomplete_stop_areas, only: [:show, :index] do
@@ -110,6 +118,10 @@ ChouetteIhm::Application.routes.draw do
           put 'save_boarding_alighting'
           get 'costs'
           post 'duplicate', to: 'routes#duplicate'
+        end
+        collection do
+          get 'fetch_user_permissions'
+          get 'fetch_opposite_routes'
         end
         resource :journey_patterns_collection, :only => [:show, :update]
         resources :journey_patterns do
@@ -157,7 +169,6 @@ ChouetteIhm::Application.routes.draw do
 
   devise_for :users, :controllers => {
     invitations: 'users/invitations',
-    registrations: 'devise/sessions',
     passwords: 'users/passwords'
   }
 
@@ -179,9 +190,11 @@ ChouetteIhm::Application.routes.draw do
 
   if SmartEnv.boolean "BYPASS_AUTH_FOR_SIDEKIQ"
     mount Sidekiq::Web => '/sidekiq'
+    match "/delayed_job" => DelayedJobWeb, :anchor => false, :via => [:get, :post]
   else
     authenticate :user, lambda { |u| u.can_monitor_sidekiq? } do
       mount Sidekiq::Web => '/sidekiq'
+      match "/delayed_job" => DelayedJobWeb, :anchor => false, :via => [:get, :post]
     end
   end
 
@@ -246,6 +259,7 @@ ChouetteIhm::Application.routes.draw do
     resources :stop_area_providers do
       get :autocomplete, on: :collection
     end
+    resources :stop_area_routing_constraints
     resources :stop_areas do
       put :deactivate, on: :member
       put :activate, on: :member
@@ -272,6 +286,7 @@ ChouetteIhm::Application.routes.draw do
     end
   end
 
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if %i[letter_opener_web letter_opener].include?(Rails.application.config.action_mailer.delivery_method)
 
   root :to => "dashboards#show"
 

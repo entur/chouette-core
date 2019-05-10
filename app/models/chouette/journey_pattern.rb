@@ -14,6 +14,10 @@ module Chouette
     has_many :stop_areas, through: :stop_points
     has_many :courses_stats, class_name: "Stat::JourneyPatternCoursesByDate"
 
+    scope :light, ->{ select(:id, :name, :route_id, :objectid) }
+
+    scope :without_any_vehicle_journey, -> { joins('LEFT JOIN vehicle_journeys ON vehicle_journeys.journey_pattern_id = journey_patterns.id').where(vehicle_journeys: { id: nil } ) }
+
     validates_presence_of :route
     validates_presence_of :name
 

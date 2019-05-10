@@ -3,7 +3,7 @@ module IevInterfaces::Resource
 
   included do
     extend Enumerize
-    attr_accessor :rows_count
+    attr_accessor :rows_count, :total_rows
 
     enumerize :status, in: %i[OK ERROR WARNING IGNORED], scope: true
     validates_presence_of :name, :resource_type
@@ -14,42 +14,52 @@ module IevInterfaces::Resource
   end
 
   def each(collection, opts = {})
-    inner_block = proc do |item|
-      inc_rows_count
-      yield item, self
-    end
+    total_rows = collection.count
+    checksum_manager_method = opts[:skip_checksums] ? :no_updates : :transaction
 
-    transaction_block = proc do |item|
-      if opts[:transaction]
-        ActiveRecord::Base.transaction do
-          inner_block.call item
+    inner_block = proc do |items|
+      items.each do |item|
+        inc_rows_count
+        if self.respond_to?(:import)
+          import.notify_sub_operation_progress(name, rows_count.to_f/total_rows)
         end
-      else
-        inner_block.call item
+        yield item, self
       end
     end
 
-    memory_block = proc do |item|
+    transaction_block = proc do |items|
+      if opts[:transaction]
+        ActiveRecord::Base.transaction do
+          Chouette::ChecksumManager.send(checksum_manager_method) do
+            inner_block.call items
+          end
+        end
+      else
+        inner_block.call items
+      end
+    end
+
+    memory_block = proc do |items|
       if opts[:memory_profile]
         label = opts[:memory_profile]
         label = instance_exec(&label) if label.is_a?(Proc)
         Chouette::Benchmark.log label do
-          transaction_block.call item
+          transaction_block.call items
         end
       else
-        transaction_block.call item
+        transaction_block.call items
       end
     end
 
     if opts[:slice]
       collection.each_slice(opts[:slice]) do |slice|
-        slice.each do |item|
-          memory_block.call item
-        end
+        memory_block.call slice
       end
     else
-      collection.each do |item|
-        memory_block.call item
+      method = :each
+      method = :find_each if collection.respond_to? :find_each
+      collection.send(method) do |item|
+        memory_block.call [item]
       end
     end
 

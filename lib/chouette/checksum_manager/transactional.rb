@@ -73,6 +73,7 @@ module Chouette::ChecksumManager
     def clean!
       @resolution_stack = nil
       @resolution_children_count = nil
+      @resolution_stack_indexes = nil
       @dirty_objects = nil
     end
 
@@ -80,11 +81,18 @@ module Chouette::ChecksumManager
       log "after_create #{object}"
       serialized = SerializedObject.new(object, load_object: true)
       new_signature = SerializedObject.new(serialized.serialized_object).signature
-      count = resolution_children_count.delete(serialized.signature(unserialized: true)) || 0
+      old_signature = serialized.signature(unserialized: true)
+      count = resolution_children_count.delete(old_signature) || 0
 
       # we cannot just use `watch` here, because we want to keep a reference on the AR object
-      resolution_stack.push serialized
       resolution_children_count[new_signature] = count
+      if resolution_stack_indexes[new_signature]
+        # this object is already in the stack, we replace it
+        resolution_stack[resolution_stack_indexes[new_signature]] = self
+      else
+        resolution_stack_indexes[new_signature] = resolution_stack.size
+        resolution_stack.push serialized
+      end
     end
 
     def after_destroy object
@@ -97,6 +105,10 @@ module Chouette::ChecksumManager
 
     def resolution_stack
       @resolution_stack ||= []
+    end
+
+    def resolution_stack_indexes
+      @resolution_stack_indexes ||= {}
     end
 
     def resolution_children_count
@@ -121,7 +133,12 @@ module Chouette::ChecksumManager
     end
 
     def push_on_stack object, from
-      unless resolution_children_count.has_key?(object.signature)
+      if resolution_stack_indexes.has_key?(object.signature)
+        # we substitute the object in the stack,
+        # to ensure we are using the most recent data
+        resolution_stack[resolution_stack_indexes[object.signature]] = object
+      else
+        resolution_stack_indexes[object.signature] = resolution_stack.size
         resolution_stack.push object
       end
 

@@ -30,6 +30,7 @@ module Chouette
     has_and_belongs_to_many :footnotes, :class_name => 'Chouette::Footnote'
     has_and_belongs_to_many :purchase_windows, :class_name => 'Chouette::PurchaseWindow'
     has_array_of :ignored_routing_contraint_zones, class_name: 'Chouette::RoutingConstraintZone'
+    has_array_of :ignored_stop_area_routing_constraints, class_name: 'StopAreaRoutingConstraint'
 
     validates_presence_of :route
     validates_presence_of :journey_pattern
@@ -87,7 +88,7 @@ module Chouette
 
     scope :ending_with, ->(id){
       if id.present?
-        pattern_ids = all.select(:journey_pattern_id).uniq.map(&:journey_pattern_id)
+        pattern_ids = all.select(:journey_pattern_id).distinct.map(&:journey_pattern_id)
         pattern_ids = Chouette::JourneyPattern.where(id: pattern_ids).to_a.select{|jp| p "ici: #{jp.stop_points.order(:position).last.stop_area_id}" ; jp.stop_points.order(:position).last.stop_area_id == id.to_i}.map &:id
         where(journey_pattern_id: pattern_ids)
       else
@@ -97,7 +98,7 @@ module Chouette
 
     scope :in_purchase_window, ->(range){
       purchase_windows = Chouette::PurchaseWindow.overlap_dates(range)
-      sql = purchase_windows.joins(:vehicle_journeys).select('vehicle_journeys.id').uniq.to_sql
+      sql = purchase_windows.joins(:vehicle_journeys).select('vehicle_journeys.id').distinct.to_sql
       where("vehicle_journeys.id IN (#{sql})")
     }
 
@@ -106,7 +107,7 @@ module Chouette
       joins(:vehicle_journey_at_stops)
       .select('id', field)
       .group(:id)
-      .order("#{field} #{dir}")
+      .order(Arel.sql("#{field} #{dir}"))
     }
 
     scope :order_by_arrival_time, -> (dir) {
@@ -114,8 +115,12 @@ module Chouette
       joins(:vehicle_journey_at_stops)
       .select('id', field)
       .group(:id)
-      .order("#{field} #{dir}")
+      .order(Arel.sql("#{field} #{dir}"))
     }
+
+    scope :without_any_purchase_window, -> { joins('LEFT JOIN purchase_windows_vehicle_journeys ON purchase_windows_vehicle_journeys.vehicle_journey_id = vehicle_journeys.id LEFT JOIN purchase_windows ON purchase_windows.id = purchase_windows_vehicle_journeys.purchase_window_id').where(purchase_windows: { id: nil }) }
+    scope :without_any_time_table, -> { joins('LEFT JOIN time_tables_vehicle_journeys ON time_tables_vehicle_journeys.vehicle_journey_id = vehicle_journeys.id LEFT JOIN time_tables ON time_tables.id = time_tables_vehicle_journeys.time_table_id').where(:time_tables => { :id => nil}) }
+    scope :without_any_passing_time, -> { joins('LEFT JOIN vehicle_journey_at_stops ON vehicle_journey_at_stops.vehicle_journey_id = vehicle_journeys.id').where(vehicle_journey_at_stops: { id: nil }) }
 
     # We need this for the ransack object in the filters
     ransacker :purchase_window_date_gt
@@ -185,6 +190,9 @@ module Chouette
         if ignored_routing_contraint_zone_ids.present? && ignored_routing_contraint_zones.present?
           attrs << ignored_routing_contraint_zones.map(&:checksum).sort
         end
+        if ignored_stop_area_routing_constraint_ids.present? && ignored_stop_area_routing_constraints.present?
+          attrs << ignored_stop_area_routing_constraints.map(&:checksum).sort
+        end
       end
     end
 
@@ -207,14 +215,11 @@ module Chouette
       purchase_windows.map{|p| p.date_ranges.map &:max}.flatten.max
     end
 
-    def calculate_vehicle_journey_at_stop_day_offset
+    def calculate_vehicle_journey_at_stop_day_offset(force_reset=false)
       Chouette::VehicleJourneyAtStopsDayOffset.new(
         vehicle_journey_at_stops.sort_by{ |vjas| vjas.stop_point.position }
-      ).update
+      ).update(force_reset)
     end
-
-    scope :without_any_time_table, -> { joins('LEFT JOIN "time_tables_vehicle_journeys" ON "time_tables_vehicle_journeys"."vehicle_journey_id" = "vehicle_journeys"."id" LEFT JOIN "time_tables" ON "time_tables"."id" = "time_tables_vehicle_journeys"."time_table_id"').where(:time_tables => { :id => nil}) }
-    scope :without_any_passing_time, -> { joins('LEFT JOIN "vehicle_journey_at_stops" ON "vehicle_journey_at_stops"."vehicle_journey_id" = "vehicle_journeys"."id"').where(vehicle_journey_at_stops: { id: nil }) }
 
     accepts_nested_attributes_for :vehicle_journey_at_stops, :allow_destroy => true
 
@@ -256,6 +261,8 @@ module Chouette
             el[field.to_sym] = Time.parse("2000-01-01 #{time}:00 #{tz&.formatted_offset || "UTC"}")
           end
         end
+        params[:arrival_day_offset] = 0
+        params[:departure_day_offset] = 0
         stop = create_or_find_vjas_from_state(vjas)
         stop.update_attributes(params)
         vjas.delete('errors')
@@ -343,7 +350,8 @@ module Chouette
         'published_journey_name',
         'journey_pattern_id',
         'company_id',
-        'ignored_routing_contraint_zone_ids'
+        'ignored_routing_contraint_zone_ids',
+        'ignored_stop_area_routing_constraint_ids'
       ).to_hash
 
       if item['journey_pattern']
@@ -475,7 +483,7 @@ module Chouette
             AND "vehicle_journey_at_stops"."stop_point_id" =
               "journey_patterns"."departure_stop_point_id"
         ')
-        .order('"vehicle_journey_at_stops"."departure_time"')
+        .order(Arel.sql('"vehicle_journey_at_stops"."departure_time"'))
     end
 
     # Requires a SELECT DISTINCT and a join with

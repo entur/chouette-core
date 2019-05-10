@@ -47,7 +47,7 @@ class NetworksController < ChouetteController
   protected
 
   def collection
-    @q = line_referential.networks.search(params[:q])
+    @q = line_referential.networks.ransack(params[:q])
 
     if sort_column && sort_direction
       @networks ||= @q.result(:distinct => true).order(sort_column + ' ' + sort_direction).paginate(:page => params[:page])

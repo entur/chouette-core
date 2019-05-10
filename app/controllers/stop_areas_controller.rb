@@ -126,7 +126,7 @@ class StopAreasController < ChouetteController
 
   def collection
     scope = parent.present? ? parent.stop_areas : referential.stop_areas
-    @q = scope.search(params[:q])
+    @q = scope.ransack(params[:q])
 
     @stop_areas ||=
       begin

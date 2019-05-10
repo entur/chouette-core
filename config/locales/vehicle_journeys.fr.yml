@@ -3,10 +3,11 @@ fr:
     vehicle_journeys_matrix:
       filters:
         id: Filtrer par ID course...
-        journey_pattern: 'Filtrer par code, nom ou OID de mission...'
+        journey_pattern: 'Filtrer par code, nom ou ID de mission...'
         timetable: Filtrer par calendrier...
         purchase_window: Filtrer par calendrier commercial...
-        constraint_zone: Choisir une ITL
+        constraint_zone: Choisir une Interdiction de Trafic Local
+        stop_area_constraint: Choisir une Interdiction de Trafic entre Arrêts
       cancel_selection: "Annuler la sélection"
       cancel_destroy: "Annuler la suppression"
       fetching_error: "La récupération des missions a rencontré un problème. Rechargez la page pour tenter de corriger le problème."
@@ -18,7 +19,8 @@ fr:
       no_associated_timetables: Aucun calendrier associé
       no_associated_purchase_windows: Aucun calendrier commercial associé
       no_associated_footnotes: Aucune note associée
-      no_excluded_constraint_zones: Aucune ITL exclue
+      no_excluded_constraint_zones: Aucune Interdiction de Trafic Local exclue
+      no_excluded_stop_area_constraint: Aucune Interdiction de Trafic entre Arrêts exclue
       duplicate:
         one: Dupliquer %{count} course
         other: Dupliquer %{count} courses
@@ -61,6 +63,7 @@ fr:
         end: Fin
       ending_stop: "Arrivée"
       excluded_constraint_zones: Exclusions d'ITL
+      excluded_stop_area_constraints: Exclusions d'ITA
       infos: Informations
       set: "Fixer"
       show_arrival_time: "Afficher et éditer les horaires d'arrivée"
@@ -167,7 +170,7 @@ fr:
         vehicle_journey_at_stop_ids: "Liste des horaires"
         vehicle_type_identifier: "Type d'identifiant du véhicule"
         start_time: Heure de départ
-        constraint_exclusions: Exclusions d'ITL
+        constraint_exclusions: Exclusions d'interdictions de trafic
     errors:
       models:
         vehicle_journey:

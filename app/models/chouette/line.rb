@@ -8,8 +8,8 @@ module Chouette
     include NetexTransportSubmodeEnumerations
 
     include ColorSupport
-    color_attribute
-    color_attribute :text_color, %w(000000 9B9B9B FFFFFF)
+    open_color_attribute
+    open_color_attribute :text_color
 
     belongs_to :company
     belongs_to :network
@@ -63,6 +63,12 @@ module Chouette
       where(line_referential_id: workbench.line_referential_id)
     }
 
+    scope :notifiable, -> (workbench) {
+      where(id: workbench.notification_rules.pluck(:line_id))
+    }
+
+    scope :active, ->  { where(deactivated: false) }
+
     def self.nullable_attributes
       [:published_name, :number, :comment, :url, :color, :text_color, :stable_id]
     end
@@ -72,7 +78,7 @@ module Chouette
     end
 
     def commercial_stop_areas
-      Chouette::StopArea.joins(:children => [:stop_points => [:route => :line] ]).where(:lines => {:id => self.id}).uniq
+      Chouette::StopArea.joins(:children => [:stop_points => [:route => :line] ]).where(:lines => {:id => self.id}).distinct
     end
 
     def stop_areas

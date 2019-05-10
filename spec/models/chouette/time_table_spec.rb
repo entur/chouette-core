@@ -2,30 +2,61 @@ require 'spec_helper'
 include Support::TimeTableHelper
 
 describe Chouette::TimeTable, :type => :model do
-  subject { create(:time_table) }
+  subject(:time_table) { create(:time_table) }
   let(:subject_periods_to_range) { subject.periods.map{|p| p.period_start..p.period_end } }
 
   it { is_expected.to validate_presence_of :comment }
   it { is_expected.to validate_uniqueness_of :objectid }
 
+  def create_time_table_periode time_table, start_date, end_date
+    create(:time_table_period, time_table: time_table, :period_start => start_date, :period_end => end_date)
+  end
 
-    def create_time_table_periode time_table, start_date, end_date
-      create(:time_table_period, time_table: time_table, :period_start => start_date, :period_end => end_date)
+  describe '#clean!' do
+    let!(:vehicle_journey){ create :vehicle_journey }
+    let!(:other_vehicle_journey){ create :vehicle_journey }
+    let!(:other_time_table){ create :time_table }
+
+    before(:each) do
+      vehicle_journey.update time_tables: [time_table]
+      other_vehicle_journey.update time_tables: [time_table, create(:time_table)]
     end
 
+    it 'should clean all related assets' do
+      expect(dates = time_table.dates).to be_present
+      expect(periods = time_table.periods).to be_present
+      expect(other_time_table.dates).to be_present
+      expect(other_time_table.periods).to be_present
+
+      Chouette::TimeTable.where(id: [time_table.id, create(:time_table).id]).clean!
+
+      expect(Chouette::TimeTable.where(id: time_table.id)).to be_empty
+      expect(Chouette::TimeTableDate.where(id: dates.map(&:id))).to be_empty
+      expect(Chouette::TimeTablePeriod.where(id: periods.map(&:id))).to be_empty
+
+      expect{ other_time_table.reload }.to_not raise_error
+      expect(other_time_table.dates).to be_present
+      expect(other_time_table.periods).to be_present
+
+      expect(vehicle_journey.reload.time_tables.size).to eq 0
+      expect(other_vehicle_journey.reload.time_tables.size).to eq 1
+    end
+  end
+
   describe "#merge! with time_table" do
-    let(:another_tt) { create(:time_table) }
+    let(:another_tt) { create(:time_table, dates_count: 0, periods_count: 0) }
     let(:another_tt_periods_to_range) { another_tt.periods.map{|p| p.period_start..p.period_end } }
     let(:dates) { another_tt.dates.map(&:date) }
     let(:continuous_dates) { another_tt.continuous_dates.flatten.map(&:date) }
 
     # Make sur we don't have overlapping periods or dates
     before do
-      another_tt.periods.each do |p|
-        p.period_start = p.period_start + 1.year
-        p.period_end   = p.period_end + 1.year
+      another_tt.periods.create period_start: 1.year.from_now, period_end: 1.year.from_now + 1.month
+
+      5.times do |i|
+        another_tt.dates.create date: 1.year.from_now + i.days, in_out: true
       end
-      another_tt.dates.each{| d| d.date = d.date + 1.year }
+
       another_tt.save
     end
 

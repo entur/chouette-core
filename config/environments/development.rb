@@ -6,6 +6,7 @@ Rails.application.configure do
   SmartEnv.set :RAILS_HOST, default: 'http://localhost:3000'
   SmartEnv.set :IEV_URL, default: "http://localhost:8080"
   SmartEnv.add_boolean :TOOLBAR
+  SmartEnv.set :BYPASS_AUTH_FOR_SIDEKIQ, default: true
 
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
@@ -45,9 +46,9 @@ Rails.application.configure do
   #config.active_record.auto_explain_threshold_in_seconds = (RUBY_PLATFORM == "java" ? nil : 0.5)
 
   config.action_mailer.default_url_options = { :host => ENV.fetch('RAILS_HOST', 'http://localhost:3000') }
-  config.action_mailer.default_options     = { from: 'Chouette <chouette@af83.com>' }
+  config.action_mailer.default_options     = { from: SmartEnv['MAIL_FROM'] }
   config.action_mailer.delivery_method     = :letter_opener
-  config.action_mailer.asset_host          = ENV.fetch('RAILS_HOST', 'http://localhost:3000')
+  config.action_mailer.asset_host          = SmartEnv['RAILS_HOST']
 
   # See #8823
   config.chouette_email_user = true
@@ -86,16 +87,6 @@ Rails.application.configure do
 
   config.subscriptions_notifications_recipients = %w{foo@example.com bar@example.com}
   config.automated_audits_recipients = %w{foo@example.com bar@example.com}
-  config.development_toolbar = false
-  if SmartEnv.boolean('TOOLBAR') && File.exists?("config/development_toolbar.rb")
-    config.development_toolbar = OpenStruct.new
-    config.development_toolbar.features_doc_url = nil
-    config.development_toolbar.available_features = %w()
-    config.development_toolbar.available_permissions = %w()
-    config.development_toolbar.tap do |toolbar|
-      eval File.read("config/development_toolbar.rb")
-    end
-  end
 
   config.additional_compliance_controls << "dummy"
   config.additional_destinations << "dummy"

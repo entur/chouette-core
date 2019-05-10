@@ -47,12 +47,12 @@ export default class Tools extends Component {
           { !selectionMode && <ShiftVehicleJourney disabled={!hasPolicy("update") || !editMode || hasDeletedVJ()}/> }
           { !selectionMode && <EditVehicleJourney disabled={hasDeletedVJ()}/> }
 
-          <TimetablesEditVehicleJourney disabled={hasDeletedVJ()}/>
+          { !selectionMode && <TimetablesEditVehicleJourney disabled={hasDeletedVJ()}/> }
           { !selectionMode && hasFeature('purchase_windows') &&
             <PurchaseWindowsEditVehicleJourney disabled={hasDeletedVJ()}/>
           }
           { !selectionMode && hasFeature('routing_constraint_zone_exclusion_in_vehicle_journey') &&
-            <ConstraintExclusionEditVehicleJourney disabled={hasDeletedVJ()} />
+            <ConstraintExclusionEditVehicleJourney disabled={hasDeletedVJ()} stopAreasConstraints={hasFeature('stop_area_routing_constraints')} />
           }
           { !selectionMode && <NotesEditVehicleJourney disabled={hasDeletedVJ()}/> }
           { !selectionMode && <DeleteVehicleJourneys disabled={!hasPolicy("destroy") || !editMode || hasDeletedVJ()}/> }

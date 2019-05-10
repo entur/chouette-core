@@ -151,7 +151,6 @@ describe Chouette::VehicleJourney, :type => :model do
         before { checksum_owner.footnotes << footnote }
     end
 
-
     it_behaves_like 'it works with both checksums modes',
                     "changes when a footnote is deleted",
                     -> {
@@ -179,6 +178,63 @@ describe Chouette::VehicleJourney, :type => :model do
           checksum_owner.ignored_routing_contraint_zone_ids = [rcz.id]
           checksum_owner.save!
           rcz.reload
+        end
+    end
+
+    it_behaves_like 'it works with both checksums modes',
+                    "changes when a RoutingConstraintZone is updated",
+                    -> {
+                      rcz.stop_points << checksum_owner.route.stop_points.last
+                      rcz.save!
+                      rcz.run_callbacks(:commit)
+                    },
+                    reload: true do
+        let(:rcz){ create :routing_constraint_zone, route_id: checksum_owner.route.id, stop_points: checksum_owner.route.stop_points[0..1] }
+        before(:each) do
+          checksum_owner.ignored_routing_contraint_zone_ids = [rcz.id]
+          checksum_owner.save!
+          rcz.reload
+        end
+    end
+
+    it_behaves_like 'it works with both checksums modes',
+                    "changes when a StopAreaRoutingConstraint is added",
+                    -> {
+                      checksum_owner.ignored_stop_area_routing_constraints = [constraint_zone.id]
+                      checksum_owner.save
+                    },
+                    reload: true do
+        let(:constraint_zone){ create :stop_area_routing_constraint, stop_area_referential: checksum_owner.referential.stop_area_referential }
+    end
+
+    it_behaves_like 'it works with both checksums modes',
+                    "changes when a StopAreaRoutingConstraint is deleted",
+                    -> {
+                      constraint_zone.destroy
+                      constraint_zone.run_callbacks(:commit)
+                    },
+                    reload: true do
+        let(:constraint_zone){ create :stop_area_routing_constraint, stop_area_referential: checksum_owner.referential.stop_area_referential }
+        before(:each) do
+          checksum_owner.ignored_stop_area_routing_constraints = [constraint_zone.id]
+          checksum_owner.save!
+          constraint_zone.reload
+        end
+    end
+
+    it_behaves_like 'it works with both checksums modes',
+                    "changes when a StopAreaRoutingConstraint is updated",
+                    -> {
+                      constraint_zone.from = create(:stop_area, stop_area_referential: checksum_owner.referential.stop_area_referential)
+                      constraint_zone.save!
+                      constraint_zone.run_callbacks(:commit)
+                    },
+                    reload: true do
+        let(:constraint_zone){ create :stop_area_routing_constraint, stop_area_referential: checksum_owner.referential.stop_area_referential }
+        before(:each) do
+          checksum_owner.ignored_stop_area_routing_constraints = [constraint_zone.id]
+          checksum_owner.save!
+          constraint_zone.reload
         end
     end
 
@@ -242,6 +298,13 @@ describe Chouette::VehicleJourney, :type => :model do
         end
         let(:custom_field){ create :custom_field, field_type: :attachment, code: :energy, name: :energy, resource_type: "VehicleJourney" }
 
+        after(:each) do
+          to_be_deleted = Chouette::VehicleJourney.__callbacks[:commit].select {|call| call.instance_variable_get('@key') =~ /custom_field/ }
+          to_be_deleted.each do |callback|
+            Chouette::VehicleJourney.__callbacks[:commit].delete callback
+          end
+        end
+        
         it_behaves_like 'it works with both checksums modes',
                        "should change the checksum",
                        -> {
@@ -448,7 +511,7 @@ describe Chouette::VehicleJourney, :type => :model do
 
     before(:each){
       referential.switch
-      referential.vehicle_journeys.push(vj1, vj2, vj3)
+      referential.vehicle_journeys.to_a.push(vj1, vj2, vj3)
     }
 
     context '#order_by_departure_time' do
@@ -653,9 +716,10 @@ describe Chouette::VehicleJourney, :type => :model do
                    :departure_time  => '2000-01-01 00:00:00 UTC')
       end
       collection << vehicle_journey_to_state(new_vj)
+
       expect {
         Chouette::VehicleJourney.state_update(route, collection)
-      }.not_to change {Chouette::VehicleJourneyAtStop.count}
+      }.not_to change { Chouette::VehicleJourneyAtStop.count }
     end
 
     it 'should update vj journey_pattern association' do
@@ -1195,7 +1259,7 @@ describe Chouette::VehicleJourney, :type => :model do
   end
 
   def offset_passing_time time, offset
-    new_time = time + offset
+    new_time = (time + offset).utc
     "2000-01-01 #{new_time.hour}:#{new_time.min}:#{new_time.sec} UTC".to_time
   end
 

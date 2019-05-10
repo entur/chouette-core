@@ -1,4 +1,4 @@
-class CreateLineReferentialSyncMessages < ActiveRecord::Migration
+class CreateLineReferentialSyncMessages < ActiveRecord::Migration[4.2]
   def self.up
     execute 'CREATE EXTENSION IF NOT EXISTS hstore SCHEMA shared_extensions;'
 

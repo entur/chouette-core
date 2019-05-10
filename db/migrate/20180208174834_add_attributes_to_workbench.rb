@@ -1,4 +1,4 @@
-class AddAttributesToWorkbench < ActiveRecord::Migration
+class AddAttributesToWorkbench < ActiveRecord::Migration[4.2]
   def change
     add_column :workbenches, :import_compliance_control_set_id, :integer, limit: 8
     add_column :workbenches, :merge_compliance_control_set_id, :integer, limit: 8

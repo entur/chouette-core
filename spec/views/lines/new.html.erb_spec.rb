@@ -8,7 +8,10 @@ describe "/lines/new", :type => :view do
   let!(:line_referential) { assign :line_referential, referential.line_referential }
 
   describe "form" do
-
+    before :each do
+      allow(view).to receive(:resource_class).and_return(Chouette::Line)
+    end
+    
     it "should render input for name" do
       render
       expect(rendered).to have_selector("form") do

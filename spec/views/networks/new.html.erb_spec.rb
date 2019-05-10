@@ -7,6 +7,7 @@ describe "/networks/new", :type => :view do
 
   describe "form" do
     it "should render input for name" do
+      allow(view).to receive(:resource_class).and_return(Chouette::Network)
       render
       expect(rendered).to have_selector("form") do
         with_selector "input[type=text][name=?]", network.name

@@ -13,17 +13,18 @@ FactoryGirl.define do
     transient do
       dates_count 4
       periods_count 4
+      start_date Date.today
     end
 
     after(:create) do |time_table, evaluator|
+      start_date = evaluator.start_date.to_date
+      end_date = start_date + 10
+
       unless time_table.dates.any?
         evaluator.dates_count.times do |i|
-          time_table.dates << create(:time_table_date, :time_table => time_table, :date => i.days.since.to_date, :in_out => true)
+          time_table.dates << create(:time_table_date, :time_table => time_table, :date => start_date + i.days, :in_out => true)
         end
       end
-
-      start_date = Date.today
-      end_date = start_date + 10
 
       unless time_table.periods.any?
         evaluator.periods_count.times do |i|

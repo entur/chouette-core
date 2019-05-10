@@ -1,4 +1,4 @@
-class RevertRoutingConstraintZonesStopIdsType < ActiveRecord::Migration
+class RevertRoutingConstraintZonesStopIdsType < ActiveRecord::Migration[4.2]
   def change
     reversible do |dir|
       dir.up { change_column :routing_constraint_zones, :stop_point_ids, :bigint, array: true }

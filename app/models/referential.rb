@@ -1,5 +1,20 @@
 # coding: utf-8
+
+module ReferentialSaveWithLock
+  def save(options = {})
+    super(options)
+  rescue ActiveRecord::StatementInvalid => e
+    if e.message.include?('PG::LockNotAvailable')
+      raise TableLockTimeoutError.new(e)
+    else
+      raise
+    end
+  end
+end
+
 class Referential < ApplicationModel
+  prepend ReferentialSaveWithLock
+
   include DataFormatEnumerations
   include ObjectidFormatterSupport
 
@@ -17,18 +32,20 @@ class Referential < ApplicationModel
 
   validates_format_of :slug, with: %r{\A[a-z][0-9a-z_]+\Z}
   validates_format_of :prefix, with: %r{\A[0-9a-zA-Z_]+\Z}
-  validates_format_of :upper_corner, with: %r{\A-?[0-9]+\.?[0-9]*\,-?[0-9]+\.?[0-9]*\Z}
-  validates_format_of :lower_corner, with: %r{\A-?[0-9]+\.?[0-9]*\,-?[0-9]+\.?[0-9]*\Z}
+  # validates_format_of :upper_corner, with: %r{\A-?[0-9]+\.?[0-9]*\,-?[0-9]+\.?[0-9]*\Z}
+  # validates_format_of :lower_corner, with: %r{\A-?[0-9]+\.?[0-9]*\,-?[0-9]+\.?[0-9]*\Z}
   validate :slug_excluded_values
 
   attr_accessor :upper_corner
   attr_accessor :lower_corner
 
   attr_accessor :from_current_offer
+  attr_accessor :urgent
 
   has_one :user
   has_many :import_resources, class_name: 'Import::Resource', dependent: :destroy
   has_many :compliance_check_sets, dependent: :nullify
+  has_many :clean_ups, dependent: :destroy
 
   belongs_to :organisation
   validates_presence_of :organisation
@@ -80,30 +97,20 @@ class Referential < ApplicationModel
 
   scope :in_periode, ->(periode) { where(id: referential_ids_in_periode(periode)) }
   scope :include_metadatas_lines, ->(line_ids) { joins(:metadatas).where('referential_metadata.line_ids && ARRAY[?]::bigint[]', line_ids) }
-  scope :order_by_validity_period, ->(dir) { joins(:metadatas).order("unnest(periodes) #{dir}") }
-  scope :order_by_lines, ->(dir) { joins(:metadatas).group("referentials.id").order("sum(array_length(referential_metadata.line_ids,1)) #{dir}") }
-  scope :order_by_organisation_name, ->(dir) { joins(:organisation).order("lower(organisations.name) #{dir}") }
+  scope :order_by_validity_period, ->(dir) { joins(:metadatas).order(Arel.sql("unnest(periodes) #{dir}")) }
+  scope :order_by_lines, ->(dir) { joins(:metadatas).group("referentials.id").order(Arel.sql("sum(array_length(referential_metadata.line_ids,1)) #{dir}")) }
+  scope :order_by_organisation_name, ->(dir) { joins(:organisation).order(Arel.sql("lower(organisations.name) #{dir}")) }
   scope :not_in_referential_suite, -> { where referential_suite_id: nil }
   scope :blocked, -> { where('ready = ? AND created_at < ?', false, 4.hours.ago) }
   scope :created_before, -> (date) { where('created_at < ? ', date) }
+
+  after_save :notify_state
 
   def self.order_by_state(dir)
     states = ["ready #{dir}", "archived_at #{dir}", "failed_at #{dir}"]
     states.reverse! if dir == 'asc'
     Referential.order(*states)
   end
-
-  def save_with_table_lock_timeout(options = {})
-    save_without_table_lock_timeout(options)
-  rescue ActiveRecord::StatementInvalid => e
-    if e.message.include?('PG::LockNotAvailable')
-      raise TableLockTimeoutError.new(e)
-    else
-      raise
-    end
-  end
-
-  alias_method_chain :save, :table_lock_timeout
 
   def self.force_register_models_with_checksum
     paths = Rails.application.paths['app/models'].to_a
@@ -155,6 +162,22 @@ class Referential < ApplicationModel
     if res
       res["kind"].constantize.find(res["id"])
     end
+  end
+
+  def notify_state
+    Notification.create! channel: "/referentials/#{self.id}", payload: {state: self.state}
+  end
+
+  def contains_urgent_offer?
+    metadatas.any?{|m| m.urgent? }
+  end
+
+  def flagged_urgent_at
+    metadatas.pluck(:flagged_urgent_at).compact.max
+  end
+
+  def flag_not_urgent!
+    metadatas.update_all(flagged_urgent_at: nil)
   end
 
   def lines
@@ -291,6 +314,17 @@ class Referential < ApplicationModel
     self.objectid_format ||= workbench.objectid_format if workbench
   end
 
+  before_save :set_metadatas_urgency
+  def set_metadatas_urgency
+    return if urgent.nil?
+
+    if urgent
+      metadatas.each {|m| m.flagged_urgent_at ||= Time.now }
+    else
+      metadatas.each {|m| m.flagged_urgent_at = nil }
+    end
+  end
+
   def switch(verbose: true, &block)
     raise "Referential not created" if new_record?
 
@@ -312,6 +346,7 @@ class Referential < ApplicationModel
   def self.new_from(from, workbench)
     clone = Referential.new(
       name: I18n.t("activerecord.copy", name: from.name),
+      organisation: workbench.organisation,
       prefix: from.prefix,
       time_zone: from.time_zone,
       bounds: from.bounds,
@@ -542,45 +577,6 @@ class Referential < ApplicationModel
     true
   end
 
-  def upper_corner
-    envelope.upper_corner
-  end
-
-  def upper_corner=(upper_corner)
-    if String === upper_corner
-      upper_corner = (upper_corner.blank? ? nil : GeoRuby::SimpleFeatures::Point::from_lat_lng(Geokit::LatLng.normalize(upper_corner), 4326))
-    end
-
-    envelope.tap do |envelope|
-      envelope.upper_corner = upper_corner
-      self.bounds = envelope.to_polygon.as_ewkt
-    end
-  end
-
-  def lower_corner
-    envelope.lower_corner
-  end
-
-  def lower_corner=(lower_corner)
-    if String === lower_corner
-      lower_corner = (lower_corner.blank? ? nil : GeoRuby::SimpleFeatures::Point::from_lat_lng(Geokit::LatLng.normalize(lower_corner), 4326))
-    end
-
-    envelope.tap do |envelope|
-      envelope.lower_corner = lower_corner
-      self.bounds = envelope.to_polygon.as_ewkt
-    end
-  end
-
-  def default_bounds
-    GeoRuby::SimpleFeatures::Envelope.from_coordinates( [ [-5.2, 42.25], [8.23, 51.1] ] ).to_polygon.as_ewkt
-  end
-
-  def envelope
-    bounds = read_attribute(:bounds)
-    GeoRuby::SimpleFeatures::Geometry.from_ewkt(bounds.present? ? bounds : default_bounds ).envelope
-  end
-
   # Archive
   def archived?
     archived_at != nil
@@ -589,11 +585,13 @@ class Referential < ApplicationModel
   def archive!
     # self.archived = true
     touch :archived_at
+    notify_state
   end
   def unarchive!
     return false unless can_unarchive?
     # self.archived = false
     update_column :archived_at, nil
+    notify_state
   end
 
   def can_unarchive?
@@ -627,6 +625,7 @@ class Referential < ApplicationModel
     else
       assign_attributes vals
     end
+    notify_state
   end
 
   def pending!
@@ -650,6 +649,7 @@ class Referential < ApplicationModel
   def merged!
     now = Time.now
     update_columns failed_at: nil, archived_at: now, merged_at: now, ready: true
+    notify_state
   end
 
   def unmerged!
@@ -666,6 +666,11 @@ class Referential < ApplicationModel
   end
 
   def pending_while
+    if pending?
+      yield
+      return
+    end
+
     vals = attributes.slice(*%w(ready archived_at failed_at))
     pending!
     begin
@@ -673,6 +678,10 @@ class Referential < ApplicationModel
     ensure
       update vals
     end
+  end
+
+  def update_stats!
+    Stat::JourneyPatternCoursesByDate.compute_for_referential(self)
   end
 
   private

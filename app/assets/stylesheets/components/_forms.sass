@@ -712,8 +712,15 @@ table, .table
                   text-align: center
                   color: #fff
 
-            &[type='checkbox']:checked + span:before
-              background-color: $brand-color-secondary
+            &[type='checkbox']
+              &:checked
+                + span:before
+                  background-color: $brand-color-secondary
+              &:disabled
+                + span:before
+                  background-color: $lightgrey
+                + span:after
+                  color: $lightgrey
 
   > .ffg-row
     display: block
@@ -859,11 +866,11 @@ $grp-cbx-size: 34px
       &[class*='actions-']
         .btn
           &, & + .btn
-          margin: 0
-          padding-right: 0
-          padding-left: 0
-          width: 25px
-          text-align: center
+            margin: 0
+            padding-right: 0
+            padding-left: 0
+            width: 25px
+            text-align: center
 
       .form-group
         margin: 0
@@ -996,3 +1003,8 @@ $grp-cbx-size: 34px
     &.col-sm-12
       padding: 0
       text-align: center
+
+.js .formSubmitr
+  display: none
+  .page-action .formSubmitr
+    display: block

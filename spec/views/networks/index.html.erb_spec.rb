@@ -27,7 +27,8 @@ describe "/networks/index", :type => :view do
     allow(view).to receive(:decorated_collection).and_return(networks)
     allow(view).to receive(:current_referential).and_return(line_referential)
     controller.request.path_parameters[:line_referential_id] = line_referential.id
-    allow(view).to receive(:params).and_return({action: :index})
+    allow(view).to receive(:params).and_return(ActionController::Parameters.new(action: :index))
+    allow(view).to receive(:resource_class).and_return(Chouette::Network)
   end
 
   describe "action links" do

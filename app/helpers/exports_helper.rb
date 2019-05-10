@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 module ExportsHelper
   def export_option_input form, export, attr, option_def, type, referentials, parent_form: nil
+    attr = option_def[:name] if option_def[:name].present?
     parent_form ||= form
     if !!option_def[:depends_on_referential]
       out = ""
@@ -13,7 +14,9 @@ module ExportsHelper
       out.html_safe
     else
       opts = { required: option_def[:required], input_html: {value: export.try(attr) || option_def[:default_value]}, as: option_def[:type], selected: export.try(attr) || option_def[:default_value]}
-      if option_def[:type].to_s == "boolean"
+      if option_def[:hidden]
+        opts[:as] = :hidden
+      elsif option_def[:type].to_s == "boolean"
         opts[:as] = :switchable_checkbox
         opts[:input_html][:checked] = export.try(attr) || option_def[:default_value]
       end
@@ -29,7 +32,9 @@ module ExportsHelper
       opts[:input_html]['data-select2ed'] = true if opts[:collection]
       out = form.input attr, opts
       if option_def[:depends]
-        out = content_tag :div, class: "slave", data: { master: "[name='#{parent_form.object_name}[#{option_def[:depends][:option]}]']", value: option_def[:depends][:value] } do
+        klass = 'slave'
+        klass << ' hidden' if option_def[:hidden]
+        out = content_tag :div, class: klass, data: { master: "[name='#{parent_form.object_name}[#{option_def[:depends][:option]}]']", value: option_def[:depends][:value] } do
           out
         end.html_safe
       end
@@ -65,11 +70,11 @@ module ExportsHelper
     root.tmf("#{parent_class.name.demodulize.underscore}.#{attr}_collection.#{key}", default: key)
   end
 
-  def pretty_print_options(parent_class, options)
-    options.map do |k, v|
-      collection = parent_class.options[k.to_sym].has_key?(:collection)
-      val = collection ? translate_option_value(parent_class, k, v) : v
-      "#{translate_option_key(parent_class, k)}: #{val}"
+  def pretty_print_options(record)
+    record.options.map do |k, v|
+      collection = record.option_def(k).has_key?(:collection)
+      val = collection ? translate_option_value(record.class, k, v) : v
+      "#{translate_option_key(record.class, k)}: #{val}"
     end.join('<br/>').html_safe
   end
 

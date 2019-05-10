@@ -63,20 +63,24 @@ RSpec.describe Import::Netex, type: [:model, :with_commit] do
   describe "#destroy" do
     it "must destroy its associated Referential if ready: false" do
       workbench_import = create(:workbench_import)
-      referential_ready_false = create(:referential, status: :pending)
-      referential_ready_true = create(:referential, ready: true)
+      referential_ready_false = create(:referential)
+      referential_ready_false.update ready: false
+      referential_ready_true = create(:referential)
+      referential_ready_true.update ready: true
+
       create(
         :netex_import,
         parent: workbench_import,
         referential: referential_ready_false
       )
+
       create(
         :netex_import,
         parent: workbench_import,
         referential: referential_ready_true
       )
 
-      workbench_import.destroy
+      workbench_import.reload.destroy
 
       expect(
         Referential.where(id: referential_ready_false.id).exists?

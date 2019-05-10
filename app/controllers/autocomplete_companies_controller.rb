@@ -3,6 +3,6 @@ class AutocompleteCompaniesController < ApplicationController
 
   def autocomplete
     scope = Chouette::Company.where(line_referential_id: current_organisation.line_referential_memberships.pluck(:line_referential_id))
-    @companies = scope.search(params[:q]).result.paginate(page: params[:page])
+    @companies = scope.ransack(params[:q]).result.paginate(page: params[:page])
   end
 end

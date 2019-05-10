@@ -2,7 +2,6 @@ class Feature
   def self.all
     %w{
       application_days_on_calendars
-      change_locale
       consolidated_offers
       core_controls
       core_control_blocks
@@ -20,6 +19,7 @@ class Feature
       stop_area_localized_names
       stop_area_waiting_time
       vehicle_journeys_return_route
+      stop_area_routing_constraints
     }
  end
 end

@@ -17,7 +17,7 @@ RSpec.describe Api::V1::Internals::NetexImportsController, type: :controller do
       include_context 'iboo wrong authorisation internal api'
 
       it 'should not be successful' do
-        post :create, format: :json, netex_import: attributes
+        post :create, params: { format: :json, netex_import: attributes }
         expect(response).to have_http_status 401
       end
     end
@@ -28,9 +28,9 @@ RSpec.describe Api::V1::Internals::NetexImportsController, type: :controller do
       it 'should be successful' do
         import_1
         expect {
-          post :create, format: :json, netex_import: attributes
+          post :create, params: { format: :json, netex_import: attributes }
         }.to change{Import::Netex.count}.by(1)
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
   end
@@ -40,7 +40,7 @@ RSpec.describe Api::V1::Internals::NetexImportsController, type: :controller do
       include_context 'iboo wrong authorisation internal api'
 
       it 'should not be successful' do
-        get :notify_parent, id: import_1.id, format: :json
+        get :notify_parent, params: { id: import_1.id, format: :json }
         expect(response).to have_http_status 401
       end
     end
@@ -51,7 +51,7 @@ RSpec.describe Api::V1::Internals::NetexImportsController, type: :controller do
       describe "with existing record" do
 
         before(:each) do
-          get :notify_parent, id: import_2.id, format: :json
+          get :notify_parent, params: { id: import_2.id, format: :json }
         end
 
         it 'should be successful' do
@@ -65,7 +65,7 @@ RSpec.describe Api::V1::Internals::NetexImportsController, type: :controller do
 
       describe "with non existing record" do
         it "should throw an error" do
-          get :notify_parent, id: 47, format: :json
+          get :notify_parent, params: { id: 47, format: :json }
           expect(response.body).to include("error")
         end
       end

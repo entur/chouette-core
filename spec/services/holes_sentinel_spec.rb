@@ -8,6 +8,7 @@ RSpec.describe HoleSentinel do
   before(:each) do
     workbench.output.update current: referential
     referential.metadatas << create(:referential_metadata, line_ids: [line.id, line2.id], periodes: [(Time.now..1.month.since)])
+    allow(referential).to receive(:notifiable_lines).and_return([line, line2])
     referential.switch
   end
 
@@ -57,11 +58,34 @@ RSpec.describe HoleSentinel do
           end
         end
 
-        it { should be_present }
+        context "without notification rules" do
+          it { should be_present }
 
-        it 'should have a hole for the line with the date' do
-          expect(subject[line.id]).to eq 4.days.since.to_date
-          expect(subject[line2.id]).to be_nil
+          it 'should have a hole for the line with the date' do
+            expect(subject[line.id]).to eq 4.days.since.to_date
+            expect(subject[line2.id]).to be_nil
+          end
+        end
+
+        context "with notification rules not covering all the holes" do
+          before(:each) do
+            workbench.notification_rules << create(:notification_rule, workbench: workbench, line_id: line.id, period: Date.today...8.day.since.to_date)
+          end
+
+          it { should be_present }
+
+          it 'should have a hole for the line with the date' do
+            expect(subject[line.id]).to eq 4.days.since.to_date
+            expect(subject[line2.id]).to be_nil
+          end
+        end
+
+        context "with notification rules covering all the holes" do
+          before(:each) do
+            workbench.notification_rules << create(:notification_rule, workbench: workbench, line_id: line.id, period: Date.today...30.day.since.to_date)
+          end
+
+          it { should be_empty }
         end
       end
 

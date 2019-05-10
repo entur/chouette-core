@@ -3,9 +3,15 @@ import PropTypes from 'prop-types'
 
 import StopPoint from './StopPoint'
 
-export default function StopPointList({ stopPoints, onDeleteClick, onMoveUpClick, onMoveDownClick, onChange, onSelectChange, onToggleMap, onToggleEdit, onSelectMarker, onUnselectMarker, onUpdateViaOlMap }) {
+export default function StopPointList({ stopPoints, onDeleteClick, onMoveUpClick, onMoveDownClick, onChange, onSelectChange, onToggleMap, onToggleEdit, onSelectMarker, onUnselectMarker, onUpdateViaOlMap, errors }) {
   return (
     <div className='subform'>
+      { errors.invalidLength && (
+        <div className="alert alert-danger">
+          <span className="fa fa-lg fa-exclamation-circle"></span>
+          <span>{I18n.t('activerecord.errors.models.route.attributes.stop_points.not_enough_stop_points')}</span>
+        </div>
+      ) }
       <div className='nested-head'>
         <div className="wrapper">
           <div style={{width: 100}}>
@@ -35,7 +41,7 @@ export default function StopPointList({ stopPoints, onDeleteClick, onMoveUpClick
         <StopPoint
           id={`route_stop_point_${index + 1}`}
           key={'item-' + index}
-          onDeleteClick={() => onDeleteClick(index)}
+          onDeleteClick={() => onDeleteClick(index, stopPoint.stoppoint_id)}
           onMoveUpClick={() => {
             onMoveUpClick(index)
           }}
@@ -51,6 +57,7 @@ export default function StopPointList({ stopPoints, onDeleteClick, onMoveUpClick
           last={ index === (stopPoints.length - 1) }
           index={ index }
           value={ stopPoint }
+          hasError={errors.invalidStopPointIndexes.includes(index)}
         />
       )}
     </div>

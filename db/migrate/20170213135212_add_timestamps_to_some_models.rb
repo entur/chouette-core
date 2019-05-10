@@ -1,4 +1,4 @@
-class AddTimestampsToSomeModels < ActiveRecord::Migration
+class AddTimestampsToSomeModels < ActiveRecord::Migration[4.2]
   def up
     models = %i(vehicle_journeys timebands time_tables stop_points stop_areas routing_constraint_zones routes route_sections pt_links networks lines
     journey_patterns group_of_lines connection_links companies access_points access_links)

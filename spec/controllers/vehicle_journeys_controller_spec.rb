@@ -34,7 +34,7 @@ RSpec.describe VehicleJourneysController, :type => :controller do
       let!(:vehicle_journey){ create :vehicle_journey, journey_pattern: route.full_journey_pattern }
       let(:route){ create :route, referential: referential }
       let(:line){ route.line }
-      let!(:request){ get :index, referential_id: referential.id, line_id: line.id, route_id: route.id, format: :json}
+      let!(:request){ get :index, params: { referential_id: referential.id, line_id: line.id, route_id: route.id, format: :json }}
       let(:parsed_response){ JSON.parse response.body }
       it "should have all the attributes" do
         expect(response).to have_http_status 200

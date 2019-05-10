@@ -1,8 +1,18 @@
 import { combineReducers } from 'redux'
+import formErrors from './formErrors'
+import oppositeRoutes from './oppositeRoutes'
+import route from './route'
+import status from './status'
 import stopPoints from './stopPoints'
+import deletedStopPoints from './deletedStopPoints'
 
-const stopPointsApp = combineReducers({
-  stopPoints
+const routesApp = combineReducers({
+  route,
+  oppositeRoutes,
+  stopPoints,
+  deletedStopPoints,
+  status,
+  formErrors
 })
 
-export default stopPointsApp
+export default routesApp

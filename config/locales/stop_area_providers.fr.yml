@@ -8,9 +8,11 @@ fr:
     new:
       title: "Ajouter un fournisseurs d’arrêts"
     show:
-      title: "Fournisseurs d’arrêts \"%{name}\""
+      title: "%{name}"
     edit:
-      title: "Fournisseurs d’arrêts \"%{name}\""
+      title: "Editer %{name}"
+    update:
+      title: "Editer %{name}"
   activerecord:
     models:
       stop_area_provider:

@@ -1,7 +1,7 @@
 fr:
   workbench_outputs:
     show:
-      title: Finaliser des jeux de données
+      title: Finalisation des jeux de données
       see_current_output: "Voir l'Offre actuelle"
       table_headers:
         ended_at: "Date et heure de création"

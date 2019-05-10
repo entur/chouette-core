@@ -23,7 +23,7 @@ en:
     edit:
       title: "Update user %{name}"
     show:
-      title: "User %{name}"
+      title: "Users"
     index:
       title: "Users"
       name_or_email_cont: "Name or email"

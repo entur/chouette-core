@@ -37,6 +37,7 @@ module Chouette::ChecksumManager
   end
 
   def self.start_transaction
+    return if in_no_updates?
     return unless transaction_enabled?
 
     raise AlreadyInTransactionError if in_transaction?
@@ -48,7 +49,12 @@ module Chouette::ChecksumManager
     current.is_a?(Chouette::ChecksumManager::Transactional)
   end
 
+  def self.in_no_updates?
+    current.is_a?(Chouette::ChecksumManager::NoUpdates)
+  end
+
   def self.commit
+    return if in_no_updates?
     return unless transaction_enabled?
 
     current.log "=== COMMITTING TRANSACTION ==="
@@ -70,11 +76,39 @@ module Chouette::ChecksumManager
     Rails.application.config.enable_transactional_checksums
   end
 
+  def self.start_no_updates
+    self.current = Chouette::ChecksumManager::NoUpdates.new
+    log "=== NO CHECKSUM UPDATES ==="
+    log "=== BE CAREFUL, YOU WILL NEED TO UPDATE CHECKSUMS MANUALLY ==="
+  end
+
+  def self.commit_no_updates
+    log "=== ENDING NO CHECKSUM UPDATES ==="
+    self.current = nil
+  end
+
+  def self.no_updates
+    begin
+      start_no_updates
+      out = yield
+      commit_no_updates
+      out
+    rescue
+      commit_no_updates
+      raise
+    end
+  end
+
   def self.transaction
-    start_transaction
-    out = yield
-    commit
-    out
+    begin
+      start_transaction
+      out = yield
+      commit
+      out
+    rescue
+      commit
+      raise
+    end
   end
 
   def self.watch object, from: nil
@@ -119,14 +153,14 @@ module Chouette::ChecksumManager
       if object.respond_to? has_many
         # XXX: SOME OPTIM POSSIBLE HERE
         if reflection && object.association(has_many.intern).loaded?
-          log "parents are already loaded"
+          log "#{has_many} parents are already loaded"
           parents += object.send(has_many).map{|p| SerializedObject.new(p, need_save: true)}
         else
           if reflection && !reflection.options[:through]
-            log "parent are not loaded but can be inferred from reflection"
+            log "#{has_many} parent are not loaded but can be inferred from reflection"
             parents += [reflection.klass.name].product(object.send(has_many).pluck(reflection.foreign_key).compact)
           else
-            log "parents have to be loaded"
+            log "#{has_many} parents have to be loaded"
             # the relation is not a true ActiveRecord Relation
             parents += object.send(has_many).map { |p| SerializedObject.new(p, need_save: true, load_object: true)}
           end
@@ -149,11 +183,7 @@ module Chouette::ChecksumManager
   end
 
   def self.child_after_save object
-    if object.changed? || object.destroyed?
-      parents = checksum_parents object
-      log "Request from #{object.class.name}##{object.id} checksum updates for #{parents.count} parent(s): #{parents_to_sentence(parents)}"
-      parents.each { |parent| watch parent, from: object }
-    end
+    current.child_after_save(object)
   end
 
   def self.child_before_destroy object

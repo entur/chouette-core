@@ -61,14 +61,14 @@ RSpec.describe ReferentialDecorator, type: [:helper, :decorator] do
         context "on show" do
           let( :action){ :show }
           it 'has corresponding actions' do
-            expect_action_link_elements(action).to eq ["Editer", "Calendriers", "Dupliquer", "Contrôler", "Archiver", "Purger", "<span class=\"fa fa-trash mr-xs\"></span>Supprimer"]
+            expect_action_link_elements(action).to eq ["Editer", "Calendriers", "Dupliquer", "Contrôler", "Archiver", "Nettoyer", "<span class=\"fa fa-trash mr-xs\"></span>Supprimer"]
             expect_action_link_hrefs(action).to eq([
               [:edit, object],
               referential_time_tables_path(object),
               new_workbench_referential_path(referential.workbench, from: object.id),
               select_compliance_control_set_referential_path(object),
               archive_referential_path(object),
-              "#",
+              new_referential_clean_up_path(object),
               referential_path(object)
             ])
           end

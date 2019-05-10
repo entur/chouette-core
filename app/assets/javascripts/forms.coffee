@@ -60,6 +60,8 @@ $ ->
   submitMover()
   switchInput()
   colorSelector()
+  $(document).on 'submitMover', (e) ->
+    submitMover()
 
 if isIE || isEdge
   $(document).on 'click', '.formSubmitr', (e)->

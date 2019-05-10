@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Select2 from 'react-select2-wrapper'
 import actions from '../../../actions'
+import language from '../../../../helpers/select2/language'
 
 // get JSON full path
 let origin = window.location.origin
@@ -26,11 +27,11 @@ export default class BSelect4 extends Component {
         multiple={false}
         ref='company_id'
         options={{
+          language,
           allowClear: true,
           theme: 'bootstrap',
           width: '100%',
           placeholder: I18n.t('vehicle_journeys.vehicle_journeys_matrix.affect_company'),
-          language: require('./language'),
           ajax: {
             url: path + '.json?line_id=' + line,
             dataType: 'json',

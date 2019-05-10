@@ -21,10 +21,11 @@ RSpec.describe Workbench, :type => :model do
   it { should have_many(:group_of_lines).through(:line_referential) }
 
   it { should have_many(:stop_areas).through(:stop_area_referential) }
+  it { should have_many(:notification_rules).dependent(:destroy) }
 
   it do
     # This callback interferes with the validation test
-    Workbench.skip_callback(:validation, :before, :initialize_output)
+    Workbench.skip_callback(:validation, :before, :initialize_output, raise: false)
 
     should validate_presence_of(:output)
 
@@ -122,17 +123,6 @@ RSpec.describe Workbench, :type => :model do
       end
     end
 
-    context "with a scope policy based on the sso_attributes" do
-      before do
-        allow(Workgroup).to receive(:workbench_scopes_class).and_return(Stif::WorkbenchScopes)
-      end
-
-      it 'should filter lines based on my organisation functional_scope' do
-        lines = workbench.lines
-        expect(lines.count).to eq 2
-        expect(lines.map(&:objectid)).to include(*ids)
-      end
-    end
   end
 
   context '.stop_areas' do
@@ -160,19 +150,6 @@ RSpec.describe Workbench, :type => :model do
         expect(stops.count).to eq 2
         expect(stops).to include stop_2
         expect(stops).to include stop
-      end
-    end
-
-    context "with a scope policy based on the sso_attributes" do
-      before do
-        allow(Workgroup).to receive(:workbench_scopes_class).and_return(Stif::WorkbenchScopes)
-      end
-
-      it 'should filter lines based on my organisation stop_area_providers' do
-        stops = workbench.stop_areas
-        expect(stops.count).to eq 1
-        expect(stops).to include stop_2
-        expect(stops).to_not include stop
       end
     end
   end

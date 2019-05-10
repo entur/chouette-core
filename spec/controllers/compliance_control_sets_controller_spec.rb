@@ -22,7 +22,7 @@ RSpec.describe ComplianceControlSetsController, type: :controller do
   describe "GET index" do
     it 'should be successful' do
       get :index
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(assigns(:compliance_control_sets)).to include(same_organisation_cc_set)
       expect(assigns(:compliance_control_sets)).to_not include(workgroups_owner_cc_set)
       expect(assigns(:compliance_control_sets)).to_not include(different_organisation_cc_set)
@@ -32,8 +32,8 @@ RSpec.describe ComplianceControlSetsController, type: :controller do
       let(:assigned_to_slots){ [""] }
 
       it "should filter the output" do
-        get :index, q: {assigned_to_slots: assigned_to_slots}
-        expect(response).to be_success
+        get :index, params: { q: {assigned_to_slots: assigned_to_slots} }
+        expect(response).to be_successful
         expect(assigns(:compliance_control_sets)).to include(same_organisation_cc_set)
         expect(assigns(:compliance_control_sets)).to_not include(workgroups_owner_cc_set)
         expect(assigns(:compliance_control_sets)).to_not include(different_organisation_cc_set)
@@ -46,8 +46,8 @@ RSpec.describe ComplianceControlSetsController, type: :controller do
         end
 
         it "should filter the output" do
-          get :index, q: {assigned_to_slots: assigned_to_slots}
-          expect(response).to be_success
+          get :index, params: { q: { assigned_to_slots: assigned_to_slots }}
+          expect(response).to be_successful
           expect(assigns(:compliance_control_sets)).to include(same_organisation_cc_set)
           expect(assigns(:compliance_control_sets)).to_not include(workgroups_owner_cc_set)
           expect(assigns(:compliance_control_sets)).to_not include(different_organisation_cc_set)
@@ -65,8 +65,8 @@ RSpec.describe ComplianceControlSetsController, type: :controller do
         end
 
         it "should filter the output" do
-          get :index, q: {assigned_to_slots: assigned_to_slots}
-          expect(response).to be_success
+          get :index, params: { q: { assigned_to_slots: assigned_to_slots }}
+          expect(response).to be_successful
           expect(assigns(:compliance_control_sets).object).to include(same_organisation_cc_set)
           expect(assigns(:compliance_control_sets).object).to include(other_cc_set)
           expect(assigns(:compliance_control_sets).object).to_not include(workgroups_owner_cc_set)

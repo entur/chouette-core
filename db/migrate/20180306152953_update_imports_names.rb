@@ -1,4 +1,4 @@
-class UpdateImportsNames < ActiveRecord::Migration
+class UpdateImportsNames < ActiveRecord::Migration[4.2]
   def change
     Import::Base.all.pluck(:type).uniq.each do |type|
       next if type =~ /^Import/

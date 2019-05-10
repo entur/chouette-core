@@ -46,6 +46,7 @@ fr:
         sentinel_delay: Distance de détection
         nightly_aggregate_enabled: Lancement quotidien activé
         nightly_aggregate_time: Heure du lancement
+        nightly_aggregate_notification_target: Destinataire(s) des notifications
         aggregated_at: Agrégé le
         owner: Propriétaire
         name: Nom

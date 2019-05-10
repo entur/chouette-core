@@ -54,7 +54,7 @@ class RoutingConstraintZonesController < ChouetteController
   alias_method :line, :parent
 
   def collection
-    @q = line.routing_constraint_zones.search(params[:q])
+    @q = line.routing_constraint_zones.ransack(params[:q])
 
     @routing_constraint_zones ||= begin
       routing_constraint_zones = sort_collection
@@ -62,6 +62,20 @@ class RoutingConstraintZonesController < ChouetteController
         page: params[:page],
         per_page: 10
       )
+    end
+  end
+
+  def build_resource
+    super.tap do |rcz|
+      if params[:opposite_zone_id]
+        opposite_zone = @line.routing_constraint_zones.find(params[:opposite_zone_id])
+        rcz.route = opposite_zone.route.opposite_route
+        rcz.name = Chouette::RoutingConstraintZone.tmf('opposite_zone_name', name: opposite_zone.name)
+        rcz.stop_points = []
+        opposite_zone.stop_points.light.each do |stop_point|
+          rcz.stop_points << rcz.route.stop_points.light.find{|sp| stop_point.stop_area_id == sp.stop_area_id }
+        end
+      end
     end
   end
 

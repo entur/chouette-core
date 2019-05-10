@@ -8,9 +8,9 @@ en:
       profile: "My Profile"
       sign_out: "Sign out"
     navbar:
-      return_to_referentials: "Return to data spaces"
-      select_referential: "Select data space"
-      select_referential_for_more_features: "Select data space for more foeatures"
+      return_to_referentials: "Return to data sets"
+      select_referential: "Select data set"
+      select_referential_for_more_features: "Select data set for more foeatures"
       select_referential_datas: "Select datas"
       return_to_dashboard: "Return to Dashboard"
       dashboard: Dashboard
@@ -40,11 +40,14 @@ en:
       workbench:
         subtitle: Workbench
         edit_control_sets: Controls settings
+        notification_rules: Notification center
       workgroup:
         subtitle: Workgroup
         edit_control_sets: Controls settings
         edit_aggregate: Aggregation settings
         edit_hole_sentinel: Missing offer detection
+      publications:
+        subtitle: Publications
     history_tag:
       title: "Metadatas"
       created_at: "Created at"

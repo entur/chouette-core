@@ -37,7 +37,7 @@
 #         create(:line, objectid: 'STIF:CODIFLIGNE:Line:C00109', line_referential: workbench.line_referential)
 
 #         post_request.(netex_import: legal_attributes)
-#         expect( response ).to be_success
+#         expect( response ).to be_successful
 #         expect( json_response_body ).to eq(
 #           'id'             => Import::Netex.last.id,
 #           'referential_id' => Referential.last.id,

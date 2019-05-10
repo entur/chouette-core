@@ -1,4 +1,4 @@
-class ChangeForeignKeysToBigint < ActiveRecord::Migration
+class ChangeForeignKeysToBigint < ActiveRecord::Migration[4.2]
   def change
     change_column :stop_area_referential_syncs, :stop_area_referential_id, :bigint
     change_column :stop_area_referential_sync_messages, :stop_area_referential_sync_id, :bigint

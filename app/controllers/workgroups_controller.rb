@@ -37,7 +37,7 @@ class WorkgroupsController < ChouetteController
       :name,
       :sentinel_min_hole_size,
       :sentinel_delay,
-      :nightly_aggregate_enabled, :nightly_aggregate_time,
+      :nightly_aggregate_enabled, :nightly_aggregate_time, :nightly_aggregate_notification_target,
       workbenches_attributes: [
         :id,
         :locked_referential_to_aggregate_id,
@@ -58,7 +58,7 @@ class WorkgroupsController < ChouetteController
   def collection
     @workgroups ||= begin
       scope = current_organisation.workgroups
-      @q = scope.search(params[:q])
+      @q = scope.ransack(params[:q])
 
       workgroups = @q.result(:distinct => true)
 

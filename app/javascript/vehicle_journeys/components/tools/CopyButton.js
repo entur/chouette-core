@@ -9,6 +9,7 @@ export default function CopyButton({onClick, disabled, selectionMode}) {
       <button
         type='button'
         disabled={ disabled }
+        title={ I18n.t('actions.copy') }
         onClick={e => {
           e.preventDefault()
           onClick()

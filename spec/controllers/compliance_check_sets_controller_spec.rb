@@ -6,12 +6,12 @@ RSpec.describe ComplianceCheckSetsController, :type => :controller do
   let(:ccset) { create :compliance_check_set, workbench: workbench }
 
   describe "GET index" do
-    let(:request){ get :index, workbench_id: workbench.id }
+    let(:request){ get :index, params: {workbench_id: workbench.id }}
     it_behaves_like 'checks current_organisation'
   end
 
   describe "GET executed" do
-    let(:request){ get :index, workbench_id: workbench.id, id: ccset.id }
+    let(:request){ get :index, params: {workbench_id: workbench.id, id: ccset.id }}
     it_behaves_like 'checks current_organisation'
   end
 end

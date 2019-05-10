@@ -66,6 +66,7 @@ module Chouette
         where(" position between ? and ? ", between_positions.first, between_positions.last)
       end
     end
+    accepts_nested_attributes_for :stop_points, allow_destroy: true
 
     has_many :vehicle_journey_at_stops, through: :vehicle_journeys
 
@@ -98,18 +99,23 @@ module Chouette
       }
 
     scope :with_at_least_three_stop_points, -> { joins(:stop_points).group('routes.id').having("COUNT(stop_points.id) >= 3") }
+    scope :without_any_journey_pattern, -> { joins('LEFT JOIN journey_patterns ON journey_patterns.route_id = routes.id').where(journey_patterns: { id: nil }) }
+
+    def self.clean!
+      find_each &:clean!
+    end
 
     def clean!
-      vehicle_journeys.find_each do |vj|
-        vj.vehicle_journey_at_stops.delete_all
+      ::ActiveRecord::Base.transaction do
+        Chouette::VehicleJourneyAtStop.joins(vehicle_journey: :route).where(routes: {id: self.id}).delete_all
+        clean_join_tables!
+        vehicle_journeys.delete_all
+        journey_patterns.delete_all
+        stop_points.delete_all
+        routing_constraint_zones.delete_all
+        Chouette::Route.where(opposite_route_id: self.id).update_all(opposite_route_id: nil)
+        self.delete
       end
-      clean_join_tables!
-      vehicle_journeys.delete_all
-      journey_patterns.delete_all
-      stop_points.delete_all
-      routing_constraint_zones.delete_all
-      Chouette::Route.where(opposite_route_id: self.id).update_all(opposite_route_id: nil)
-      self.delete
     end
 
     def clean_join_tables!

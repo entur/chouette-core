@@ -31,7 +31,7 @@ en:
     update:
       title: "Update line %{name}"
     show:
-      title: "Line %{name}"
+      title: "%{name}"
       routes:
         title: "Routes list"
       group_of_lines: "Groups of lines"

@@ -1,0 +1,25 @@
+en:
+  publication_api_keys:
+    search_no_results: No publication api key matching your query
+    show:
+      title: "Publication API Key “%{name}”"
+    actions:
+      create: Add a Publication API Key
+      new: New Publication API Key
+      edit: Edit a Publication API Key
+      destroy_confirm: Are you sure you want to destroy this publication API Key
+    form:
+      hints:
+        token: Auto generated token
+  activerecord:
+    models:
+      publication_api_key:
+        zero:  Publication API Keys
+        one:   Publication API Key
+        other: Publication API Keys
+    attributes:
+      publication_api_key:
+        name: Name
+        token: Token
+        created_at: Created at
+        updated_at: Updated at

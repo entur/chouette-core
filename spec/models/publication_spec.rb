@@ -15,11 +15,8 @@ RSpec.describe Publication, type: :model do
   let(:operation) { create :aggregate, referentials: [first_referential] }
 
   before(:each) do
+    operation.update status: :successful
     allow(operation).to receive(:new){ referential }
-    allow_any_instance_of(Publication).to receive(:save!).and_wrap_original do |m, *args|
-      m.call(*args)
-      m.receiver.run_callbacks(:commit)
-    end
 
     2.times do
       referential.metadatas.create line_ids: [create(:line, line_referential: referential.line_referential).id], periodes: [Time.now..1.month.from_now]
@@ -56,13 +53,6 @@ RSpec.describe Publication, type: :model do
   end
 
   describe '#run_export' do
-    before do
-      allow_any_instance_of(Export::Gtfs).to receive(:save!).and_wrap_original do |m, *args|
-        m.call(*args)
-        m.receiver.run_callbacks(:commit)
-      end
-    end
-
     it 'should create an export' do
       expect{ publication.run_export }.to change{ Export::Gtfs.count }.by 1
       expect(GTFSExportWorker).to_not receive(:perform_async_or_fail)
@@ -124,86 +114,54 @@ RSpec.describe Publication, type: :model do
 
     context 'With a NETEX export by line' do
       let(:export_type) { 'Export::Netex' }
-      let(:export_options) { { export_type: :line } }
-
-      before(:each) do
-        allow_any_instance_of(Export::Netex).to receive(:save!).and_wrap_original do |m, *args|
-          m.call(*args)
-          m.receiver.run_callbacks(:commit)
-        end
-      end
+      let(:export_options) { { export_type: :line, duration: 365 } }
 
       context 'when the export succeeds' do
         before(:each) do
-          allow_any_instance_of(Export::Netex).to receive(:call_iev_callback) do |obj|
-            obj.update status: :successful
-          end
+          allow_any_instance_of(Export::Netex).to receive(:call_iev_callback)
         end
 
         it 'should create one export per lines' do
-          expect{ publication.run_export }.to change{ Export::Netex.count }.by 2
-          publication.run_export
-          expect(publication.exports).to be_present
-        end
-
-        it 'should call send_to_destinations' do
-          expect(publication).to receive(:send_to_destinations)
-          publication.run_export
-        end
-
-        it 'should call infer_status' do
-          expect(publication).to receive(:infer_status)
-          publication.run_export
-        end
-      end
-
-      context 'when one export raises an error' do
-        before(:each) do
-          allow_any_instance_of(Export::Netex).to receive(:call_iev_callback) do |obj|
-            raise "ooops" if obj.id == publication.exports.first.id
-            obj.update status: :successful
-          end
-        end
-
-        it 'should create only one export' do
-          expect{ publication.run_export }.to change{ Export::Netex.count }.by 1
-          publication.run_export
-          expect(publication.exports).to be_present
-        end
-
-        it 'should fail' do
           expect(publication).to_not receive(:send_to_destinations)
-          publication.run_export
-          expect(publication).to be_failed
+          expect(publication).to_not receive(:infer_status)
+          expect{ publication.run_export }.to change{ Export::Netex.count }.by 2
+          publication.run
           expect(publication.exports).to be_present
-          publication.exports.each do |export|
-            expect(export).to be_persisted
-          end
+          expect(publication.status).to eq 'running'
+        end
+
+        it 'should call send_to_destinations and infer_status' do
+          expect(publication).to receive(:send_to_destinations).once.and_call_original
+          expect(publication).to receive(:infer_status).once.and_call_original
+          publication.run
+          publication.exports.update_all status: :successful
+          publication.exports.reload.each &:notify_parent
+          expect(publication.status).to eq 'successful_with_warnings'
         end
       end
 
       context 'when one export fails' do
         before(:each) do
-          allow_any_instance_of(Export::Netex).to receive(:call_iev_callback) do |obj|
-            if obj.id == publication.exports.first.id
-              obj.update status: :failed
-            else
-              obj.update status: :successful
-            end
-          end
+          allow_any_instance_of(Export::Netex).to receive(:call_iev_callback)
         end
 
-        it 'should create only one export' do
-          expect{ publication.run_export }.to change{ Export::Netex.count }.by 1
-          publication.run_export
-          expect(publication.exports).to be_present
-        end
-
-        it 'should fail' do
+        it 'should still create one export per lines' do
           expect(publication).to_not receive(:send_to_destinations)
-          publication.run_export
-          expect(publication).to be_failed
+          expect(publication).to_not receive(:infer_status)
+          expect{ publication.run_export }.to change{ Export::Netex.count }.by 2
+          publication.run
           expect(publication.exports).to be_present
+          expect(publication.status).to eq 'running'
+        end
+
+        it 'should call send_to_destinations and infer_status' do
+          expect(publication).to receive(:send_to_destinations).once.and_call_original
+          expect(publication).to receive(:infer_status).once.and_call_original
+          publication.run
+          publication.exports.update_all status: :successful
+          publication.exports.last.update status: :failed
+          publication.exports.reload.each &:notify_parent
+          expect(publication.status).to eq 'failed'
         end
       end
     end

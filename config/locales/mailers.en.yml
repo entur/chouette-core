@@ -1,10 +1,12 @@
 en:
   mailers:
     info_contact: 'If you have any question, please send an email to '
+    footer: 'is designed and developped by'
+
+    hello: 'Hello,'
     audit_mailer:
       audit:
         subject: "Audit automatique du %{date}"
-
     calendar_mailer:
       sent_by: "Sent by"
       created:
@@ -52,9 +54,8 @@ en:
     confirmation_mailer:
       button: Confirm the subscription
       subject: Instructions of confirmation
-      body: |
-        Hello %{email} !<br/><br/>
-        You can now confirm your subscription by clicking on the following link<br/>
+      title:  Hello %{email} !
+      body:  You can now confirm your subscription by clicking on the following link<br/>
     unlock_mailer:
       subject: Your account has been deactivated
       title: Hello %{email} !
@@ -108,3 +109,11 @@ en:
         body: |
           Lack of offer has been detected in the finalized offer %{referential_name}.<br/>
           We encourage you to study offer datas to detect possible problems.<br/><br/>
+    nightly_aggregate_mailer:
+      finished:
+        button: See Nightly Aggregation
+        subject: The nightly aggregation is over
+        body: |
+          Hello, the aggregation is over
+          The automatic aggregation %{agg_name} is now over.
+          The operation status is %{status}<br/><br/>

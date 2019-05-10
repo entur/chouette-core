@@ -20,7 +20,7 @@ module NotifiableSupport
     mailer_params = yield(recipients)
 
     begin
-      MailerJob.perform_later(mailer, action, mailer_params)
+      mailer.constantize.public_send(action, *mailer_params).deliver_later
     rescue => e
       # TODO #8018
       Rails.logger.error "Can't notify users: #{e.message} #{e.backtrace.join("\n")}"
@@ -41,16 +41,22 @@ module NotifiableSupport
     workbench
   end
 
+  def workgroup_for_notifications
+    workgroup
+  end
+
   def notification_recipients
     return [] unless has_notification_recipients?
 
     users = if notification_target.to_s == 'user'
       [user]
-    else
+    elsif notification_target.to_s == 'workbench'
       workbench_for_notifications.users
+    else
+      workgroup_for_notifications.workbenches.map(&:users)
     end
 
-    users.compact.map(&:email_recipient)
+    users.compact.flatten.map(&:email_recipient)
   end
 
   def has_notification_recipients?

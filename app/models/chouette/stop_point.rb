@@ -10,11 +10,12 @@ module Chouette
     include ObjectidSupport
 
     belongs_to :stop_area
-    belongs_to :stop_area_light, -> {select(:id, :name, :city_name, :zip_code, :time_zone, :registration_number, :kind, :area_type, :time_zone, :stop_area_referential_id, :objectid)}, class_name: "Chouette::StopArea", foreign_key: :stop_area_id
+    add_light_belongs_to :stop_area
+
     belongs_to :route, inverse_of: :stop_points
     has_many :journey_patterns, through: :route
     has_many :vehicle_journey_at_stops, dependent: :destroy
-    has_many :vehicle_journeys, -> {uniq}, through: :vehicle_journey_at_stops
+    has_many :vehicle_journeys, -> { distinct }, through: :vehicle_journey_at_stops
 
     belongs_to_array_in_many :routing_constraint_zones, class_name: "Chouette::RoutingConstraintZone", array_name: :stop_points
 

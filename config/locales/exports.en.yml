@@ -2,7 +2,7 @@ en:
   exports: &exports
     search_no_results: "No export matching your query"
     filters:
-      referential: "Select data space..."
+      referential: "Select data set..."
       name_or_creator_cont: "Select an export or creator name..."
       error_period_filter: "End date must be greater or equal than begin date"
     actions:
@@ -20,7 +20,7 @@ en:
     create:
       title: "Generate a new export"
     show:
-      title: "Export %{name}"
+      title: "%{name}"
       report: "Report"
       exported_file: "Original file"
       compliance_check: "Validation report"

@@ -85,17 +85,15 @@ RSpec.describe Import::Workbench do
 
       context "when 'automatic_merge' is set'" do
         let(:options){
-          {
-            automatic_merge: "true"
-          }
+          { automatic_merge: "true" }
         }
         it "should create a Merge" do
           import.resources.create referential: new_referential
-          expect{import.done!}.to change{Merge.count}.by 1
+          expect{ import.done! }.to change{ Merge.count }.by 1
           merge = Merge.last
           expect(merge.creator).to eq import.creator
           expect(merge.workbench).to eq import.workbench
-          expect(merge.referentials).to eq import.resources.map(&:referential)
+          expect(merge.referentials).to eq import.resources.map(&:referential).compact
         end
       end
     end

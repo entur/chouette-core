@@ -17,82 +17,15 @@ RSpec.describe CleanUp, :type => :model do
     end
   end
 
-  context '#exclude_dates_in_overlapping_period with :before date_type' do
-    let(:time_table) { create(:time_table) }
-    let(:period) { time_table.periods[0] }
-    let(:cleaner) { create(:clean_up, date_type: :before, begin_date: period.period_end) }
+  context 'Clean Up With Date Type : Outside' do
+    subject(:cleaner) { create(:clean_up, date_type: :outside) }
+    it { should validate_presence_of(:end_date).with_message(:presence) }
 
-    it 'should add exclude date into period for overlapping period' do
-      days_in_period = (period.period_start..period.period_end).count
+    it 'should have a end date strictly greater than the begin date' do
+      expect(cleaner).to be_valid
 
-      expect { cleaner.exclude_dates_in_overlapping_period(period) }.to change {
-        time_table.dates.where(in_out: false).count
-      }.by(days_in_period - 1)
-    end
-
-    it 'should not add exclude date if no overlapping found' do
-      cleaner.begin_date = period.period_start
-      expect { cleaner.exclude_dates_in_overlapping_period(period) }.to_not change {
-        time_table.dates.where(in_out: false).count
-      }
-    end
-  end
-
-  context '#exclude_dates_in_overlapping_period with :after date_type' do
-    let(:time_table) { create(:time_table) }
-    let(:period) { time_table.periods[0] }
-    let(:cleaner) { create(:clean_up, date_type: :after, begin_date: period.period_start + 1.day) }
-
-    it 'should add exclude date into period for overlapping period' do
-      days_in_period = (period.period_start..period.period_end).count
-      expect { cleaner.exclude_dates_in_overlapping_period(period) }.to change {
-        time_table.dates.where(in_out: false).count
-      }.by(days_in_period - 2)
-    end
-
-    it 'should not add exclude date if no overlapping found' do
-      cleaner.begin_date = period.period_end
-      expect { cleaner.exclude_dates_in_overlapping_period(period) }.to_not change {
-        time_table.dates.where(in_out: false).count
-      }
-    end
-  end
-
-   context '#exclude_dates_in_overlapping_period with :between date_type' do
-    let(:time_table) { create(:time_table) }
-    let(:period) { time_table.periods[0] }
-    let(:cleaner) { create(:clean_up, date_type: :between, begin_date: period.period_start + 3.day, end_date: period.period_end) }
-
-    it 'should add exclude date into period for overlapping period' do
-
-      expected_day_out = (cleaner.begin_date..cleaner.end_date).count
-      expect { cleaner.exclude_dates_in_overlapping_period(period) }.to change {
-        time_table.dates.where(in_out: false).count
-      }.by(expected_day_out - 2)
-    end
-
-    it 'should not add exclude date if no overlapping found' do
-      cleaner.begin_date = period.period_end  + 1.day
-      cleaner.end_date   = cleaner.begin_date + 1.day
-
-      expect { cleaner.exclude_dates_in_overlapping_period(period) }.to_not change {
-        time_table.dates.where(in_out: false).count
-      }
-    end
-  end
-
-  context '#overlapping_periods' do
-    let(:time_table) { create(:time_table) }
-    let(:period) { time_table.periods[0] }
-    let(:cleaner) { create(:clean_up, date_type: :before, begin_date: period.period_start) }
-
-    it 'should detect overlapping periods' do
-      expect(cleaner.overlapping_periods).to include(time_table.periods[0])
-    end
-
-    it 'should not return none overlapping periods' do
-      cleaner.begin_date = time_table.periods[0].period_start - 1.day
-      expect(cleaner.overlapping_periods).to_not include(time_table.periods[0])
+      cleaner.end_date = cleaner.begin_date
+      expect(cleaner).not_to be_valid
     end
   end
 
@@ -104,173 +37,341 @@ RSpec.describe CleanUp, :type => :model do
       allow(referential).to receive(:switch)
     end
 
-
-    it 'should call destroy_time_tables_before' do
-      cleaner.date_type = :before
-      expect(cleaner).to receive(:destroy_time_tables_before)
-      expect(cleaner).to receive(:destroy_time_tables_dates_before)
-      expect(cleaner).to receive(:destroy_time_tables_periods_before)
-      cleaner.clean
-    end
-
-    it 'should call destroy_time_tables_after' do
-      cleaner.date_type = :after
-      expect(cleaner).to receive(:destroy_time_tables_after)
-      expect(cleaner).to receive(:destroy_time_tables_dates_after)
-      expect(cleaner).to receive(:destroy_time_tables_periods_after)
-      cleaner.clean
-    end
-
-    it 'should call destroy_time_tables_between' do
-      cleaner.date_type = :between
-      expect(cleaner).to receive(:destroy_time_tables_between)
-      expect(cleaner).to receive(:destroy_time_tables_dates_between)
-      expect(cleaner).to receive(:destroy_time_tables_periods_between)
+    it 'should call cleanup methods' do
+      expect(cleaner).to receive(:clean_time_tables)
+      expect(cleaner).to receive(:clean_time_table_dates)
+      expect(cleaner).to receive(:clean_time_table_periods)
       cleaner.clean
     end
 
     it "should set the referential state to the original_state value" do
       cleaner.original_state = :archived
+      expect(cleaner.referential).to receive :archived!
       cleaner.clean
-      expect(cleaner.referential.state).to eq :archived
     end
   end
 
-  context '#destroy_time_tables_dates_between' do
-    let!(:time_table) { create(:time_table) }
-    let(:cleaner) { create(:clean_up, date_type: :between) }
+  context 'timetables related cleanings' do
+    let(:cleaner) { create(:clean_up, date_type: date_type, begin_date: begin_date, end_date: end_date) }
+    let(:end_date){ nil }
+    let(:begin_date) { '01/01/2010'.to_date }
 
-    before do
-      time_table.periods.clear
-      time_table.save
-      cleaner.begin_date = time_table.start_date
-      cleaner.end_date   = time_table.end_date
+    context '#clean_time_tables' do
+      let!(:time_table) { create(:time_table, start_date: begin_date + 1.day) }
+      let!(:before_time_table) { create(:time_table, start_date: begin_date - 10.years ) }
+      context 'before' do
+        let(:date_type){ :before }
+        it 'should destroy timetables before begin_date' do
+          expect{ cleaner.clean_time_tables }.to change{ Chouette::TimeTable.count }.by -1
+          expect{ time_table.reload }.to_not raise_error
+          expect{ before_time_table.reload }.to raise_error ActiveRecord::RecordNotFound
+        end
+      end
+
+      context 'after' do
+        let(:date_type){ :after }
+        it 'should destroy timetables after begin_date' do
+          expect{ cleaner.clean_time_tables }.to change{ Chouette::TimeTable.count }.by -1
+          expect{ time_table.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ before_time_table.reload }.to_not raise_error
+        end
+
+        it 'should destroy time_table <> vehicle_journey association' do
+          vj = create(:vehicle_journey, time_tables: [time_table, create(:time_table, start_date: 10.years.ago)])
+          cleaner.clean_time_tables
+
+          expect(vj.reload.time_tables.map(&:id)).to_not include(time_table.id)
+        end
+      end
+
+      context 'between' do
+        let(:date_type){ :between }
+        let(:end_date){ time_table.end_date }
+        let!(:shorter_time_table) { create(:time_table, start_date: begin_date + 1.day, periods_count: 1 ) }
+
+        it 'should destroy timetables between dates' do
+          expect{ cleaner.clean_time_tables }.to change{ Chouette::TimeTable.count }.by -1
+          expect{ time_table.reload }.to_not raise_error
+          expect{ before_time_table.reload }.to_not raise_error
+          expect{ shorter_time_table.reload }.to raise_error ActiveRecord::RecordNotFound
+        end
+      end
+
+      context 'outside' do
+        let(:date_type){ :outside }
+        let(:end_date){ time_table.end_date }
+        let!(:shorter_time_table) { create(:time_table, start_date: begin_date + 1.day, periods_count: 1 ) }
+        let!(:after_time_table) { create(:time_table, start_date: begin_date + 1.year ) }
+
+        it 'should destroy timetables outside dates' do
+          expect{ cleaner.clean_time_tables }.to change{ Chouette::TimeTable.count }.by -2
+          expect{ time_table.reload }.to_not raise_error
+          expect{ before_time_table.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ after_time_table.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ shorter_time_table.reload }.to_not raise_error
+        end
+      end
     end
 
-    it 'should destroy record' do
-      expect{ cleaner.destroy_time_tables_dates_between }.to change {
-        Chouette::TimeTableDate.count
-      }.by(-time_table.dates.count + 2)
+    context '#clean_time_table_dates' do
+      before(:each) { Chouette::TimeTableDate.delete_all }
+
+      let(:time_table) { create :time_table, dates_count: 0 }
+      let!(:before_date) { create :time_table_date, date: begin_date - 1.day, in_out: true, time_table: time_table }
+      let!(:after_date) { create :time_table_date, date: begin_date + 1.day, in_out: true, time_table: time_table }
+
+      context 'before' do
+        let(:date_type){ :before }
+
+        it 'should destroy dates before begin_date' do
+          expect{ cleaner.clean_time_table_dates }.to change{ Chouette::TimeTableDate.count }.by -1
+          expect{ after_date.reload }.to_not raise_error
+          expect{ before_date.reload }.to raise_error ActiveRecord::RecordNotFound
+        end
+      end
+
+      context 'after' do
+        let(:date_type){ :after }
+
+        it 'should destroy dates after begin_date' do
+          expect{ cleaner.clean_time_table_dates }.to change{ Chouette::TimeTableDate.count }.by -1
+          expect{ after_date.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ before_date.reload }.to_not raise_error
+        end
+      end
+
+      context 'between' do
+        let(:date_type){ :between }
+        let(:end_date){ begin_date + 2.day }
+
+        it 'should destroy dates between dates' do
+          expect{ cleaner.clean_time_table_dates }.to change{ Chouette::TimeTableDate.count }.by -1
+          expect{ after_date.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ before_date.reload }.to_not raise_error
+        end
+      end
+
+      context 'outside' do
+        let(:date_type){ :outside }
+        let(:end_date){ begin_date + 2.day }
+
+        it 'should destroy dates outside dates' do
+          expect{ cleaner.clean_time_table_dates }.to change{ Chouette::TimeTableDate.count }.by -1
+          expect{ after_date.reload }.to_not raise_error
+          expect{ before_date.reload }.to raise_error ActiveRecord::RecordNotFound
+        end
+      end
     end
 
-    it 'should not destroy record not in range' do
-      cleaner.begin_date = time_table.end_date + 1.day
-      cleaner.end_date   = cleaner.begin_date + 1.day
+    context '#clean_time_table_periods' do
+      before(:each) { Chouette::TimeTablePeriod.delete_all }
+      let(:time_table) { create :time_table, periods_count: 0 }
+      let!(:before_period) { create :time_table_period, period_start: begin_date - 10.days, period_end: begin_date - 1.day,time_table: time_table }
+      let!(:overlapping_period) { create :time_table_period, period_start: begin_date - 2.days, period_end: begin_date + 10.day,time_table: time_table }
+      let!(:after_period) { create :time_table_period, period_start: begin_date + 100.days, period_end: begin_date + 110.day,time_table: time_table }
 
-      expect{ cleaner.destroy_time_tables_dates_between }.to_not change {
-        Chouette::TimeTableDate.count
-      }
+      context 'before' do
+        let(:date_type){ :before }
+        let!(:overlapping_after_period_only_one_day) { create :time_table_period, period_start: begin_date - 1.days, period_end: begin_date, time_table: time_table }
+
+        it 'should destroy periods before begin_date' do
+          expect{ cleaner.clean_time_table_periods }.to change{ Chouette::TimeTablePeriod.count }.by -2
+          expect{ after_period.reload }.to_not raise_error
+          expect{ overlapping_period.reload }.to_not raise_error
+          expect{ before_period.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ overlapping_after_period_only_one_day.reload }.to raise_error ActiveRecord::RecordNotFound
+        end
+
+        it 'should truncate periods' do
+          cleaner.clean_time_table_periods
+          expect(overlapping_period.reload.period_start).to eq begin_date
+        end
+
+        it 'create dates when remaining period is too short' do
+          expect{ cleaner.clean_time_table_periods }.to change{ Chouette::TimeTableDate.count }.by 1
+          expect(Chouette::TimeTableDate.last.date).to eq begin_date
+        end
+      end
+
+      context 'after' do
+        let(:date_type){ :after }
+        let!(:overlapping_before_period_only_one_day) { create :time_table_period, period_start: begin_date, period_end: begin_date + 1, time_table: time_table }
+
+        it 'should destroy periods after begin_date' do
+          expect{ cleaner.clean_time_table_periods }.to change{ Chouette::TimeTablePeriod.count }.by -2
+          expect{ before_period.reload }.to_not raise_error
+          expect{ overlapping_period.reload }.to_not raise_error
+          expect{ after_period.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ overlapping_before_period_only_one_day.reload }.to raise_error ActiveRecord::RecordNotFound
+        end
+
+        it 'should truncate periods' do
+          cleaner.clean_time_table_periods
+          expect(overlapping_period.reload.period_end).to eq begin_date
+        end
+
+        it 'create dates when remaining period is too short' do
+          expect{ cleaner.clean_time_table_periods }.to change{ Chouette::TimeTableDate.count }.by 1
+          expect(Chouette::TimeTableDate.last.date).to eq begin_date
+        end
+      end
+
+      context 'between' do
+        let(:date_type){ :between }
+        let(:end_date){ overlapping_period.period_end - 2.day }
+        let!(:inside_period) { create :time_table_period, period_start: begin_date + 1.days, period_end: end_date - 1.day, time_table: time_table }
+        let!(:overlapping_before_period) { create :time_table_period, period_start: begin_date - 10.days, period_end: begin_date + 1.day, time_table: time_table }
+        let!(:overlapping_after_period) { create :time_table_period, period_start: end_date - 1.days, period_end: end_date + 10.days, time_table: time_table }
+        let!(:overlapping_after_period_only_one_day) { create :time_table_period, period_start: end_date - 1.days, period_end: end_date + 1.days, time_table: time_table }
+
+        it 'should destroy periods between dates' do
+          expect{ cleaner.clean_time_table_periods }.to change{ Chouette::TimeTablePeriod.count }.by -1
+          expect{ before_period.reload }.to_not raise_error
+          expect{ overlapping_period.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ after_period.reload }.to_not raise_error
+          expect{ overlapping_before_period.reload }.to_not raise_error
+          expect{ overlapping_after_period.reload }.to_not raise_error
+          expect{ inside_period.reload }.to raise_error ActiveRecord::RecordNotFound
+        end
+
+        it 'should truncate periods' do
+          expect{ cleaner.clean_time_table_periods }.to change{ Chouette::TimeTablePeriod.last.id }.by 2
+          expect(overlapping_after_period.reload.period_start).to eq end_date + 1.day
+          expect(overlapping_before_period.reload.period_end).to eq begin_date - 1.day
+          periods =  Chouette::TimeTablePeriod.order(:id).last(2)
+          expect(periods.first.period_start).to eq overlapping_period.period_start
+          expect(periods.first.period_end).to eq begin_date - 1.day
+          expect(periods.last.period_start).to eq end_date + 1.day
+          expect(periods.last.period_end).to eq overlapping_period.period_end
+        end
+
+        it 'create dates when remaining period is too short' do
+          expect{ cleaner.clean_time_table_periods }.to change{ Chouette::TimeTableDate.count }.by 1
+          expect(Chouette::TimeTableDate.last.date).to eq end_date + 1
+        end
+      end
+
+      context 'outside' do
+        let(:date_type){ :outside }
+        let(:end_date){ begin_date + 2.day }
+        let!(:overlapping_before_period) { create :time_table_period, period_start: begin_date - 10.days, period_end: begin_date + 1.day, time_table: time_table }
+        let!(:overlapping_after_period) { create :time_table_period, period_start: end_date - 1.days, period_end: end_date + 10.days, time_table: time_table }
+        let!(:overlapping_before_period_only_one_day) { create :time_table_period, period_start: begin_date - 1, period_end: begin_date, time_table: time_table }
+        let!(:overlapping_after_period_only_one_day) { create :time_table_period, period_start: end_date, period_end: end_date + 1, time_table: time_table }
+
+        it 'should destroy periods outside dates' do
+          expect{ cleaner.clean_time_table_periods }.to change{ Chouette::TimeTablePeriod.count }.by -4
+          expect{ before_period.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ overlapping_before_period.reload }.to_not raise_error
+          expect{ overlapping_after_period.reload }.to_not raise_error
+          expect{ after_period.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ overlapping_before_period_only_one_day.reload }.to raise_error ActiveRecord::RecordNotFound
+          expect{ overlapping_after_period_only_one_day.reload }.to raise_error ActiveRecord::RecordNotFound
+        end
+
+        it 'should truncate periods' do
+          cleaner.clean_time_table_periods
+          expect(overlapping_after_period.reload.period_end).to eq end_date
+          expect(overlapping_before_period.reload.period_start).to eq begin_date
+        end
+
+        it 'create dates when remaining period is too short' do
+          expect{cleaner.clean_time_table_periods}.to change{ Chouette::TimeTableDate.count }.by 2
+          dates = Chouette::TimeTableDate.order(:id).last(2)
+          expect(dates.first.date).to eq begin_date
+          expect(dates.last.date).to eq end_date
+        end
+      end
+
+      context '#clean_timetables_and_children' do
+        let(:time_table) { create :time_table, dates_count: 0 }
+        let!(:before_date) { create :time_table_date, date: begin_date - 1.day, in_out: true, time_table: time_table }
+        let!(:after_date) { create :time_table_date, date: begin_date + 1.day, in_out: true, time_table: time_table }
+
+        before(:each) { time_table.reload.save_shortcuts }
+
+        context 'before' do
+          let(:date_type){ :before }
+
+          it 'should truncate time_table' do
+            cleaner.clean_timetables_and_children
+            expect(time_table.reload.start_date).to eq begin_date
+          end
+        end
+
+        context 'after' do
+          let(:date_type){ :after }
+
+          # TODO:
+        end
+
+        context 'between' do
+          let(:date_type){ :between }
+          let(:end_date){ begin_date + 2.day }
+
+          # TODO:
+        end
+
+        context 'outside' do
+          let(:date_type){ :outside }
+          let(:end_date){ begin_date + 2.day }
+
+          # TODO:
+        end
+      end
     end
   end
 
-  context '#destroy_time_tables_dates_after' do
-    let!(:time_table_date) { create(:time_table_date, date: Date.yesterday, in_out: true) }
-    let(:cleaner) { create(:clean_up, date_type: :after, begin_date: time_table_date.date) }
+  context '#clean' do
+    let(:data_cleanups) { [] }
+    let(:cleaner) { create(:clean_up, date_type: :after, begin_date: begin_date, end_date: end_date, data_cleanups: data_cleanups ) }
+    let(:end_date){ nil }
+    let(:begin_date) { '01/01/2010'.to_date }
 
-    it 'should destroy record' do
-      count = Chouette::TimeTableDate.where('date > ?', cleaner.begin_date).count
-      expect{ cleaner.destroy_time_tables_dates_after }.to change {
-        Chouette::TimeTableDate.count
-      }.by(-count)
+    it 'should not call any data_cleanup method' do
+      CleanUp.data_cleanups.values.each do |meth|
+        expect(cleaner).to_not receive meth
+      end
+      cleaner.clean
+    end
+
+    context 'with an extra data_cleanup' do
+      let(:data_cleanups) { [CleanUp.data_cleanups.values.first] }
+
+      it 'should call only one data_cleanup method' do
+        (CleanUp.data_cleanups.values - data_cleanups).each do |meth|
+          expect(cleaner).to_not receive meth
+        end
+        data_cleanups.each do |meth|
+          expect(cleaner).to receive meth
+        end
+        cleaner.clean
+      end
     end
   end
 
-  context '#destroy_time_tables_between' do
-    let!(:time_table) { create(:time_table ) }
-    let(:cleaner) { create(:clean_up, date_type: :between, begin_date: time_table.start_date - 1.day, end_date: time_table.end_date + 1.day) }
+  ########
+  ########
+  ########
+  ########
 
-    it 'should destroy time_tables with validity period in purge range' do
-      expect{ cleaner.destroy_time_tables_between }.to change {
-        Chouette::TimeTable.count
-      }.by(-1)
-    end
-
-    it 'should not destroy time_tables if not totaly inside purge range' do
-      cleaner.begin_date = time_table.start_date + 1.day
-      expect{ cleaner.destroy_time_tables_between }.to_not change {
-        Chouette::TimeTable.count
-      }
-    end
-  end
-
-  context '#destroy_time_tables_after' do
-    let!(:time_table) { create(:time_table ) }
-    let(:cleaner) { create(:clean_up, date_type: :after, begin_date: time_table.start_date - 1.day) }
-
-    it 'should destroy time_tables with start_date > purge begin_date' do
-      expect{ cleaner.destroy_time_tables_after }.to change {
-        Chouette::TimeTable.count
-      }.by(-1)
-    end
-
-    it 'should not destroy time_tables with start_date < purge begin date' do
-      cleaner.begin_date = time_table.end_date
-      expect{ cleaner.destroy_time_tables_after }.to_not change {
-        Chouette::TimeTable.count
-      }
-    end
-  end
-
-  context '#destroy_time_tables' do
-    let!(:time_table) { create(:time_table) }
-    let(:cleaner) { create(:clean_up) }
-
-    it 'should destroy all time_tables' do
-      expect{cleaner.destroy_time_tables(Chouette::TimeTable.all)}.to change {
-        Chouette::TimeTable.count
-      }.by(-1)
-    end
-
-    it 'should destroy time_table vehicle_journey association' do
-      vj = create(:vehicle_journey, time_tables: [time_table, create(:time_table)])
-      cleaner.destroy_time_tables(Chouette::TimeTable.where(id: time_table.id))
-
-      expect(vj.reload.time_tables.map(&:id)).to_not include(time_table.id)
-    end
-
-    it 'should also destroy associated vehicle_journey if it belongs to any other time_table' do
-      vj = create(:vehicle_journey, time_tables: [time_table])
-      expect{cleaner.destroy_time_tables(Chouette::TimeTable.all)}.to change {
-        Chouette::VehicleJourney.count
-      }.by(-1)
-    end
-  end
-
-  context '#destroy_vehicle_journey_without_time_table' do
+  context '#clean_vehicle_journeys_without_time_table' do
     let(:cleaner) { create(:clean_up) }
 
     it 'should destroy vehicle_journey' do
       vj = create(:vehicle_journey)
-      expect{cleaner.destroy_vehicle_journey_without_time_table
+      expect{cleaner.clean_vehicle_journeys_without_time_table
       }.to change { Chouette::VehicleJourney.count }.by(-1)
     end
 
     it 'should not destroy vehicle_journey with time_table' do
       create(:vehicle_journey, time_tables: [create(:time_table)])
-      expect{cleaner.destroy_vehicle_journey_without_time_table
+      expect{cleaner.clean_vehicle_journeys_without_time_table
       }.to_not change { Chouette::VehicleJourney.count }
     end
   end
 
-  context '#destroy_time_tables_before' do
-    let!(:time_table) { create(:time_table ) }
-    let(:cleaner) { create(:clean_up, date_type: :before, begin_date: time_table.end_date + 1.day) }
-
-    it 'should destroy time_tables with end_date < purge begin_date' do
-      expect{ cleaner.destroy_time_tables_before }.to change {
-        Chouette::TimeTable.count
-      }.by(-1)
-    end
-
-    it 'should not destroy time_tables with end_date > purge begin_date' do
-      cleaner.begin_date = Date.today
-      expect{ cleaner.destroy_time_tables_before }.to_not change {
-        Chouette::TimeTable.count
-      }
-    end
-  end
-
-  describe "#destroy_routes_outside_referential" do
+  describe "#clean_routes_outside_referential" do
     let(:line_referential) { create(:line_referential) }
     let(:line) { create(:line, line_referential: line_referential) }
     let(:metadata) { create(:referential_metadata, lines: [line]) }
@@ -281,7 +382,7 @@ RSpec.describe CleanUp, :type => :model do
       route = create :route
       opposite = create :route, line: route.line, opposite_route: route, wayback: route.opposite_wayback
 
-      cleaner.destroy_routes_outside_referential
+      cleaner.clean_routes_outside_referential
 
       expect(Chouette::Route.exists?(route.id)).to be false
 
@@ -293,7 +394,7 @@ RSpec.describe CleanUp, :type => :model do
     it "cascades destruction of vehicle journeys and journey patterns" do
       vehicle_journey = create(:vehicle_journey)
 
-      cleaner.destroy_routes_outside_referential
+      cleaner.clean_routes_outside_referential
 
       expect(Chouette::Route.exists?(vehicle_journey.route.id)).to be false
       expect(
@@ -321,7 +422,7 @@ RSpec.describe CleanUp, :type => :model do
       expect(FootnotesVehicleJourney.where(vehicle_journey_id: vehicle_journey.id)).to be_exists
       expect(JourneyPatternsStopPoint.where(journey_pattern_id: vehicle_journey.journey_pattern_id)).to be_exists
 
-      cleaner.destroy_routes_outside_referential
+      cleaner.clean_routes_outside_referential
       expect(PurchaseWindowsVehicleJourney.where(vehicle_journey_id: vehicle_journey.id)).to_not be_exists
       expect(TimeTablesVehicleJourney.where(vehicle_journey_id: vehicle_journey.id)).to_not be_exists
       expect(FootnotesVehicleJourney.where(vehicle_journey_id: vehicle_journey.id)).to_not be_exists
@@ -329,29 +430,29 @@ RSpec.describe CleanUp, :type => :model do
     end
   end
 
-  describe "#destroy_unassociated_footnotes" do
+  describe "#clean_unassociated_footnotes" do
     let(:cleaner) { create(:clean_up) }
     it "should destroy all footnotes that are not associated with a vehicle joruney" do
       footnote = create(:footnote)
-      expect{cleaner.destroy_unassociated_footnotes
+      expect{cleaner.clean_unassociated_footnotes
       }.to change { Chouette::Footnote.count }.by(-1)
     end
 
     it "should not destroy all footnotes that are associated with a vehicle joruney" do
       vj = create(:vehicle_journey)
       vj.footnotes << create(:footnote)
-      expect{cleaner.destroy_unassociated_footnotes
+      expect{cleaner.clean_unassociated_footnotes
       }.to_not change { Chouette::Footnote.count }
     end
   end
 
-  describe "#destroy_unassociated_calendars" do
+  describe "#clean_unassociated_calendars" do
     let(:cleaner) { create(:clean_up) }
     it "should destroy all time_tables that are not associated with a vehicle joruney" do
       tt = create(:time_table)
       pw = create(:purchase_window)
 
-      cleaner.destroy_unassociated_calendars
+      cleaner.clean_unassociated_calendars
 
       expect(Chouette::TimeTable.exists?(tt.id)).to be false
       expect(Chouette::PurchaseWindow.exists?(pw.id)).to be false
@@ -366,23 +467,23 @@ RSpec.describe CleanUp, :type => :model do
       vj.time_tables << tt
       vj.purchase_windows << pw
 
-      cleaner.destroy_unassociated_calendars
+      cleaner.clean_unassociated_calendars
 
       expect(Chouette::TimeTable.exists?(tt.id)).to be true
       expect(Chouette::PurchaseWindow.exists?(pw.id)).to be true
     end
   end
 
-  describe "#destroy_empty" do
+  describe "#clean_irrelevant_data" do
     it "calls the appropriate destroy methods" do
       cleaner = create(:clean_up)
 
-      expect(cleaner).to receive(:destroy_vehicle_journeys)
-      expect(cleaner).to receive(:destroy_journey_patterns)
-      expect(cleaner).to receive(:destroy_routes)
-      expect(cleaner).to receive(:destroy_unassociated_footnotes)
+      expect(cleaner).to receive(:clean_unassociated_vehicle_journeys)
+      expect(cleaner).to receive(:clean_unassociated_journey_patterns)
+      expect(cleaner).to receive(:clean_unassociated_routes)
+      expect(cleaner).to receive(:clean_unassociated_footnotes)
 
-      cleaner.destroy_empty
+      cleaner.clean_irrelevant_data
     end
   end
 
@@ -390,12 +491,12 @@ RSpec.describe CleanUp, :type => :model do
     let(:cleaner) { create(:clean_up) }
 
     it "calls methods in the :methods attribute" do
-      cleaner = create(
+      cleaner = build(
         :clean_up,
-        methods: [:destroy_routes_outside_referential]
+        methods: [:clean_routes_outside_referential]
       )
 
-      expect(cleaner).to receive(:destroy_routes_outside_referential)
+      expect(cleaner).to receive(:clean_routes_outside_referential)
       cleaner.run_methods
     end
 

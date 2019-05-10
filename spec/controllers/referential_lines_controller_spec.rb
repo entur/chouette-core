@@ -8,7 +8,7 @@ describe ReferentialLinesController, :type => :controller do
   let(:line) { create :line }
 
   describe "GET show" do
-    let(:request){ get :show, referential_id: referential.id, id: line.id }
+    let(:request){ get :show, params: { referential_id: referential.id, id: line.id }}
 
     it 'should respond with NOT FOUND' do
       expect{request}.to raise_error(ActiveRecord::RecordNotFound)

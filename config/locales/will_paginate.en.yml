@@ -6,10 +6,10 @@ en:
 
     models:
       referential:
-        zero: 'data spaces'
-        one: 'data space'
-        few: 'data spaces'
-        other: 'data spaces'
+        zero: 'data sets'
+        one: 'data set'
+        few: 'data sets'
+        other: 'data sets'
       line:
         zero: 'lines'
         one: 'line'

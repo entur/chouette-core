@@ -1,4 +1,4 @@
-class AssociateApiKeysToWorkbench < ActiveRecord::Migration
+class AssociateApiKeysToWorkbench < ActiveRecord::Migration[4.2]
   def change
     remove_column :api_keys, :referential_id
     add_column :api_keys, :workbench_id, :bigint

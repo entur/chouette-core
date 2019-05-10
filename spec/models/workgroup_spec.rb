@@ -93,10 +93,10 @@ RSpec.describe Workgroup, type: :model do
       let(:workgroup_referential_suite) { create(:referential_suite, current: referential_2, referentials: [referential, referential_2]) }
 
       before do
-        aggregate.update new: referential
+        aggregate.update new: referential, status: :successful
         aggregatable
         aggregate_2.update new: referential_2
-        
+
         workbench.update(output: referential_suite)
         workgroup.update(output: workgroup_referential_suite)
         aggregate.rollback!

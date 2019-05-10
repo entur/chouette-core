@@ -1,4 +1,4 @@
-class CreateRoutingConstraintZones < ActiveRecord::Migration
+class CreateRoutingConstraintZones < ActiveRecord::Migration[4.2]
   def change
     create_table :routing_constraint_zones do |t|
       t.string :name

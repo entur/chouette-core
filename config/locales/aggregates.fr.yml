@@ -4,14 +4,15 @@ fr:
     index:
       title: "Agrégations de l'offre"
     new:
-      title: "Nouvelle agrégation de l'offre"
+      title: "Nouvelle agrégation des offres"
     show:
       title: "Agrégation de l'offre %{name}"
       finalized_offer: "Offre finalisée"
     actions:
       show: Consulter
-      create: Agréger des Jeux de Données
+      create: Agréger l'Offre
       rollback: 'Revenir à cette offre agrégée'
+      rollback_confirm: Etes vous sûr de vouloir revenir à cette offre aggrégée ?
     statuses:
       new: Nouveau
       pending: En attente
@@ -19,12 +20,20 @@ fr:
       failed: Erreur
       running: En cours
       canceled: Annulé
+  nightly_aggregates:
+    show:
+      title: "Agrégation de l'offre %{name}"
+      finalized_offer: "Offre finalisée"
   activerecord:
     models:
       aggregate:
         zero:  "Agrégations d'offre"
         one:   "Agrégation de l'offre"
         other: "Agrégations d'offre"
+      nightly_aggregate:
+        zero:  "Agrégations d'offre automatiques"
+        one:   "Agrégation de l'offre automatique"
+        other: "Agrégations d'offre automatiques"
     attributes:
       aggregate:
         created_at: "Créé le"
@@ -39,6 +48,7 @@ fr:
         available_referentials: "Jeux de données disponibles"
         selected_referentials: "Jeux de données selectionnés"
         notification_target: Destinataire(s) des notifications
+        contains_urgent_offer: Prise en compte d'une offre urgente
     errors:
       models:
         aggregate:

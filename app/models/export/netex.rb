@@ -2,11 +2,16 @@ class Export::Netex < Export::Base
   after_commit :call_iev_callback, on: :create
   option :export_type, collection: %w(line full), required: true do |val|
     val.full do
-      option :duration, type: :integer, default_value: 90, required: true
+      option :duration, type: :integer, default_value: 60, required: true, min: 1, max: 60
     end
     val.line do
-      option :line_code, collection: ->(referential){referential.lines.map{|l| [l.display_name, l.id]}}, depends_on_referential: true
+      option :duration, type: :integer, default_value: 365, hidden: true, required: true, min: 1, max: 365
+      option :line_code, collection: ->(referential){referential.lines.active.map{|l| [l.display_name, l.id]}}, depends_on_referential: true
     end
+  end
+
+  def synchronous
+    false
   end
 
   def self.human_name(options={})

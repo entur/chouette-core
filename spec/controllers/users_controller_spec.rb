@@ -14,11 +14,11 @@ RSpec.describe UsersController, :type => :controller do
     extra_params ||= {}
 
     describe "#{verb.to_s.upcase} #{action}" do
-      let(:request){ send verb, action, { id: target_user.id }.update(extra_params) }
-      let(:target_user)  { create :user }
+      let(:do_request) { send verb, action, params: { id: target_user.id }.update(extra_params) }
+      let(:target_user) { create :user }
 
       it 'should be forbidden' do
-        request
+        do_request
         expect(response.status).to eq 302
       end
 
@@ -39,7 +39,7 @@ RSpec.describe UsersController, :type => :controller do
           context 'as visitor' do
             let(:profile){ :visitor }
             it 'should be forbidden' do
-              request
+              do_request
               expect(response.status).to eq 403
             end
           end
@@ -47,7 +47,7 @@ RSpec.describe UsersController, :type => :controller do
           context 'as editor' do
             let(:profile){ :editor }
             it 'should be forbidden' do
-              request
+              do_request
               expect(response.status).to eq 403
             end
           end
@@ -55,7 +55,7 @@ RSpec.describe UsersController, :type => :controller do
           context 'as admin' do
             let(:profile){ :admin }
             it 'should be authorized' do
-              request
+              do_request
               expect(response.status).to eq (verb == :get ? 200 : 302)
             end
           end
@@ -67,21 +67,21 @@ RSpec.describe UsersController, :type => :controller do
           context 'as visitor' do
             let(:profile){ :visitor }
             it 'should be forbidden' do
-              expect{ request }.to raise_error ActiveRecord::RecordNotFound
+              expect{ do_request }.to raise_error ActiveRecord::RecordNotFound
             end
           end
 
           context 'as editor' do
             let(:profile){ :editor }
             it 'should be forbidden' do
-              expect{ request }.to raise_error ActiveRecord::RecordNotFound
+              expect{ do_request }.to raise_error ActiveRecord::RecordNotFound
             end
           end
 
           context 'as admin' do
             let(:profile){ :admin }
             it 'should be authorized' do
-              expect{ request }.to raise_error ActiveRecord::RecordNotFound
+              expect{ do_request }.to raise_error ActiveRecord::RecordNotFound
             end
           end
         end
@@ -98,7 +98,7 @@ RSpec.describe UsersController, :type => :controller do
     extra_params ||= {}
 
     describe "#{verb.to_s.upcase} #{action}" do
-      let(:request){ send verb, action, { id: target_user.id }.update(extra_params) }
+      let(:do_request){ send verb, action, params: { id: target_user.id }.update(extra_params) }
 
       before(:each) do
         @request.env["devise.mapping"] = Devise.mappings[:user]
@@ -118,7 +118,7 @@ RSpec.describe UsersController, :type => :controller do
           context "as #{user_profile}" do
             let(:profile){ user_profile }
             it 'should be forbidden' do
-              request
+              do_request
               expect(response.status).to eq 403
             end
           end
