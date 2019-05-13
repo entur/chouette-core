@@ -1,5 +1,5 @@
 en:
-  notification_suspensions:
+  notification_rules:
     search_no_results: "No notification suspension matching your query"
     actions:
       index: Notifications center
@@ -7,7 +7,7 @@ en:
       destroy: Delete the notification suspension
       destroy_confirm: Are you sure you want to delete the notification suspension ?
     index:
-      title: Notification suspensions
+      title: Notification center
     show:
       title: Notification suspension
     edit: &notification_rule_edit
@@ -18,6 +18,10 @@ en:
       edit: Add a notification suspension
     create:
       <<: *notification_rule_new
+    notification_types:
+      hole_sentinel: Hole Sentinel
+    errors:
+      period: "Invalid period"
   activerecord:
     models:
       notification_rule:
