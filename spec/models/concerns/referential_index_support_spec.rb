@@ -4,20 +4,38 @@ RSpec.describe ReferentialIndexSupport do
 
   let(:test_class) do
      child
-     class TestClass
+     class TestClass < ActiveRecord::Base
+       def self.table_name; 'test_classes' end
+       def self.reflections; {} end
+
        include ReferentialIndexSupport
        has_many_scattered :children
      end
   end
 
-  let(:child) {  Object.const_set(:Child, Class.new() { include ReferentialIndexSupport }) }
+  let(:child) do
+    class Child < ActiveRecord::Base
+      include ReferentialIndexSupport
+    end
+  end
 
   it 'should raise an error when no reciproque relation is defined' do
     expect{ test_class }.to raise_error ReferentialIndexSupport::MissingReciproqueRelation
   end
 
   context 'with the reciproque relation' do
-    let(:child) {  Object.const_set(:Child, Class.new() { include ReferentialIndexSupport; belongs_to_public :test_class  }) }
+    let(:child) do
+      class Child < ActiveRecord::Base
+        # def self.table_name; 'children' end
+        # def self.reflections; {} end
+        # def self.belongs_to(*args);  end
+        # def self.after_commit(*args);  end
+        # def self.after_destroy(*args);  end
+
+        include ReferentialIndexSupport
+        belongs_to_public :test_class
+      end
+    end
 
     it 'should not raise an error' do
       expect{ test_class }.to_not raise_error

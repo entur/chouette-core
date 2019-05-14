@@ -31,7 +31,7 @@ module ReferentialIndexSupport
       def has_many_scattered(rel_name, opts={})
         rel = ReferentialIndexRelation.new(self, rel_name, :descending, opts)
 
-        raise MissingReciproqueRelation.new("Missing reciproque relation for #{self.name}##{rel_name} on #{target_class.name}") unless rel.reciproque.present?
+        raise MissingReciproqueRelation.new("Missing reciproque relation for #{self.name}##{rel_name}") unless rel.reciproque.present?
         referential_index_relations[rel.cache_key] = rel
 
         define_method(rel_name) do
@@ -82,7 +82,12 @@ module ReferentialIndexSupport
         target_class_name = name.to_s.singularize.classify
         target_class = target_class_name.safe_constantize
         target_class ||= "Chouette::#{target_class_name}".constantize
-        target_class.present? ? target_class.referential_index_relations[@parent_class.table_name.split('.').last.to_sym] : nil
+        if target_class.present?
+           key = @parent_class.table_name.split('.').last
+           target_class.referential_index_relations[key.to_sym] || target_class.referential_index_relations[key.singularize.to_sym]
+         else
+           nil
+         end
       end
     end
 

@@ -4,7 +4,6 @@ class StopAreaRoutingConstraint < ApplicationModel
   belongs_to :from, class_name: 'Chouette::StopArea'
   belongs_to :to, class_name: 'Chouette::StopArea'
 
-  belongs_to_array_in_many :vehicle_journeys, class_name: 'Chouette::VehicleJourney', array_name: :ignored_stop_area_routing_constraints
   has_many_scattered :vehicle_journeys
 
   add_light_belongs_to :from
@@ -28,7 +27,8 @@ class StopAreaRoutingConstraint < ApplicationModel
     end
   end
 
-  after_commit :clean_ignored_stop_area_routing_constraint_ids, on: :destroy
+  # we need to do this before_destroy because after the cross referentials index has been cleaned
+  before_destroy :clean_ignored_stop_area_routing_constraint_ids
 
   scope :with_stop, ->(stop_id){
     stop_id = stop_id.id if stop_id.respond_to?(:id)

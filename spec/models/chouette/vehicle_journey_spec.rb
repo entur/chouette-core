@@ -130,7 +130,6 @@ describe Chouette::VehicleJourney, :type => :model do
                     -> {
                       vjas = checksum_owner.vehicle_journey_at_stops.last
                       vjas.destroy
-                      vjas.run_callbacks(:commit)
                     },
                     reload: true
 
@@ -155,7 +154,6 @@ describe Chouette::VehicleJourney, :type => :model do
                     "changes when a footnote is deleted",
                     -> {
                       footnote.destroy
-                      footnote.run_callbacks(:commit)
                     },
                     reload: true do
         let(:footnote){ create :footnote }
@@ -170,7 +168,6 @@ describe Chouette::VehicleJourney, :type => :model do
                     "changes when a RoutingConstraintZone is deleted",
                     -> {
                       rcz.destroy
-                      rcz.run_callbacks(:commit)
                     },
                     reload: true do
         let(:rcz){ create :routing_constraint_zone, route_id: checksum_owner.route.id }
@@ -186,7 +183,6 @@ describe Chouette::VehicleJourney, :type => :model do
                     -> {
                       rcz.stop_points << checksum_owner.route.stop_points.last
                       rcz.save!
-                      rcz.run_callbacks(:commit)
                     },
                     reload: true do
         let(:rcz){ create :routing_constraint_zone, route_id: checksum_owner.route.id, stop_points: checksum_owner.route.stop_points[0..1] }
@@ -227,7 +223,6 @@ describe Chouette::VehicleJourney, :type => :model do
                     -> {
                       constraint_zone.from = create(:stop_area, stop_area_referential: checksum_owner.referential.stop_area_referential)
                       constraint_zone.save!
-                      constraint_zone.run_callbacks(:commit)
                     },
                     reload: true do
         let(:constraint_zone){ create :stop_area_routing_constraint, stop_area_referential: checksum_owner.referential.stop_area_referential }
@@ -304,7 +299,7 @@ describe Chouette::VehicleJourney, :type => :model do
             Chouette::VehicleJourney.__callbacks[:commit].delete callback
           end
         end
-        
+
         it_behaves_like 'it works with both checksums modes',
                        "should change the checksum",
                        -> {
@@ -636,7 +631,6 @@ describe Chouette::VehicleJourney, :type => :model do
 
       # For some reason we have to force it
       obj.after_commit_objectid
-      obj.run_callbacks(:commit)
 
       expect(collection.last['objectid']).to eq obj.objectid
       expect(obj.published_journey_name).to eq 'dummy'
