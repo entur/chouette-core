@@ -5,6 +5,11 @@ en:
         for_boarding: "Undefined"
         for_alighting: "Undefined"
   enumerize:
+    line:
+      status:
+        all: Tous
+        activated: Activated
+        deactivated: Deactivated
     import:
       status:
         new: New

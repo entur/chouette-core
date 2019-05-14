@@ -5,6 +5,11 @@ fr:
         for_boarding: "Non défini"
         for_alighting: "Non défini"
   enumerize:
+    line:
+      status:
+        all: Tous
+        activated: Activée
+        deactivated: Désactivée
     import:
       status:
         new: Nouveau

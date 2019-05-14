@@ -217,6 +217,11 @@ en:
         3_line_2: "The line %{source_label} (%{source_objectid}) is not in the lines scope of the organization %{reference_value}"
       description: "The line must be included in the lines scope of the organization"
       prerequisite: "None"
+    line_control/active:
+      messages:
+        3_line_3: "The line %{line_name} (%{source_objectid}) is not active during the period"
+      description: "The line must be active"
+      prerequisite: "None"
     generic_attribute_control/pattern:
       messages:
         3_generic_1: "%{source_objectid} : the %{source_attribute} attribute value (%{error_value}) does not respect the following pattern : %{reference_value}"
@@ -325,6 +330,8 @@ en:
         one: "The routes of a line must have an opposite route"
       line_control/lines_scope:
         one: "Lines must be included in the lines scope of the organization"
+      line_control/active:
+        one: "Lines must be active"
       generic_attribute_control/pattern:
         one: "Attribute regular expression of an object in a line"
       generic_attribute_control/min_max:

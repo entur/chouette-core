@@ -56,7 +56,7 @@
                 ), \
                 TableBuilderHelper::Column.new( \
                   key: :status, \
-                  attribute: Proc.new { |n| line_status(n.status) } \
+                  attribute: Proc.new { |n| line_status(n) } \
                 ), \
                 TableBuilderHelper::Column.new( \
                   key: :transport_mode, \

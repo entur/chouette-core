@@ -214,6 +214,11 @@ fr:
         3_line_2: "La ligne %{source_label} (%{source_objectid}) ne fait pas partie du périmètre de lignes de l'organisation %{reference_value}"
       description: "Les lignes doivent appartenir au périmètre de lignes de l'organisation"
       prerequisite: "Aucun"
+    line_control/active:
+      messages:
+        3_line_3: "La ligne %{line_name} (%{source_objectid}) n'est pas active durant la période définie"
+      description: "Les lignes doivent être actives"
+      prerequisite: "Aucun"
     generic_attribute_control/pattern:
       messages:
         3_generic_1: "%{source_objectid} : l'attribut %{source_attribute} a une valeur %{error_value} qui ne respecte pas l'expression régulière %{reference_value}"
@@ -324,6 +329,8 @@ fr:
         one: "Appariement des itinéraires"
       line_control/lines_scope:
         one: "Les lignes doivent appartenir au périmètre de lignes de l'organisation"
+      line_control/active:
+        one: "Les lignes doivent êtes actives"
       generic_attribute_control/pattern:
         one: "Contrôle du contenu selon une expression régulière"
       generic_attribute_control/min_max:
@@ -354,3 +361,4 @@ fr:
         pattern: Expression régulière
         subclass: Objet
         custom_field_code: "Champs personnalisé"
+        Duration: "Durée de la période de contrôle"

@@ -67,7 +67,20 @@ module Chouette
       where(id: workbench.notification_rules.pluck(:line_id))
     }
 
-    scope :active, ->  { where(deactivated: false) }
+    scope :active, lambda { |*args|
+      on_date = args.first || Time.now
+      scope = activated.active_from(on_date).active_until(on_date)
+    }
+
+    scope :deactivated, -> { where(deactivated: true) }
+    scope :activated, -> { where(deactivated: [nil, false]) }
+    scope :active_from, ->(from_date) { where('active_from IS NULL OR active_from <= ?', from_date) }
+    scope :active_until, ->(until_date) { where('active_until IS NULL OR active_until >= ?', until_date) }
+
+    scope :active_after, ->(date) { activated.where('active_until IS NULL OR active_until >= ?', date) }
+    scope :active_before, ->(date) { activated.where('active_from IS NULL OR active_from <= ?', date) }
+    scope :not_active_after, ->(date) { where('deactivated = ? OR (active_until IS NOT NULL AND active_until < ?)', true, date) }
+    scope :not_active_before, ->(date) { where('deactivated = ? OR (active_from IS NOT NULL AND active_from > ?)', true, date) }
 
     def self.nullable_attributes
       [:published_name, :number, :comment, :url, :color, :text_color, :stable_id]
@@ -109,24 +122,34 @@ module Chouette
       line_referential.companies.where(id: ([company_id] + Array(secondary_company_ids)).compact)
     end
 
-    def deactivate
-      self.deactivated = true
+    def active?(on_date=Time.now)
+      on_date = on_date.to_date
+
+      return false if deactivated
+      return false if active_from && active_from > on_date
+      return false if active_until && active_until < on_date
+
+      true
     end
 
-    def activate
-      self.deactivated = false
+    def always_active_on_period?(from, to)
+      return false if deactivated
+
+      return false if active_from && active_from > from
+      return false if active_until && active_until < to
+
+      true
     end
 
-    def deactivate!
-      update_attribute :deactivated, true
-    end
-
-    def activate!
-      update_attribute :deactivated, false
-    end
-
-    def activated?
+    def activated
       !deactivated
+    end
+    alias_method :activated?, :activated
+
+    def activated= val
+      val = val != '0' if val.is_a?(String)
+      bool = !val
+      self.deactivated = bool
     end
 
     def status

@@ -38,9 +38,9 @@ module IconHelper
   end
 
   def color_icon(color)
-    painted_color = color.presence||'FFFFFF'
-    displayed_color = color.presence||'-'
-    content_tag(:i, nil, class: 'fa fa-square fa-lg', style:"color:##{painted_color}") + " ##{displayed_color}"
+    painted_color = color.presence || 'FFFFFF'
+    displayed_color = color.present? ? "##{color}" : '-'
+    content_tag(:i, nil, class: 'fa fa-square fa-lg', style:"color:##{painted_color}") + " #{displayed_color}"
   end
 
   module Private

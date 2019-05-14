@@ -34,6 +34,7 @@ fr:
     3_routingconstraint_3: "L'ITL %{source_objectid} n'a pas suffisament d'arrêts (minimum 2 arrêts requis)"
     3_line_1: "Sur la ligne %{source_label} (%{source_objectid}), aucun itinéraire n'a d'itinéraire inverse"
     3_line_2: "La ligne %{source_label} (%{source_objectid}) ne fait pas partie du périmètre de lignes de l'organisation %{reference_value}"
+    3_line_3: "La ligne %{line_name} (%{source_objectid}) n'est pas active durant la période définie"
     3_generic_1: "L'objet %{source_objectid} a un attribut %{source_attribute} avec une valeur %{error_value} qui ne respecte pas l'expression régulière %{reference_value}"
     3_generic_2_1: "L'objet %{source_objectid} a un attribut %{source_attribute} avec une valeur %{error_value} supérieure à la valeur maximale autorisée %{reference_value}"
     3_generic_2_2: "L'objet %{source_objectid} a un attribut %{source_attribute} avec une valeur %{error_value} inférieure à la valeur minimale autorisée %{reference_value}"

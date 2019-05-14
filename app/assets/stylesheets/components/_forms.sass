@@ -20,6 +20,9 @@ input
     margin-bottom: 0
     font-style: italic
 
+  &[type="date"].html5
+    line-height: 1.4em
+
 .control-label.required
   abbr[title], abbr[data-original-title]
     border: none
@@ -645,6 +648,54 @@ table, .table
       box-shadow: 0 0 3px rgba($darkgrey, 0.25)
       white-space: nowrap
       overflow: auto
+
+      &.line_status
+        padding: 0
+        hr
+          clear: both
+          margin-top: 0
+          margin-bottom: 10px
+        .col-md-3
+          padding-top: 37px
+          padding-left: 10px
+          padding-right: 0
+          width: 20%
+        & > .form-group
+          width: 100%
+          height: auto
+          margin: 0
+          &.radiobox-wrapper
+            display: flex
+          .radio
+            flex: 1 0 auto
+            float: left
+            margin: 0
+            overflow: hidden
+            text-align: center
+            label
+              padding: 10px 20px 10px 40px
+              vertical-align: middle
+
+            .fa
+              margin-left: 5px
+            input:checked + *
+              overflow: visible
+              &:before
+                content: ''
+                background-color: transparentize($green, 0.5)
+                position: absolute
+                left: -1000px
+                right: -1000px
+                top: -1000px
+                bottom: -1000px
+                z-index: -1
+
+        label.date
+          font-weight: normal
+          min-width: 100px
+          // text-align: right
+        .disabled
+          opacity: 0.5
 
       > .checkbox-wrapper
         width: 100%
