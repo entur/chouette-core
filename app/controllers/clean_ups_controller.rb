@@ -30,7 +30,7 @@ class CleanUpsController < ChouetteController
   end
 
   def clean_up_params
-    clean_up_params = params.require(:clean_up).permit(:date_type, :begin_date, :end_date).update(data_cleanups: get_data_cleanups)
+    clean_up_params = params.require(:clean_up).permit(:date_type, :begin_date, :end_date).to_h.update(data_cleanups: get_data_cleanups)
     if clean_up_params[:date_type] == 'outside'
       clean_up_params.delete 'begin_date(3i)'
       clean_up_params.delete 'begin_date(2i)'
