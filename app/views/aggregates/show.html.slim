@@ -35,7 +35,7 @@ ruby:
           ), \
           TableBuilderHelper::Column.new( \
             name: Organisation.ts.capitalize, \
-            attribute: Proc.new {|item| @aggregate.user.organisation.name }, \
+            attribute: Proc.new {|item| item.workbench.organisation.name }, \
             sortable: false, \
           )\
         ], cls: 'table'
