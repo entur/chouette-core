@@ -157,7 +157,7 @@ module Chouette
     end
 
     def code
-      (stable_id.presence || number.presence || registration_number.presence || id).to_s.parameterize
+      get_objectid.try(:local_id)
     end
   end
 end
