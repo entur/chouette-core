@@ -46,7 +46,7 @@ module STIF
         end
 
         def detect_namespace doc
-          matches = doc.match(/xmlns(.*?)="#{NetexFile::XML_NAME_SPACE}"/)
+          matches = doc.match(/xmlns([^\s]*?)="#{NetexFile::XML_NAME_SPACE}"/)
           return nil unless matches.present?
 
           match = matches[1]
@@ -78,8 +78,18 @@ module STIF
             to_date = valid_between.xpath(namespaced(namespace, 'ToDate'), opts).try :text
           end
 
-          from_date = from_date && Date.parse(from_date)
-          to_date = to_date && Date.parse(to_date)
+          begin
+            from_date = from_date && Date.parse(from_date)
+          rescue
+            Rails.logger.warn "Invalid date: #{from_date}"
+            raise
+          end
+          begin
+            to_date = to_date && Date.parse(to_date)
+          rescue
+            Rails.logger.warn "Invalid date: #{to_date}"
+            raise
+          end
           Range.new from_date, to_date
         end
       end

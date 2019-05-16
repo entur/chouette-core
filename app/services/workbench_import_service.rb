@@ -15,6 +15,7 @@ class WorkbenchImportService
 
   def perform(import_id)
     @entries = 0
+    import_id = import_id.id if import_id.is_a?(ActiveRecord::Base)
     @workbench_import ||= Import::Workbench.find(import_id)
 
     zip_service = ZipService.new(downloaded, allowed_lines)

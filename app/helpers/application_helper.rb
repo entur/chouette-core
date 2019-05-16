@@ -149,8 +149,8 @@ module ApplicationHelper
   def link_to_if_i_can label, url, object: nil, permission: :show
     object ||= url
     object = object.last if object.is_a?(Array)
-    
-    if Pundit.policy(UserContext.new(current_user), object).send "#{permission}?"
+
+    if object && Pundit.policy(UserContext.new(current_user), object) && Pundit.policy(UserContext.new(current_user), object).send("#{permission}?")
       link_to label, url
     else
       label
