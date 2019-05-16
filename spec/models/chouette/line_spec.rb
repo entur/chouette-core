@@ -70,6 +70,12 @@ describe Chouette::Line, :type => :model do
     end
   end
 
+  describe "#code" do
+    it 'uses objectid.local_id' do
+      expect(subject.code).to eq(subject.get_objectid.local_id)
+    end
+  end
+
   describe "#stop_areas" do
     let!(:route){create(:route, :line => subject)}
     it "should retreive route's stop_areas" do
