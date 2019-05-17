@@ -11,10 +11,12 @@ class CrossReferentialIndexEntry < ActiveRecord::Base
   end
 
   def self.clean_index_for_referential!(referential)
+    Rails.logger.info "Clean CrossReferentialIndex for referential #{referential.slug}"
     CrossReferentialIndexEntry.where(target_referential_slug: referential.slug).delete_all
   end
 
   def self.rebuild_index_for_referential!(referential)
+    Rails.logger.info "Rebuild CrossReferentialIndex for referential #{referential.slug}"
     clean_index_for_referential!(referential)
 
     ReferentialIndexSupport.target_relations.each do |rel|
