@@ -31,16 +31,15 @@ RSpec.describe Workgroup, type: :model do
   end
 
   describe "#nightly_aggregate_timeframe?" do
-    let(:workgroup) { create(:workgroup) }
-
+    let(:workgroup) { create(:workgroup, nightly_aggregate_time: aggregation_time, nightly_aggregate_enabled: nightly_aggregate_enabled) }
+    let(:aggregation_time) { "15:15:00" }
+    let(:nightly_aggregate_enabled){ false }
     context "when nightly_aggregate_enabled is true" do
-      before do
-        workgroup.nightly_aggregate_enabled = true
-      end
+      let(:nightly_aggregate_enabled){ true }
 
       it "returns true when inside timeframe" do
-        Timecop.freeze(Time.current.beginning_of_day) do
-          expect(workgroup.nightly_aggregate_timeframe?).to be_truthy
+        Timecop.freeze(Time.current.beginning_of_day + 6.months + 15.hours + 15.minutes) do
+          expect(workgroup.reload.nightly_aggregate_timeframe?).to be_truthy
         end
       end
 
