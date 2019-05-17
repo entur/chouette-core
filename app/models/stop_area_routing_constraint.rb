@@ -4,7 +4,7 @@ class StopAreaRoutingConstraint < ApplicationModel
   belongs_to :from, class_name: 'Chouette::StopArea'
   belongs_to :to, class_name: 'Chouette::StopArea'
 
-  belongs_to_array_in_many :vehicle_journeys, class_name: 'Chouette::VehicleJourney', array_name: :ignored_stop_area_routing_constraints
+  has_many_scattered :vehicle_journeys
 
   add_light_belongs_to :from
   add_light_belongs_to :to
@@ -16,18 +16,19 @@ class StopAreaRoutingConstraint < ApplicationModel
   validate :different_stops
 
   def update_vehicle_journey_checksums
-    each_vehicle_journey &:update_checksum!
+    vehicle_journeys.each &:update_checksum!
   end
 
   after_save :update_vehicle_journey_checksums
 
   def clean_ignored_stop_area_routing_constraint_ids
-    each_vehicle_journey do |vj|
+    vehicle_journeys.each do |vj|
       vj.update ignored_stop_area_routing_constraint_ids: vj.ignored_stop_area_routing_constraint_ids - [self.id]
     end
   end
-  
-  after_commit :clean_ignored_stop_area_routing_constraint_ids, on: :destroy
+
+  # we need to do this before_destroy because after the cross referentials index has been cleaned
+  before_destroy :clean_ignored_stop_area_routing_constraint_ids
 
   scope :with_stop, ->(stop_id){
     stop_id = stop_id.id if stop_id.respond_to?(:id)
@@ -70,15 +71,5 @@ class StopAreaRoutingConstraint < ApplicationModel
 
   def referentials
     Referential.where(stop_area_referential_id: stop_area_referential.id)
-  end
-
-  def each_vehicle_journey
-    referentials.each do |r|
-      r.switch do
-        vehicle_journeys.each do |vj|
-          yield vj
-        end
-      end
-    end
   end
 end

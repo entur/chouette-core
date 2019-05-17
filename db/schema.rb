@@ -301,6 +301,20 @@ ActiveRecord::Schema.define(version: 2019_05_02_080722) do
     t.index ["objectid"], name: "connection_links_objectid_key", unique: true
   end
 
+  create_table "cross_referential_index_entries", id: :serial, force: :cascade do |t|
+    t.string "parent_type"
+    t.bigint "parent_id"
+    t.string "target_type"
+    t.bigint "target_id"
+    t.string "relation_name"
+    t.string "target_referential_slug"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["relation_name", "parent_type", "parent_id", "target_referential_slug"], name: "cross_referential_index_entries_parent"
+    t.index ["relation_name", "target_type", "target_id", "target_referential_slug"], name: "cross_referential_index_entries_target"
+    t.index ["relation_name"], name: "index_cross_referential_index_entries_on_relation_name"
+  end
+
   create_table "custom_fields", id: :serial, force: :cascade do |t|
     t.string "code"
     t.string "resource_type"

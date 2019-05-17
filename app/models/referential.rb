@@ -105,6 +105,7 @@ class Referential < ApplicationModel
   scope :created_before, -> (date) { where('created_at < ? ', date) }
 
   after_save :notify_state
+  after_destroy :clean_cross_referential_index!
 
   def self.order_by_state(dir)
     states = ["ready #{dir}", "archived_at #{dir}", "failed_at #{dir}"]
@@ -682,6 +683,14 @@ class Referential < ApplicationModel
 
   def update_stats!
     Stat::JourneyPatternCoursesByDate.compute_for_referential(self)
+  end
+
+  def rebuild_cross_referential_index!
+    CrossReferentialIndexEntry.rebuild_index_for_referential!(self)
+  end
+
+  def clean_cross_referential_index!
+    CrossReferentialIndexEntry.clean_index_for_referential!(self)
   end
 
   private

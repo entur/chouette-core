@@ -29,21 +29,34 @@ RSpec.describe StopAreaRoutingConstraint, type: :model do
     end
   end
 
-  describe '#each_vehicle_journey' do
+  describe '#vehicle_journeys' do
     let(:ignoring){ create :vehicle_journey }
+    let(:deleted){ create :vehicle_journey }
     let(:not_ignoring){ create :vehicle_journey }
-    let(:other_refential){ create :referential }
+    let(:other_referential){ create :referential }
+    let(:in_other_referential){ other_referential.switch { create :vehicle_journey, ignored_stop_area_routing_constraint_ids: [subject.id] } }
     it 'should find the vehicle_journeys ignoring the subject' do
       @found = []
-      not_ignoring
+      in_other_referential.run_callbacks(:commit)
+      not_ignoring.run_callbacks(:commit)
+      ignoring.run_callbacks(:commit)
       ignoring.update ignored_stop_area_routing_constraint_ids: [subject.id]
+      ignoring.run_callbacks(:commit)
+      deleted.run_callbacks(:commit)
+      deleted.update ignored_stop_area_routing_constraint_ids: [subject.id]
+      deleted.run_callbacks(:commit)
+      deleted.destroy
+      not_ignoring.update ignored_stop_area_routing_constraint_ids: [subject.id]
+      not_ignoring.run_callbacks(:commit)
+      not_ignoring.update ignored_stop_area_routing_constraint_ids: []
+      not_ignoring.run_callbacks(:commit)
 
-      # we must look for vehicle_journeys in all referentials
-      other_refential.switch
-      subject.each_vehicle_journey do |found|
+      other_referential.switch
+      subject.vehicle_journeys.each do |found|
         @found << found
       end
-      expect(@found).to match_array [ignoring]
+      expect(@found).to match_array [ignoring, in_other_referential]
+      expect(subject.vehicle_journeys.all).to match_array [ignoring, in_other_referential]
     end
   end
 end
