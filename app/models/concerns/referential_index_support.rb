@@ -136,6 +136,16 @@ module ReferentialIndexSupport
       end
       out
     end
+
+    alias_method :to_a, :all
+
+    def count
+      count = 0
+      CrossReferentialIndexEntry.in_each_referential_for(@relation, @parent) do |referential|
+        count += CrossReferentialIndexEntry.count_targets_for(@relation, @parent, referential.slug)
+      end
+      count
+    end
   end
 
   class MissingReciproqueRelation < StandardError; end

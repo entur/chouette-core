@@ -10,29 +10,47 @@ class CrossReferentialIndexEntry < ActiveRecord::Base
     end
   end
 
+  def self.clean_index_for_referential!(referential)
+    CrossReferentialIndexEntry.where(target_referential_slug: referential.slug).delete_all
+  end
+
+  def self.rebuild_index_for_referential!(referential)
+    clean_index_for_referential!(referential)
+
+    ReferentialIndexSupport.target_relations.each do |rel|
+      ActiveRecord::Base.cache do
+        rebuild_index_for_relation_in_referential rel, referential
+      end
+    end
+  end
+
   def self.rebuild_index_for_relation(rel)
     CrossReferentialIndexEntry.where(relation_name: rel.name).delete_all
 
     ActiveRecord::Base.cache do
       Referential.find_each do |referential|
-        CrossReferentialIndexEntry.bulk_insert do |worker|
-          begin
-            if rel.target_klass.respond_to?(:within_workgroup)
-              rel.target_klass.within_workgroup(referential.workgroup) do
-                rebuild_index_for_relation_in_referential rel, referential, worker
-              end
-            else
-              rebuild_index_for_relation_in_referential rel, referential, worker
-            end
-          rescue => e
-            Rails.logger.warn "Unable to rebuild index for relation #{rel.klass.name}##{rel.name} in referential #{referential.slug}: #{e.message}"
-          end
-        end
+        rebuild_index_for_relation_in_referential rel, referential
       end
     end
   end
 
-  def self.rebuild_index_for_relation_in_referential(rel, referential, worker)
+  def self.rebuild_index_for_relation_in_referential(rel, referential)
+    CrossReferentialIndexEntry.bulk_insert do |worker|
+      begin
+        if rel.target_klass.respond_to?(:within_workgroup)
+          rel.target_klass.within_workgroup(referential.workgroup) do
+            do_rebuild_index_for_relation_in_referential rel, referential, worker
+          end
+        else
+          do_rebuild_index_for_relation_in_referential rel, referential, worker
+        end
+      rescue => e
+        Rails.logger.warn "Unable to rebuild index for relation #{rel.klass.name}##{rel.name} in referential #{referential.slug}: #{e.message}"
+      end
+    end
+  end
+
+  def self.do_rebuild_index_for_relation_in_referential(rel, referential, worker)
     relation_name = rel.ascending.name
     referential.switch do
       collection = rel.index_collection
@@ -89,5 +107,9 @@ class CrossReferentialIndexEntry < ActiveRecord::Base
 
   def self.all_targets_for(relation, parent, target_referential_slug)
     CrossReferentialIndexEntry.where(relation_name: relation.reciproque.ascending.name, parent: parent, target_referential_slug: target_referential_slug).map &:target
+  end
+
+  def self.count_targets_for(relation, parent, target_referential_slug)
+    CrossReferentialIndexEntry.where(relation_name: relation.reciproque.ascending.name, parent: parent, target_referential_slug: target_referential_slug).count
   end
 end
