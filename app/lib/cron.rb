@@ -92,5 +92,13 @@ module Cron
         Delayed::Heartbeat::Worker.handle_dead_workers
       end
     end
+
+    def purge_referentials
+      protected_action do
+        Workbench.find_each do |w|
+          w.referentials.clean!
+        end
+      end
+    end
   end
 end

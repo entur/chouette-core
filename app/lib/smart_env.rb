@@ -17,10 +17,15 @@ module SmartEnv
     @boolean_keys ||= []
   end
 
+  def self.integer_keys
+    @integer_keys ||= []
+  end
+
   def self.reset!
     @keys = nil
     @required_keys = nil
     @boolean_keys = nil
+    @integer_keys = nil
     @default_values = nil
   end
 
@@ -39,6 +44,10 @@ module SmartEnv
       boolean_keys.delete key
       boolean_keys << key if opts[:boolean]
     end
+    if opts.has_key?(:integer)
+      integer_keys.delete key
+      integer_keys << key if opts[:integer]
+    end
     if opts.has_key?(:default)
       default_values[key] = opts[:default]
     end
@@ -50,6 +59,10 @@ module SmartEnv
 
   def self.add_boolean key, opts={}
     self.add key, opts.update({boolean: true})
+  end
+
+  def self.add_integer key, opts={}
+    self.add key, opts.update({integer: true})
   end
 
   def self.check!
@@ -79,6 +92,7 @@ module SmartEnv
 
     val = ENV.fetch(key, nil) || default || default_values[key]
     val = cast_boolean(val) if opts[:boolean] || boolean_keys.include?(key)
+    val = cast_integer(val) if opts[:integer] || integer_keys.include?(key)
     val
   end
 
@@ -96,6 +110,10 @@ module SmartEnv
     return false if EXPLICITLY_FALSE_VALUES.include?(value)
     return value.present? if value.is_a?(String)
     !!value
+  end
+
+  def self.cast_integer value
+    value.to_i
   end
 
   class MissingKey < Exception
