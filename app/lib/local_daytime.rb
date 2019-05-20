@@ -4,10 +4,12 @@ class LocalDaytime
       if val.is_a?(String)
         @hours, @minutes, @seconds = val.gsub(/"/, '').split(':').map(&:to_i)
       end
+      @time = val.to_time
     else
-      @hours = Time.now.hour
-      @minutes = Time.now.min
-      @seconds = Time.now.sec
+      @time = Time.now
+      @hours = @time.hour
+      @minutes = @time.min
+      @seconds = @time.sec
     end
   end
 
@@ -21,5 +23,9 @@ class LocalDaytime
 
   def self.convert_to_db val
     "2000/01/01 #{val} UTC"
+  end
+
+  def strftime(*args)
+    @time.strftime *args
   end
 end
