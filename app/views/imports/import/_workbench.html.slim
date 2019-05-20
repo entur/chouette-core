@@ -6,7 +6,8 @@
 
 .col-lg-12
   .error_messages
-    = render 'shared/iev_interfaces/messages.html', messages: @import.messages
+    - messages = @import.children.present? ? @import.messages : @import.resources.flat_map(&:messages)
+    = render 'shared/iev_interfaces/messages.html', messages: messages
 
 - if @import.resources.any?
   - controls = import_controls(@import.workbench)
