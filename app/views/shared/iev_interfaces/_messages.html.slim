@@ -1,6 +1,6 @@
 - if messages.any?
   ul.list-unstyled.import_message-list
-    - messages.order(:created_at).each do | message |
+    - messages.sort_by(&:created_at).each do | message |
       - width = message.resource_attributes.present? ? 6 : 12
       li
         .row class=bootstrap_class_for_message_criticity(message.criticity)

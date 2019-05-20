@@ -120,5 +120,7 @@ class ZipService
     return true unless period.end
     return true unless period.first <= period.end
     false
+  rescue
+    true
   end
 end
