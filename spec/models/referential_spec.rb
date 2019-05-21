@@ -49,6 +49,7 @@ describe Referential, :type => :model do
             expect(Referential.clean_scope).to_not include old_referential
           end
         end
+
       end
 
       context 'archived more than a month ago' do
@@ -69,6 +70,15 @@ describe Referential, :type => :model do
 
           it 'should contain it' do
             expect(Referential.clean_scope).to include old_referential
+          end
+
+          context 'which is a merged offer' do
+            before do
+              create(:referential_suite, referentials: [old_referential])
+            end
+            it 'should not contain it' do
+              expect(Referential.clean_scope).to_not include old_referential
+            end
           end
 
           context 'scoped in a workbench' do
