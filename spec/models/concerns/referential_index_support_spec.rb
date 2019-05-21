@@ -1,7 +1,10 @@
 require "rails_helper"
 
 RSpec.describe ReferentialIndexSupport do
-
+  after(:each) do
+    ReferentialIndexSupport.reset!
+  end
+  
   let(:test_class) do
      child
      class TestClass < ActiveRecord::Base
@@ -26,12 +29,6 @@ RSpec.describe ReferentialIndexSupport do
   context 'with the reciproque relation' do
     let(:child) do
       class Child < ActiveRecord::Base
-        # def self.table_name; 'children' end
-        # def self.reflections; {} end
-        # def self.belongs_to(*args);  end
-        # def self.after_commit(*args);  end
-        # def self.after_destroy(*args);  end
-
         include ReferentialIndexSupport
         belongs_to_public :test_class
       end
