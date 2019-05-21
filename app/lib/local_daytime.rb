@@ -1,16 +1,16 @@
 class LocalDaytime
   def initialize val=nil
     if val
+      @time = val.to_time.utc
       if val.is_a?(String)
         @hours, @minutes, @seconds = val.gsub(/"/, '').split(':').map(&:to_i)
       end
-      @time = val.to_time
     else
       @time = Time.now
-      @hours = @time.hour
-      @minutes = @time.min
-      @seconds = @time.sec
     end
+    @hours ||= @time.hour
+    @minutes ||= @time.min
+    @seconds ||= @time.sec
   end
 
   def seconds_since_midnight
