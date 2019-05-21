@@ -31,28 +31,27 @@ RSpec.describe Workgroup, type: :model do
   end
 
   describe "#nightly_aggregate_timeframe?" do
-    let(:workgroup) { create(:workgroup) }
-
+    let(:workgroup) { create(:workgroup, nightly_aggregate_time: aggregation_time, nightly_aggregate_enabled: nightly_aggregate_enabled) }
+    let(:aggregation_time) { "15:15:00" }
+    let(:nightly_aggregate_enabled){ false }
     context "when nightly_aggregate_enabled is true" do
-      before do
-        workgroup.nightly_aggregate_enabled = true
-      end
+      let(:nightly_aggregate_enabled){ true }
 
       it "returns true when inside timeframe" do
-        Timecop.freeze(Time.current.beginning_of_day) do
-          expect(workgroup.nightly_aggregate_timeframe?).to be_truthy
+        Timecop.freeze(Time.now.beginning_of_day + 6.months + 15.hours + 15.minutes) do
+          expect(workgroup.reload.nightly_aggregate_timeframe?).to be_truthy
         end
       end
 
       it "returns false when outside timeframe" do
-        Timecop.freeze(Time.current.beginning_of_day + 2.hours) do
+        Timecop.freeze(Time.now.beginning_of_day + 2.hours) do
           expect(workgroup.nightly_aggregate_timeframe?).to be_falsy
         end
       end
 
       it "returns false when inside timeframe but already done" do
-        workgroup.nightly_aggregated_at = Time.current.beginning_of_day
-        Timecop.freeze(Time.current.beginning_of_day + 3.minutes) do
+        workgroup.nightly_aggregated_at = Time.now.beginning_of_day + 6.months + 15.hours + 15.minutes
+        Timecop.freeze(Time.now.beginning_of_day + 6.months + 15.hours + 15.minutes) do
           expect(workgroup.nightly_aggregate_timeframe?).to be_falsy
         end
       end
@@ -60,7 +59,7 @@ RSpec.describe Workgroup, type: :model do
 
     context "when nightly_aggregate_enabled is false" do
       it "is false even within timeframe" do
-        Timecop.freeze(Time.current.beginning_of_day) do
+        Timecop.freeze(Time.now.beginning_of_day + 6.months + 15.hours + 15.minutes) do
           expect(workgroup.nightly_aggregate_timeframe?).to be_falsy
         end
       end
@@ -68,11 +67,11 @@ RSpec.describe Workgroup, type: :model do
   end
 
   describe "#nightly_aggregate!" do
-    let(:workgroup) { create(:workgroup, nightly_aggregate_enabled: true) }
+    let(:workgroup) { create(:workgroup, nightly_aggregate_enabled: true, nightly_aggregate_time: '15:15:00') }
 
     context "when no aggregatable referential is found" do
       it "returns with a log message" do
-        Timecop.freeze(Time.current.beginning_of_day) do
+        Timecop.freeze(Time.now.beginning_of_day + 15.hours + 15.minutes) do
           expect(Rails.logger).to receive(:info).with(/\ANo aggregatable referential found/)
 
           expect { workgroup.nightly_aggregate! }.not_to change {
@@ -104,7 +103,7 @@ RSpec.describe Workgroup, type: :model do
       end
 
       it "returns with a log message" do
-        Timecop.freeze(Time.current.beginning_of_day) do
+        Timecop.freeze(Time.now.beginning_of_day + 6.months + 15.hours + 15.minutes) do
           expect(Rails.logger).to receive(:info).with(/\ANo aggregatable referential found/)
 
           expect { workgroup.nightly_aggregate! }.not_to change {
@@ -124,7 +123,7 @@ RSpec.describe Workgroup, type: :model do
       end
 
       it "creates a new aggregate" do
-        Timecop.freeze(Time.current.beginning_of_day) do
+        Timecop.freeze(Time.now.beginning_of_day + 6.months + 15.hours + 15.minutes) do
           expect { referential.workgroup.nightly_aggregate! }.to change {
             referential.workgroup.aggregates.count
           }.by(1)

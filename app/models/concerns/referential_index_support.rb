@@ -9,6 +9,10 @@ module ReferentialIndexSupport
     target_relations.push rel
   end
 
+  def self.reset!
+    @target_relations = nil
+  end
+
   included do
     class << self
       def belongs_to_public(rel_name, opts={})

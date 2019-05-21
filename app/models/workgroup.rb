@@ -91,6 +91,17 @@ class Workgroup < ApplicationModel
     update aggregated_at: Time.now
   end
 
+  def nightly_aggregate_time
+    LocalDaytime.new nightly_aggregate_time_before_type_cast
+  end
+
+  def nightly_aggregate_time= val
+    if val.is_a?(String)
+      val = LocalDaytime.convert_to_db val
+    end
+    super val
+  end
+
   def aggregate_urgent_data!
     target_referentials = aggregatable_referentials.select do |r|
       aggregated_at.blank? || (r.flagged_urgent_at.present? && r.flagged_urgent_at > aggregated_at)
@@ -120,14 +131,8 @@ class Workgroup < ApplicationModel
   def nightly_aggregate_timeframe?
     return false unless nightly_aggregate_enabled?
 
-    tz = Time.zone
-
-    current = Time.current.seconds_since_midnight
-    Time.zone = 'UTC'
-    time = nightly_aggregate_time.seconds_since_midnight
     cron_delay = NIGHTLY_AGGREGATE_CRON_TIME * 2
-    within_timeframe = (current - time).abs <= cron_delay
-    Time.zone = tz
+    within_timeframe = (LocalDaytime.new - nightly_aggregate_time).abs <= cron_delay
 
     # "5.minutes * 2" returns a FixNum (in our Rails version)
     within_timeframe && (nightly_aggregated_at.blank? || nightly_aggregated_at < NIGHTLY_AGGREGATE_CRON_TIME.seconds.ago)
