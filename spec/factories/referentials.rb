@@ -13,6 +13,10 @@ FactoryGirl.define do
       status :active
     end
 
+    trait :bare do
+      bare true
+    end
+
     after(:create) do |referential, evaluator|
       referential.send "#{evaluator.status}!"
     end

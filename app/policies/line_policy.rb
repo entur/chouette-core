@@ -13,16 +13,11 @@ class LinePolicy < ApplicationPolicy
     user.has_permission?('lines.destroy')
   end
 
-  def deactivate?
-    !record.deactivated? && user.has_permission?('lines.change_status')
-  end
-
-  def activate?
-    record.deactivated? && user.has_permission?('lines.change_status')
-  end
-
   def update?
     user.has_permission?('lines.update')
   end
 
+  def update_activation_dates?
+    user.has_permission?('lines.update_activation_dates')
+  end
 end

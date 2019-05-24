@@ -158,6 +158,18 @@ RSpec.describe ZipService, type: :zip do
     </netex:PublicationDelivery>
     """
   end
+
+  let :wrong_calendar do
+    """
+    <netex:PublicationDelivery xmlns:netex=\"http://www.netex.org.uk/netex\">
+      <netex:ValidBetween>
+        <netex:FromDate>2017-03-01</netex:FromDate>
+        <netex:ToDate>2017-13-31</netex:ToDate>
+      </netex:ValidBetween>
+    </netex:PublicationDelivery>
+    """
+  end
+  
   let :first_referential_ok_data do
     {
        'Referential1/calendriers.xml'     => valid_calendar,
@@ -213,7 +225,7 @@ RSpec.describe ZipService, type: :zip do
   end
   let :first_referential_unparsable_calendar_data do
     {
-       'Referential7/calendriers.xml'     => 'calendriers',
+       'Referential7/calendriers.xml'     => wrong_calendar,
        'Referential7/commun.xml'          => 'common',
        'Referential7/offre_C00108_9.xml'  => 'line 108 ref 1',
        'Referential7/offre_C00109_10.xml' => 'line 109 ref 1'

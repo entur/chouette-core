@@ -3,8 +3,7 @@ require File.expand_path('../boot', __FILE__)
 ENV['RANSACK_FORM_BUILDER'] = '::SimpleForm::FormBuilder'
 
 require 'rails/all'
-require_relative '../lib/smart_env'
-require_relative '../lib/version'
+require_relative '../app/lib/smart_env'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -20,7 +19,6 @@ module ChouetteIhm
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
-    config.autoload_paths << config.root.join('lib')
     config.autoload_paths << config.root.join('app', 'jobs')
 
     # custom exception pages
@@ -63,6 +61,7 @@ module ChouetteIhm
     SmartEnv.add :DELAYED_JOB_REAPER_HEARTBEAT_INTERVAL_SECONDS, default: 20
     SmartEnv.add :DELAYED_JOB_REAPER_HEARTBEAT_TIMEOUT_SECONDS, default: 60
     SmartEnv.add_boolean :DELAYED_JOB_REAPER_WORKER_TERMINATION_ENABLED, default: true
+    SmartEnv.add_integer :REFERENTIALS_CLEANING_COOLDOWN
 
     config.i18n.default_locale = SmartEnv[:RAILS_LOCALE].to_sym
 

@@ -241,6 +241,12 @@ RSpec.describe CustomField, type: :model do
     let!(:field){ [create(:custom_field, code: :energy, field_type: 'attachment', workgroup: workgroup)] }
     let(:vj){ create :vehicle_journey, custom_field_values: { energy: File.open(Rails.root.join('spec', 'fixtures', 'users.json')) }}
 
+    after(:each) do
+      to_be_deleted = Chouette::VehicleJourney.__callbacks[:commit].select {|call| call.instance_variable_get('@key') =~ /custom_field/ }
+      to_be_deleted.each do |callback|
+        Chouette::VehicleJourney.__callbacks[:commit].delete callback
+      end
+    end
     # This spec is actually valid, but will fail if the VehicleJourneys specs are run before
     # xit "should cast the value" do
     #   expect(vj.custom_fields[:energy].value.class).to be CustomFieldAttachmentUploader

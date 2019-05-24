@@ -32,7 +32,7 @@
                 key: :deactivated, \
                 name: Chouette::Line.tmf(:status), \
                 class: :state, \
-                attribute: Proc.new { |n| line_status(n.status) } \
+                attribute: Proc.new { |n| line_status(n) } \
               ), \
               TableBuilderHelper::Column.new( \
                 key: 'networks.name', \

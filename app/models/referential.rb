@@ -19,6 +19,8 @@ class Referential < ApplicationModel
   include ObjectidFormatterSupport
 
   STATES = %i(pending active failed archived)
+  TIME_BEFORE_CLEANING = SmartEnv['REFERENTIALS_CLEANING_COOLDOWN']
+  KEPT_DURING_CLEANING = 20
 
   validates_presence_of :name
   validates_presence_of :slug
@@ -41,6 +43,7 @@ class Referential < ApplicationModel
 
   attr_accessor :from_current_offer
   attr_accessor :urgent
+  attr_accessor :bare #this is used in specs to skip schema creation
 
   has_one :user
   has_many :import_resources, class_name: 'Import::Resource', dependent: :destroy
@@ -82,6 +85,7 @@ class Referential < ApplicationModel
   scope :active, -> { where(ready: true, failed_at: nil, archived_at: nil) }
   scope :failed, -> { where.not(failed_at: nil) }
   scope :archived, -> { where.not(archived_at: nil) }
+  scope :inactive_and_not_pending, -> { where('failed_at IS NOT NULL OR archived_at IS NOT NULL') }
 
   scope :ready, -> { where(ready: true) }
   scope :exportable, -> {
@@ -104,7 +108,26 @@ class Referential < ApplicationModel
   scope :blocked, -> { where('ready = ? AND created_at < ?', false, 4.hours.ago) }
   scope :created_before, -> (date) { where('created_at < ? ', date) }
 
+  scope :clean_scope, -> {
+    return none unless TIME_BEFORE_CLEANING > 0
+
+    kept = []
+    kept << archived.where('archived_at >= ?', TIME_BEFORE_CLEANING.days.ago).select(:id).to_sql
+    kept << order('created_at DESC').limit(KEPT_DURING_CLEANING).select(:id).to_sql
+    
+    scope = inactive_and_not_pending.not_in_referential_suite
+    kept.each do |kept_scope|
+      scope = scope.where("referentials.id NOT IN (#{kept_scope})")
+    end
+    scope.joins('LEFT JOIN public.referential_metadata ON referential_metadata.referential_source_id = referentials.id').where('referential_metadata.id' => nil)
+  }
+
   after_save :notify_state
+  after_destroy :clean_cross_referential_index!
+
+  def self.clean!
+    clean_scope.destroy_all
+  end
 
   def self.order_by_state(dir)
     states = ["ready #{dir}", "archived_at #{dir}", "failed_at #{dir}"]
@@ -527,7 +550,7 @@ class Referential < ApplicationModel
   end
 
   def create_schema
-    return if created_from
+    return if created_from || bare
 
     report = Benchmark.measure do
       Apartment::Tenant.create slug
@@ -682,6 +705,14 @@ class Referential < ApplicationModel
 
   def update_stats!
     Stat::JourneyPatternCoursesByDate.compute_for_referential(self)
+  end
+
+  def rebuild_cross_referential_index!
+    CrossReferentialIndexEntry.rebuild_index_for_referential!(self)
+  end
+
+  def clean_cross_referential_index!
+    CrossReferentialIndexEntry.clean_index_for_referential!(self)
   end
 
   private

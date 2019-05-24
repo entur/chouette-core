@@ -1,9 +1,10 @@
 RSpec.describe '/imports/show', type: :view do
   let(:workbench){ create :workbench }
   let(:workbench_import){ create :workbench_import, workbench: workbench }
+  let(:resource){ create :import_resource, import: workbench_import }
   let!( :messages ) {[
-    create(:corrupt_zip_file, import: workbench_import),
-    create(:inconsistent_zip_file, import: workbench_import),
+    create(:corrupt_zip_file, resource: resource),
+    create(:inconsistent_zip_file, resource: resource),
   ]}
 
 

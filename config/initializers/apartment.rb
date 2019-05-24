@@ -36,6 +36,7 @@ Apartment.configure do |config|
     'ComplianceControl',
     'ComplianceControlBlock',
     'ComplianceControlSet',
+    'CrossReferentialIndexEntry',
     'CustomField',
     'Delayed::Job',
     'Delayed::Heartbeat::Worker',

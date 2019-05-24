@@ -87,7 +87,7 @@ RSpec.describe SimpleExporter do
         SimpleExporter.define :test do |config|
           config.collection = ->{ Chouette::StopArea.all }
           config.map_item_to_rows do |stop_area|
-            stop_area.stop_points.map do |sp|
+            stop_area.stop_points.order(:position).map do |sp|
               {
                 id: sp.id,
                 stop_area: stop_area

@@ -168,6 +168,7 @@ ChouetteIhm::Application.routes.draw do
   end
 
   devise_for :users, :controllers => {
+    confirmations: 'users/confirmations',
     invitations: 'users/invitations',
     passwords: 'users/passwords'
   }
@@ -269,7 +270,7 @@ ChouetteIhm::Application.routes.draw do
 
   resources :line_referentials, :only => [:show, :edit, :update] do
     post :sync, on: :member
-    resources :lines, &deactivable
+    resources :lines
     resources :group_of_lines
     resources :companies
     resources :networks

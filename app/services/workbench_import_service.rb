@@ -15,6 +15,7 @@ class WorkbenchImportService
 
   def perform(import_id)
     @entries = 0
+    import_id = import_id.id if import_id.is_a?(ActiveRecord::Base)
     @workbench_import ||= Import::Workbench.find(import_id)
 
     zip_service = ZipService.new(downloaded, allowed_lines)
@@ -53,7 +54,8 @@ class WorkbenchImportService
     @subdir_uploaded = true
     update_object_state entry, element_count.succ
     unless entry.ok?
-      workbench_import.update( current_step: @entries, status: 'failed' )
+      workbench_import.update current_step: @entries
+      workbench_import.failed!
       return
     end
     # status = retry_service.execute(&upload_entry_group_proc(entry))

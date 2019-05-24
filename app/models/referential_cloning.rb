@@ -84,6 +84,7 @@ class ReferentialCloning < ApplicationModel
     event :successful, after: :update_ended_at do
       after do
         target_referential.update_attribute(:ready, true)
+        target_referential.rebuild_cross_referential_index!
       end
       transitions :from => [:pending, :failed], :to => :successful
     end

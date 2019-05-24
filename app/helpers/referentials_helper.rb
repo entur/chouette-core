@@ -1,14 +1,23 @@
 module ReferentialsHelper
   # Outputs a green check icon and the text "Oui" or a red exclamation mark
   # icon and the text "Non" based on `status`
-  def line_status(status)
-    case status
+  def line_status(line)
+    case line.status
     when :deactivated
-      content_tag(:span, nil, class: 'fa fa-exclamation-circle fa-lg text-danger') +
-      Chouette::Line.tmf('deactivated')
+      render_icon('fa fa-exclamation-circle fa-lg text-danger', Chouette::Line.tmf('deactivated')) + Chouette::Line.tmf('deactivated')
     else
-      content_tag(:span, nil, class: 'fa fa-check-circle fa-lg text-success') +
-      Chouette::Line.tmf('activated')
+      text = if line.active_from.present?
+        if line.active_until.present?
+          Chouette::Line.tmf('active_between', from: l(line.active_from), to: l(line.active_until))
+        else
+          Chouette::Line.tmf('active_from_date', from: l(line.active_from))
+        end
+      elsif line.active_until.present?
+        Chouette::Line.tmf('active_until_date', to: l(line.active_until))
+      else
+        Chouette::Line.tmf('activated')
+      end
+      render_icon('fa fa-check-circle fa-lg text-success', text) + text
     end
   end
 

@@ -80,7 +80,8 @@ module OperationSupport
   def save_current
     output.update current: new, new: nil
     output.current.update referential_suite: output, ready: true
-
+    new.rebuild_cross_referential_index!
+    
     after_save_current
 
     clean_previous_operations

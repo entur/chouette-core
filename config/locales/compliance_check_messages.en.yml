@@ -32,6 +32,7 @@ en:
     3_routingconstraint_3: "The Routing Constraint Zone %{source_objectid} has less than 2 stop points"
     3_line_1: "On line :%{source_label} (%{source_objectid}), no route has an opposite route"
     3_line_2: "The line %{source_label} (%{source_objectid}) is not in the lines scope of the organization %{reference_value}"
+    3_line_3: "The line %{line_name} (%{source_objectid}) is not active during the period"
     3_generic_1: "%{source_objectid} : the %{source_attribute} attribute value (%{error_value}) does not respect the following pattern : %{reference_value}"
     3_generic_2_1: "%{source_objectid} : the %{source_attribute} attributes's value (%{error_value}) is greater than the authorized maximum value : %{reference_value}"
     3_generic_2_2: "%{source_objectid} : the %{source_attribute} attributes's value (%{error_value}) is smaller than the authorized minimum value %{reference_value}"
