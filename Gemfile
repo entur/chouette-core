@@ -72,7 +72,7 @@ gem 'bulk_insert'
 # Codifligne API
 gem 'codifligne', af83: 'stif-codifline-api'
 # Reflex API
-gem 'reflex', af83: 'stif-reflex-api'
+gem 'reflex', af83: 'stif-reflex-api', tag: 'v0.0.2'
 
 # Authentication
 gem 'devise'

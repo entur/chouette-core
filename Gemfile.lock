@@ -32,11 +32,13 @@ GIT
 
 GIT
   remote: https://github.com/af83/stif-reflex-api.git
-  revision: 755548d83fc20aee62e2b48a57dcb9f26db8ff3b
+  revision: d470fe8569a9eab00dcc084d456e3393ef1d1868
+  tag: v0.0.2
   specs:
     reflex (0.0.2)
-      nokogiri (>= 1.7.2)
+      nokogiri (>= 1.8.5)
       ruby-filemagic
+      rubyzip (>= 1.2.2)
 
 GIT
   remote: https://github.com/af83/whenever.git
