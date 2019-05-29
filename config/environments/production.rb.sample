@@ -96,14 +96,15 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  config.action_mailer.default_url_options = { :host => SmartEnv['MAIL_HOST'] } if SmartEnv['MAIL_HOST']
+  config.action_mailer.default_url_options = { :host => ENV.fetch('RAILS_HOST', 'http://localhost:3000') }
 
   # Configure the e-mail address which will be shown in Devise::Maile
   config.mailer_sender = SmartEnv['MAIL_FROM']
-  config.action_mailer.default_options = { from: SmartEnv['MAIL_FROM'] }
-  config.action_mailer.smtp_settings = { address: SmartEnv['SMTP_HOST'] } if SmartEnv['SMTP_HOST']
-  config.action_mailer.asset_host    = SmartEnv['MAIL_ASSETS_URL_BASE']
-  config.action_mailer.delivery_method = SmartEnv['MAIL_DELIVERY_METHOD'].to_sym
+  config.action_mailer.default_options     = { from: SmartEnv['MAIL_FROM'] }
+  config.action_mailer.delivery_method     = :letter_opener
+  config.action_mailer.asset_host          = SmartEnv['RAILS_HOST']
+  config.action_mailer.perform_deliveries = false
+  config.action_mailer.raise_delivery_errors = false
 
 # See #8823
   config.chouette_email_user = SmartEnv['CHOUETTE_EMAIL_USER']
